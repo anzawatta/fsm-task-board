@@ -107,18 +107,14 @@ body {
   color: var(--accent-wip);
 }
 
-.btn-accent:hover {
-  background: rgba(200, 112, 0, 0.08);
-}
+.btn-accent:hover { background: rgba(200, 112, 0, 0.08); }
 
 .btn-danger {
   border-color: var(--accent-danger);
   color: var(--accent-danger);
 }
 
-.btn-danger:hover {
-  background: rgba(220, 38, 38, 0.08);
-}
+.btn-danger:hover { background: rgba(220, 38, 38, 0.08); }
 
 .toolbar-right {
   margin-left: auto;
@@ -139,19 +135,15 @@ body {
 
 .canvas-area svg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
 }
 
-/* Grid background */
 .canvas-area::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-image:
-    radial-gradient(circle, var(--border-mid) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--border-mid) 1px, transparent 1px);
   background-size: 24px 24px;
   opacity: 0.6;
   pointer-events: none;
@@ -159,18 +151,10 @@ body {
 }
 
 /* === NODES === */
-.fsm-node {
-  cursor: pointer;
-  user-select: none;
-}
-
+.fsm-node { cursor: pointer; user-select: none; }
 .fsm-node:hover .node-body { filter: brightness(0.96); }
 
-.node-body {
-  rx: 6;
-  ry: 6;
-  transition: filter 0.15s;
-}
+.node-body { rx: 6; ry: 6; transition: filter 0.15s; }
 
 .node-label {
   font-family: var(--font-mono);
@@ -190,23 +174,13 @@ body {
   text-anchor: middle;
 }
 
-.node-dod-count {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  fill: var(--text-dim);
-  pointer-events: none;
-  text-anchor: middle;
-}
-
 .node-selected .node-body {
   stroke-width: 2;
   filter: drop-shadow(0 0 6px rgba(200, 112, 0, 0.25));
 }
 
 /* === EDGES === */
-.fsm-edge {
-  cursor: pointer;
-}
+.fsm-edge { cursor: pointer; }
 
 .edge-line {
   fill: none;
@@ -216,16 +190,9 @@ body {
   transition: stroke 0.15s;
 }
 
-.fsm-edge:hover .edge-line {
-  stroke: var(--text-secondary);
-  stroke-width: 2;
-}
+.fsm-edge:hover .edge-line { stroke: var(--text-secondary); stroke-width: 2; }
 
-.edge-label-bg {
-  fill: var(--bg-primary);
-  rx: 3;
-  ry: 3;
-}
+.edge-label-bg { fill: var(--bg-primary); rx: 3; ry: 3; }
 
 .edge-label {
   font-family: var(--font-mono);
@@ -273,9 +240,7 @@ body {
 }
 
 /* === FORM ELEMENTS === */
-.field-group {
-  margin-bottom: 10px;
-}
+.field-group { margin-bottom: 10px; }
 
 .field-label {
   font-family: var(--font-mono);
@@ -299,15 +264,10 @@ body {
   transition: border-color 0.15s;
 }
 
-.field-input:focus {
-  border-color: var(--border-bright);
-}
+.field-input:focus { border-color: var(--border-bright); }
 
 /* === STATUS TOGGLE === */
-.status-toggle {
-  display: flex;
-  gap: 4px;
-}
+.status-toggle { display: flex; gap: 4px; }
 
 .status-option {
   flex: 1;
@@ -325,31 +285,12 @@ body {
 }
 
 .status-option:hover { border-color: var(--border-mid); }
-
-.status-option.active-idle {
-  border-color: var(--accent-idle);
-  color: var(--accent-idle);
-  background: rgba(128, 128, 160, 0.08);
-}
-
-.status-option.active-wip {
-  border-color: var(--accent-wip);
-  color: var(--accent-wip);
-  background: rgba(200, 112, 0, 0.08);
-}
-
-.status-option.active-done {
-  border-color: var(--accent-done);
-  color: var(--accent-done);
-  background: rgba(21, 128, 61, 0.08);
-}
+.status-option.active-idle { border-color: var(--accent-idle); color: var(--accent-idle); background: rgba(128,128,160,0.08); }
+.status-option.active-wip  { border-color: var(--accent-wip);  color: var(--accent-wip);  background: rgba(200,112,0,0.08); }
+.status-option.active-done { border-color: var(--accent-done); color: var(--accent-done); background: rgba(21,128,61,0.08); }
 
 /* === DoD LIST === */
-.dod-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.dod-list { display: flex; flex-direction: column; gap: 6px; }
 
 .dod-item {
   display: flex;
@@ -363,20 +304,10 @@ body {
   transition: border-color 0.15s;
 }
 
-.dod-item.type-verification {
-  border-left: 3px solid var(--accent-verification);
-}
+.dod-item.type-verification { border-left: 3px solid var(--accent-verification); }
+.dod-item.type-validation   { border-left: 3px solid var(--accent-validation); }
 
-.dod-item.type-validation {
-  border-left: 3px solid var(--accent-validation);
-}
-
-.dod-check {
-  margin-top: 2px;
-  cursor: pointer;
-  accent-color: var(--accent-done);
-  flex-shrink: 0;
-}
+.dod-check { margin-top: 2px; cursor: pointer; accent-color: var(--accent-done); flex-shrink: 0; }
 
 .dod-text {
   flex: 1;
@@ -386,10 +317,7 @@ body {
   word-break: break-word;
 }
 
-.dod-item.checked .dod-text {
-  text-decoration: line-through;
-  color: var(--text-dim);
-}
+.dod-item.checked .dod-text { text-decoration: line-through; color: var(--text-dim); }
 
 .dod-type-badge {
   font-family: var(--font-mono);
@@ -401,46 +329,22 @@ body {
   letter-spacing: 0.03em;
 }
 
-.dod-type-badge.verification {
-  color: var(--accent-verification);
-  background: rgba(29, 106, 196, 0.1);
-}
+.dod-type-badge.verification { color: var(--accent-verification); background: rgba(29,106,196,0.1); }
+.dod-type-badge.validation   { color: var(--accent-validation);   background: rgba(124,58,237,0.1); }
 
-.dod-type-badge.validation {
-  color: var(--accent-validation);
-  background: rgba(124, 58, 237, 0.1);
-}
-
-.dod-actions {
-  display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-}
+.dod-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
 .dod-action-btn {
   font-size: 11px;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: var(--text-dim);
-  cursor: pointer;
-  border-radius: 2px;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent;
+  color: var(--text-dim); cursor: pointer; border-radius: 2px;
 }
 
-.dod-action-btn:hover {
-  background: var(--bg-hover);
-  color: var(--text-secondary);
-}
+.dod-action-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
 
-.dod-add-row {
-  display: flex;
-  gap: 4px;
-  margin-top: 4px;
-}
+.dod-add-row { display: flex; gap: 4px; margin-top: 4px; }
 
 .dod-add-input {
   flex: 1;
@@ -464,21 +368,14 @@ body {
   border: 1px solid var(--border-dim);
   border-radius: 3px;
   color: var(--text-secondary);
-  outline: none;
-  cursor: pointer;
+  outline: none; cursor: pointer;
 }
 
 /* === EDGE PANEL === */
-.edge-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.edge-list { display: flex; flex-direction: column; gap: 4px; }
 
 .edge-list-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: flex; align-items: center; gap: 6px;
   padding: 4px 8px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-dim);
@@ -491,17 +388,14 @@ body {
 }
 
 .edge-list-item:hover { border-color: var(--border-mid); }
-
 .edge-arrow { color: var(--text-dim); }
 
-/* === VALIDATION GATE INDICATOR === */
+/* === VALIDATION GATE === */
 .validation-gate {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: flex; align-items: center; gap: 6px;
   padding: 6px 8px;
-  background: rgba(124, 58, 237, 0.05);
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  background: rgba(124,58,237,0.05);
+  border: 1px solid rgba(124,58,237,0.2);
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
@@ -514,9 +408,7 @@ body {
 /* === EDGE CREATION MODE === */
 .edge-mode-banner {
   position: fixed;
-  top: 56px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 56px; left: 50%; transform: translateX(-50%);
   background: var(--bg-panel);
   border: 1px solid var(--accent-wip);
   border-radius: 6px;
@@ -533,13 +425,10 @@ body {
 
 /* === JSON MODAL === */
 .modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.3);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
+  z-index: 1000; display: none;
+  align-items: center; justify-content: center;
 }
 
 .modal-overlay.active { display: flex; }
@@ -548,55 +437,40 @@ body {
   background: var(--bg-secondary);
   border: 1px solid var(--border-mid);
   border-radius: 8px;
-  width: 600px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
+  width: 600px; max-height: 80vh;
+  display: flex; flex-direction: column;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-dim);
 }
 
 .modal-title {
   font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 12px; font-weight: 600;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: uppercase; letter-spacing: 0.05em;
 }
 
-.modal-body {
-  padding: 16px;
-  overflow-y: auto;
-  flex: 1;
-}
+.modal-body { padding: 16px; overflow-y: auto; flex: 1; }
 
 .modal-textarea {
-  width: 100%;
-  min-height: 300px;
+  width: 100%; min-height: 300px;
   font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 11px; line-height: 1.5;
   padding: 12px;
   background: var(--bg-primary);
   border: 1px solid var(--border-dim);
   border-radius: 4px;
   color: var(--text-primary);
-  resize: vertical;
-  outline: none;
+  resize: vertical; outline: none;
 }
 
 .modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  display: flex; justify-content: flex-end; gap: 8px;
   padding: 12px 16px;
   border-top: 1px solid var(--border-dim);
 }
@@ -609,8 +483,7 @@ body {
   border-radius: 6px;
   padding: 4px;
   z-index: 500;
-  display: none;
-  min-width: 160px;
+  display: none; min-width: 160px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
 
@@ -618,35 +491,26 @@ body {
 
 .context-menu-item {
   font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 6px 12px;
+  font-size: 11px; padding: 6px 12px;
   color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: 3px;
+  cursor: pointer; border-radius: 3px;
   transition: background 0.1s;
 }
 
-.context-menu-item:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
+.context-menu-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 .context-menu-item.danger { color: var(--accent-danger); }
-.context-menu-item.danger:hover { background: rgba(220, 38, 38, 0.08); }
+.context-menu-item.danger:hover { background: rgba(220,38,38,0.08); }
 
 /* === DIRTY BADGE === */
 .dirty-badge {
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 10px; font-weight: 600;
   color: var(--accent-wip);
-  display: none;
-  align-items: center;
-  gap: 4px;
+  display: none; align-items: center; gap: 4px;
   padding: 3px 8px;
   border: 1px solid var(--accent-wip);
   border-radius: 3px;
-  background: rgba(200, 112, 0, 0.06);
+  background: rgba(200,112,0,0.06);
   animation: dirty-pulse 2s ease-in-out infinite;
 }
 
@@ -657,37 +521,24 @@ body {
   50%       { opacity: 0.55; }
 }
 
+/* === LEGEND === */
+.legend {
+  position: absolute;
+  bottom: 12px; left: 12px;
+  display: flex; gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--text-dim);
+  z-index: 10; pointer-events: none;
+}
+
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-swatch { width: 8px; height: 8px; border-radius: 2px; }
+
 /* === SCROLLBAR === */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
-
-/* === LEGEND === */
-.legend {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  display: flex;
-  gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-dim);
-  z-index: 10;
-  pointer-events: none;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.legend-swatch {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-}
 </style>
 </head>
 <body>
@@ -751,7 +602,7 @@ body {
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">Export JSON</span>
-      <button class="btn" onclick="closeModal()">✕</button>
+      <button class="btn" onclick="window.__fsm.closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <textarea class="modal-textarea" id="modalTextarea" spellcheck="false"></textarea>
@@ -762,7 +613,38 @@ body {
 
 <script>
 // ============================================================
-// FSM TASK BOARD — Canvas JSON Hybrid Data Model
+// UTILS — 汎用ユーティリティ
+// ============================================================
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ============================================================
+// UI STATE — グローバル状態オブジェクト
+// interaction / ui 層が参照・更新する共有状態。
+// ============================================================
+
+const uiState = {
+  selectedNodeId: null,
+  selectedEdgeId: null,
+  edgeMode:       false,
+  edgeModeSource: null,
+  dragging:       null,
+  panState:       null,
+  viewOffset:     { x: 0, y: 0 },
+  viewScale:      1,
+  isDirty:        false,
+};
+
+// ============================================================
+// FSM TASK BOARD — Core Data Model
+// DOM依存ゼロ。テスト可能な純粋データ操作層。
 //
 // JSON Schema準拠:
 //   nodes[]      — Canvas必須 (旧: states[])
@@ -772,7 +654,6 @@ body {
 //   node.status / dod        — 独自拡張フィールド
 // ============================================================
 
-// デフォルトノードサイズ (Canvas必須フィールドの初期値)
 const DEFAULT_NODE_W = 160;
 const DEFAULT_NODE_H = 56;
 
@@ -785,7 +666,6 @@ const FSM = {
   genId()     { return 's' + (++this._idCounter); },
   genEdgeId() { return 'e' + (++this._edgeIdCounter); },
 
-  // Canvas必須: x, y, width, height + 独自拡張: status, dod
   addNode(name, x, y, width, height) {
     const id = this.genId();
     this.nodes[id] = {
@@ -795,14 +675,12 @@ const FSM = {
       y,
       width:  width  || DEFAULT_NODE_W,
       height: height || DEFAULT_NODE_H,
-      // 独自拡張フィールド
       status: 'idle',
       dod: []
     };
     return id;
   },
 
-  // Canvas準拠: fromNode / toNode (旧: from / to)
   addEdge(fromNode, toNode, label) {
     const id = this.genEdgeId();
     this.edges[id] = { id, fromNode, toNode, label: label || '' };
@@ -854,14 +732,12 @@ const FSM = {
   toJSON() {
     return JSON.stringify({
       nodes: Object.values(this.nodes).map(n => ({
-        // Canvas必須フィールド
         id:     n.id,
         name:   n.name,
         x:      Math.round(n.x),
         y:      Math.round(n.y),
         width:  n.width,
         height: n.height,
-        // 独自拡張フィールド
         status: n.status,
         dod: n.dod.map(d => ({
           text:    d.text,
@@ -870,7 +746,6 @@ const FSM = {
         }))
       })),
       edges: Object.values(this.edges).map(e => ({
-        // Canvas必須フィールド
         id:       e.id,
         fromNode: e.fromNode,
         toNode:   e.toNode,
@@ -890,7 +765,6 @@ const FSM = {
     this._idCounter = 0;
     this._edgeIdCounter = 0;
 
-    // nodes[] 優先、なければ旧 states[] にフォールバック
     const rawNodes = data.nodes || data.states || [];
     rawNodes.forEach(n => {
       const id = n.id || this.genId();
@@ -919,7 +793,6 @@ const FSM = {
       if (!isNaN(numId) && numId > this._edgeIdCounter) this._edgeIdCounter = numId;
       this.edges[id] = {
         id,
-        // fromNode 優先、なければ旧 from にフォールバック
         fromNode: e.fromNode || e.from,
         toNode:   e.toNode   || e.to,
         label:    e.label || ''
@@ -928,48 +801,240 @@ const FSM = {
   }
 };
 
-
 // ============================================================
-// UI STATE
+// DIRTY — 未保存状態の管理
 // ============================================================
-
-let selectedNodeId = null;
-let selectedEdgeId = null;
-let edgeMode = false;
-let edgeModeSource = null;
-let dragging = null;
-let panState = null;
-let viewOffset = { x: 0, y: 0 };
-let viewScale = 1;
-let isDirty = false;
 
 function markDirty() {
-  isDirty = true;
+  uiState.isDirty = true;
   document.getElementById('dirtyBadge').classList.add('visible');
 }
 
 function clearDirty() {
-  isDirty = false;
+  uiState.isDirty = false;
   document.getElementById('dirtyBadge').classList.remove('visible');
 }
 
-// タブ/ウィンドウ閉じ時の警告
-window.addEventListener('beforeunload', e => {
-  if (!isDirty) return;
-  e.preventDefault();
-  e.returnValue = '';
-});
-
-
-// ============================================================
-// RENDERING
-// ============================================================
-
-function render() {
-  renderEdges();
-  renderNodes();
-  renderSidePanel();
+function initBeforeUnload() {
+  window.addEventListener('beforeunload', e => {
+    if (!uiState.isDirty) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
 }
+
+// ============================================================
+// PANEL — サイドパネル / モーダル描画層
+// ノード・エッジの詳細表示とJSON Import/Export UI。
+// ============================================================
+
+// render() からコールバックとして注入される
+let _render = null;
+function setRenderCallback(fn) { _render = fn; }
+
+// -------------------------------------------------------
+// Side Panel
+// -------------------------------------------------------
+
+function renderSidePanel() {
+  const empty   = document.getElementById('panelEmpty');
+  const content = document.getElementById('panelContent');
+
+  if (uiState.selectedNodeId && FSM.nodes[uiState.selectedNodeId]) {
+    empty.style.display   = 'none';
+    content.style.display = 'block';
+    renderNodePanel(FSM.nodes[uiState.selectedNodeId]);
+  } else if (uiState.selectedEdgeId && FSM.edges[uiState.selectedEdgeId]) {
+    empty.style.display   = 'none';
+    content.style.display = 'block';
+    renderEdgePanel(FSM.edges[uiState.selectedEdgeId]);
+  } else {
+    empty.style.display   = 'block';
+    content.style.display = 'none';
+  }
+}
+
+function renderNodePanel(node) {
+  const content  = document.getElementById('panelContent');
+  const dodDone  = node.dod.filter(d => d.checked).length;
+  const dodTotal = node.dod.length;
+  const hasValidationGate = FSM.hasUncheckedValidation(node.id);
+
+  content.innerHTML = `
+    <div class="panel-section">
+      <div class="panel-section-title">Node</div>
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input class="field-input" value="${escHtml(node.name)}"
+          onchange="window.__fsm.updateNodeName('${node.id}', this.value)" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Size (width × height)</label>
+        <div style="display:flex;gap:6px">
+          <input class="field-input" type="number" value="${node.width}" style="width:50%"
+            onchange="window.__fsm.updateNodeSize('${node.id}', this.value, null)" />
+          <input class="field-input" type="number" value="${node.height}" style="width:50%"
+            onchange="window.__fsm.updateNodeSize('${node.id}', null, this.value)" />
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Status</label>
+        <div class="status-toggle">
+          <div class="status-option ${node.status === 'idle' ? 'active-idle' : ''}"
+            onclick="window.__fsm.setStatus('${node.id}', 'idle')">未着手</div>
+          <div class="status-option ${node.status === 'wip'  ? 'active-wip'  : ''}"
+            onclick="window.__fsm.setStatus('${node.id}', 'wip')">実装中</div>
+          <div class="status-option ${node.status === 'done' ? 'active-done' : ''}"
+            onclick="window.__fsm.setStatus('${node.id}', 'done')">完了</div>
+        </div>
+      </div>
+      ${hasValidationGate ? `
+      <div class="validation-gate">
+        <span class="validation-gate-icon">⚠</span>
+        Validation Gate: ユーザー確認待ち項目あり
+      </div>` : ''}
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">DoD — Definition of Done ${dodTotal > 0 ? `(${dodDone}/${dodTotal})` : ''}</div>
+      <div class="dod-list" id="dodList">
+        ${node.dod.map(d => `
+          <div class="dod-item type-${d.type} ${d.checked ? 'checked' : ''}" data-id="${d.id}">
+            <input type="checkbox" class="dod-check" ${d.checked ? 'checked' : ''}
+              onchange="window.__fsm.toggleDoD('${node.id}', '${d.id}')" />
+            <span class="dod-text">${escHtml(d.text)}</span>
+            <span class="dod-type-badge ${d.type}">${d.type === 'validation' ? 'Val' : 'Ver'}</span>
+            <div class="dod-actions">
+              <button class="dod-action-btn"
+                onclick="window.__fsm.removeDoDItem('${node.id}', '${d.id}')" title="Delete">✕</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="dod-add-row">
+        <input class="dod-add-input" id="dodAddInput" placeholder="Add DoD item..."
+          onkeydown="if(event.key==='Enter')window.__fsm.addDoDFromInput('${node.id}')" />
+        <select class="dod-type-select" id="dodTypeSelect">
+          <option value="verification">Ver</option>
+          <option value="validation">Val</option>
+        </select>
+        <button class="btn" style="padding:4px 8px;font-size:10px"
+          onclick="window.__fsm.addDoDFromInput('${node.id}')">+</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Edges</div>
+      <div class="edge-list">
+        ${Object.values(FSM.edges)
+            .filter(e => e.fromNode === node.id || e.toNode === node.id)
+            .map(e => {
+              const other = e.fromNode === node.id
+                ? FSM.nodes[e.toNode]
+                : FSM.nodes[e.fromNode];
+              const dir = e.fromNode === node.id ? '→' : '←';
+              return `<div class="edge-list-item" onclick="window.__fsm.selectEdge('${e.id}')">
+                <span class="edge-arrow">${dir}</span>
+                ${other ? escHtml(other.name) : '?'}
+                ${e.label
+                  ? `<span style="color:var(--text-dim);margin-left:auto">${escHtml(e.label)}</span>`
+                  : ''}
+              </div>`;
+            }).join('')
+          || '<div style="font-size:11px;color:var(--text-dim);padding:4px">No edges</div>'}
+      </div>
+    </div>
+
+    <div style="padding-top:4px">
+      <button class="btn btn-danger" style="width:100%"
+        onclick="window.__fsm.deleteSelectedNode()">Delete Node</button>
+    </div>
+  `;
+}
+
+function renderEdgePanel(edge) {
+  const content = document.getElementById('panelContent');
+  const from    = FSM.nodes[edge.fromNode];
+  const to      = FSM.nodes[edge.toNode];
+
+  content.innerHTML = `
+    <div class="panel-section">
+      <div class="panel-section-title">Edge</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-bottom:4px">
+        id: ${escHtml(edge.id)}
+      </div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:10px">
+        ${from ? escHtml(from.name) : '?'} → ${to ? escHtml(to.name) : '?'}
+      </div>
+      <div class="field-group">
+        <label class="field-label">Label (遷移条件)</label>
+        <input class="field-input" value="${escHtml(edge.label)}"
+          onchange="window.__fsm.updateEdgeLabel('${edge.id}', this.value)" />
+      </div>
+    </div>
+    <div style="padding-top:4px">
+      <button class="btn btn-danger" style="width:100%"
+        onclick="window.__fsm.deleteSelectedEdge()">Delete Edge</button>
+    </div>
+  `;
+}
+
+// -------------------------------------------------------
+// JSON Modal
+// -------------------------------------------------------
+
+function showExportModal() {
+  clearDirty();
+  document.getElementById('modalTitle').textContent = 'Export JSON (Canvas Schema)';
+  document.getElementById('modalTextarea').value    = FSM.toJSON();
+  document.getElementById('modalTextarea').readOnly = true;
+  document.getElementById('modalFooter').innerHTML  = `
+    <button class="btn" onclick="window.__fsm.copyExport()">Copy</button>
+    <button class="btn" onclick="window.__fsm.closeModal()">Close</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function showImportModal() {
+  document.getElementById('modalTitle').textContent = 'Import JSON (Canvas / Legacy)';
+  document.getElementById('modalTextarea').value    = '';
+  document.getElementById('modalTextarea').readOnly = false;
+  document.getElementById('modalFooter').innerHTML  = `
+    <button class="btn btn-accent" onclick="window.__fsm.doImport()">Import</button>
+    <button class="btn" onclick="window.__fsm.closeModal()">Cancel</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('modalTextarea').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function copyExport() {
+  const ta = document.getElementById('modalTextarea');
+  ta.select();
+  navigator.clipboard.writeText(ta.value);
+}
+
+function doImport(renderFn, fitViewFn) {
+  try {
+    FSM.fromJSON(document.getElementById('modalTextarea').value);
+    uiState.selectedNodeId = null;
+    uiState.selectedEdgeId = null;
+    clearDirty();
+    closeModal();
+    renderFn();
+    fitViewFn();
+  } catch (err) {
+    alert('JSON parse error: ' + err.message);
+  }
+}
+
+// ============================================================
+// RENDERER — SVG描画層
+// 状態を受け取って描画する副作用関数群。DOM操作のみ担当。
+// ============================================================
 
 function statusColor(status) {
   return status === 'wip'  ? 'var(--accent-wip)'  :
@@ -982,6 +1047,52 @@ function statusLabel(status) {
          status === 'done' ? '完了'   : '未着手';
 }
 
+function render() {
+  renderEdges();
+  renderNodes();
+  renderSidePanel();
+}
+
+function applyView() {
+  const ng = document.getElementById('nodesGroup');
+  const eg = document.getElementById('edgesGroup');
+  const { viewOffset, viewScale } = uiState;
+  const t  = `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${viewScale})`;
+  ng.style.transform       = t;
+  eg.style.transform       = t;
+  ng.style.transformOrigin = '0 0';
+  eg.style.transformOrigin = '0 0';
+}
+
+function fitView() {
+  const nodes = Object.values(FSM.nodes);
+  if (nodes.length === 0) {
+    uiState.viewOffset = { x: 0, y: 0 };
+    uiState.viewScale  = 1;
+    applyView();
+    return;
+  }
+  const rect = document.getElementById('canvas').getBoundingClientRect();
+  const pad  = 80;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  nodes.forEach(n => {
+    minX = Math.min(minX, n.x - n.width  / 2);
+    maxX = Math.max(maxX, n.x + n.width  / 2);
+    minY = Math.min(minY, n.y - n.height / 2);
+    maxY = Math.max(maxY, n.y + n.height / 2);
+  });
+  const w = maxX - minX + pad * 2;
+  const h = maxY - minY + pad * 2;
+  uiState.viewScale    = Math.min(1.5, Math.min(rect.width / w, rect.height / h));
+  uiState.viewOffset.x = (rect.width  - w * uiState.viewScale) / 2 - minX * uiState.viewScale + pad * uiState.viewScale;
+  uiState.viewOffset.y = (rect.height - h * uiState.viewScale) / 2 - minY * uiState.viewScale + pad * uiState.viewScale;
+  applyView();
+}
+
+// -------------------------------------------------------
+// Nodes
+// -------------------------------------------------------
+
 function renderNodes() {
   const g = document.getElementById('nodesGroup');
   g.innerHTML = '';
@@ -992,10 +1103,9 @@ function renderNodes() {
 
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.classList.add('fsm-node');
-    if (node.id === selectedNodeId) group.classList.add('node-selected');
+    if (node.id === uiState.selectedNodeId) group.classList.add('node-selected');
     group.setAttribute('transform', `translate(${node.x}, ${node.y})`);
 
-    // Body (Canvas必須: width / height を使用)
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.classList.add('node-body');
     rect.setAttribute('x', -nw / 2);
@@ -1004,14 +1114,13 @@ function renderNodes() {
     rect.setAttribute('height', nh);
     rect.setAttribute('fill',   'var(--bg-secondary)');
     rect.setAttribute('stroke', statusColor(node.status));
-    rect.setAttribute('stroke-width', node.id === selectedNodeId ? '2' : '1.5');
+    rect.setAttribute('stroke-width', node.id === uiState.selectedNodeId ? '2' : '1.5');
 
     if (FSM.hasUncheckedValidation(node.id)) {
       rect.setAttribute('stroke-dasharray', '6 3');
     }
     group.appendChild(rect);
 
-    // Label
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.classList.add('node-label');
     label.setAttribute('y', -6);
@@ -1020,7 +1129,6 @@ function renderNodes() {
       : node.name;
     group.appendChild(label);
 
-    // Status + DoD count
     const statusText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     statusText.classList.add('node-status-indicator');
     statusText.setAttribute('y', 12);
@@ -1031,14 +1139,14 @@ function renderNodes() {
     statusText.textContent = statusLabel(node.status) + dodStr;
     group.appendChild(statusText);
 
-    // Events
-    group.addEventListener('mousedown', e => onNodeMouseDown(e, node.id));
-    group.addEventListener('click',     e => onNodeClick(e, node.id));
-    group.addEventListener('contextmenu', e => onNodeContext(e, node.id));
-
+    group._nodeId = node.id;
     g.appendChild(group);
   });
 }
+
+// -------------------------------------------------------
+// Edges
+// -------------------------------------------------------
 
 function renderEdges() {
   const g = document.getElementById('edgesGroup');
@@ -1046,11 +1154,6 @@ function renderEdges() {
 
   const edges = Object.values(FSM.edges);
 
-  // -------------------------------------------------------
-  // 1. 並行グループを事前集計
-  //    parallelGroups["A→B"] = [edgeId, ...]  同方向のみ
-  //    selfLoopGroups["A"]   = [edgeId, ...]  自己ループ
-  // -------------------------------------------------------
   const parallelGroups = {};
   const selfLoopGroups = {};
 
@@ -1065,8 +1168,7 @@ function renderEdges() {
     }
   });
 
-  // 2. 各エッジのレイアウト情報を構築
-  const edgeLayout = {}; // edgeId → { index, groupSize, hasBidi } | { loopIndex, loopGroupSize }
+  const edgeLayout = {};
 
   Object.entries(parallelGroups).forEach(([key, ids]) => {
     const [fn, tn] = key.split('→');
@@ -1082,17 +1184,9 @@ function renderEdges() {
     });
   });
 
-  // -------------------------------------------------------
-  // オフセット定数
-  // STEP      : 並行エッジ間の垂直距離 (px)
-  // BIDI_BASE : 対向エッジが存在する場合のグループ全体のシフト量
-  // -------------------------------------------------------
   const STEP      = 30;
   const BIDI_BASE = 15;
 
-  // -------------------------------------------------------
-  // 3. 描画
-  // -------------------------------------------------------
   edges.forEach(edge => {
     const from = FSM.nodes[edge.fromNode];
     const to   = FSM.nodes[edge.toNode];
@@ -1104,12 +1198,10 @@ function renderEdges() {
     const layout = edgeLayout[edge.id];
 
     if (edge.fromNode === edge.toNode) {
-      // --- 自己ループ ---
-      // 複数ある場合はループの高さをずらして重ならないようにする
       const { loopIndex, loopGroupSize } = layout;
       const spread = loopGroupSize > 1 ? loopIndex / (loopGroupSize - 1) : 0.5;
-      const loopW  = 44 + spread * 20;   // 幅: 44〜64
-      const loopH  = 48 + loopIndex * 20; // 高さ: ループごとに20px増
+      const loopW  = 44 + spread * 20;
+      const loopH  = 48 + loopIndex * 20;
 
       const cx = from.x;
       const cy = from.y - from.height / 2;
@@ -1125,7 +1217,6 @@ function renderEdges() {
       if (edge.label) addEdgeLabel(group, cx, cy - loopH + 8, edge.label);
 
     } else {
-      // --- 通常エッジ ---
       const { index, groupSize, hasBidi } = layout;
 
       const angle = Math.atan2(to.y - from.y, to.x - from.x);
@@ -1134,15 +1225,11 @@ function renderEdges() {
       const x2 = to.x   - Math.cos(angle) * (to.width    / 2 + 8);
       const y2 = to.y   - Math.sin(angle) * (to.height   / 2 + 8);
 
-      // 垂直オフセット量を決定
-      //   parallelOffset: グループ内で対称展開
-      //   bidiOffset    : 対向エッジがある場合にグループ全体をシフト
       const parallelOffset = (index - (groupSize - 1) / 2) * STEP;
       const bidiOffset     = hasBidi ? BIDI_BASE : 0;
       const totalOffset    = parallelOffset + bidiOffset;
 
       if (totalOffset === 0) {
-        // 最適化: オフセット0 は直線で描画
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.classList.add('edge-line');
         line.setAttribute('x1', x1); line.setAttribute('y1', y1);
@@ -1151,10 +1238,8 @@ function renderEdges() {
         if (edge.label) addEdgeLabel(group, (x1+x2)/2, (y1+y2)/2, edge.label);
 
       } else {
-        // 二次ベジェ: 中点を垂直方向にtotalOffsetずらした制御点を使う
         const dx  = x2 - x1, dy = y2 - y1;
         const len = Math.sqrt(dx*dx + dy*dy) || 1;
-        // 垂直単位ベクトル (左手系)
         const nx = -dy / len;
         const ny =  dx / len;
         const mx = (x1+x2)/2 + nx * totalOffset;
@@ -1168,11 +1253,7 @@ function renderEdges() {
       }
     }
 
-    group.addEventListener('click', e => {
-      e.stopPropagation();
-      selectEdge(edge.id);
-    });
-    group.addEventListener('contextmenu', e => onEdgeContext(e, edge.id));
+    group._edgeId = edge.id;
     g.appendChild(group);
   });
 }
@@ -1195,163 +1276,224 @@ function addEdgeLabel(group, x, y, text) {
   group.appendChild(label);
 }
 
-
 // ============================================================
-// SIDE PANEL
+// EVENTS — イベントハンドラ層
+// イベント委譲（Event Delegation）パターンを採用。
+// renderer.js との循環依存を回避するため、
+// nodesGroup / edgesGroup に対してまとめてリスナーを設定する。
 // ============================================================
 
-function renderSidePanel() {
-  const empty   = document.getElementById('panelEmpty');
-  const content = document.getElementById('panelContent');
+// render / applyView / fitView は main から注入
+let _renderFn    = null;
+let _applyViewFn = null;
 
-  if (selectedNodeId && FSM.nodes[selectedNodeId]) {
-    empty.style.display   = 'none';
-    content.style.display = 'block';
-    renderNodePanel(FSM.nodes[selectedNodeId]);
-  } else if (selectedEdgeId && FSM.edges[selectedEdgeId]) {
-    empty.style.display   = 'none';
-    content.style.display = 'block';
-    renderEdgePanel(FSM.edges[selectedEdgeId]);
+function initEvents(renderFn, applyViewFn) {
+  _renderFn    = renderFn;
+  _applyViewFn = applyViewFn;
+
+  // ノードグループへの委譲リスナー
+  const ng = document.getElementById('nodesGroup');
+  ng.addEventListener('mousedown', e => {
+    const g = e.target.closest('.fsm-node');
+    if (!g || e.button !== 0) return;
+    if (uiState.edgeMode) return;
+    e.stopPropagation();
+    const id = g._nodeId;
+    uiState.dragging = {
+      id,
+      startX: e.clientX, startY: e.clientY,
+      origX: FSM.nodes[id].x, origY: FSM.nodes[id].y,
+      moved: false
+    };
+  });
+
+  ng.addEventListener('click', e => {
+    const g = e.target.closest('.fsm-node');
+    if (!g) return;
+    e.stopPropagation();
+    onNodeClick(g._nodeId);
+  });
+
+  ng.addEventListener('contextmenu', e => {
+    const g = e.target.closest('.fsm-node');
+    if (!g) return;
+    e.preventDefault();
+    e.stopPropagation();
+    selectNode(g._nodeId);
+    showContextMenu(e.clientX, e.clientY, nodeContextItems(g._nodeId));
+  });
+
+  // エッジグループへの委譲リスナー
+  const eg = document.getElementById('edgesGroup');
+  eg.addEventListener('click', e => {
+    const g = e.target.closest('.fsm-edge');
+    if (!g) return;
+    e.stopPropagation();
+    selectEdge(g._edgeId);
+  });
+
+  eg.addEventListener('contextmenu', e => {
+    const g = e.target.closest('.fsm-edge');
+    if (!g) return;
+    e.preventDefault();
+    e.stopPropagation();
+    selectEdge(g._edgeId);
+    showContextMenu(e.clientX, e.clientY, edgeContextItems(g._edgeId));
+  });
+
+  // キャンバスのパン
+  const canvas = document.getElementById('canvas');
+
+  canvas.addEventListener('mousedown', e => {
+    const svgEl = document.getElementById('svgCanvas');
+    if (e.target === canvas || e.target === svgEl || e.target.tagName === 'svg') {
+      if (uiState.edgeMode) {
+        if (uiState.edgeModeSource) uiState.edgeModeSource = null;
+        return;
+      }
+      uiState.panState = {
+        startX: e.clientX, startY: e.clientY,
+        origOffX: uiState.viewOffset.x,
+        origOffY: uiState.viewOffset.y
+      };
+    }
+  });
+
+  canvas.addEventListener('click', e => {
+    const svgEl = document.getElementById('svgCanvas');
+    const isBackground =
+      e.target === canvas ||
+      e.target === svgEl  ||
+      (e.target.closest('svg') === svgEl &&
+       !e.target.closest('.fsm-node') &&
+       !e.target.closest('.fsm-edge'));
+    if (isBackground && !uiState.edgeMode && !uiState.panState) {
+      deselect();
+    }
+  });
+
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta    = e.deltaY > 0 ? 0.9 : 1.1;
+    const newScale = Math.max(0.2, Math.min(3, uiState.viewScale * delta));
+    const rect     = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    uiState.viewOffset.x = mx - (mx - uiState.viewOffset.x) * (newScale / uiState.viewScale);
+    uiState.viewOffset.y = my - (my - uiState.viewOffset.y) * (newScale / uiState.viewScale);
+    uiState.viewScale    = newScale;
+    _applyViewFn();
+  }, { passive: false });
+
+  // グローバル mousemove / mouseup
+  document.addEventListener('mousemove', e => {
+    if (uiState.dragging) {
+      const dx = (e.clientX - uiState.dragging.startX) / uiState.viewScale;
+      const dy = (e.clientY - uiState.dragging.startY) / uiState.viewScale;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) uiState.dragging.moved = true;
+      FSM.nodes[uiState.dragging.id].x = uiState.dragging.origX + dx;
+      FSM.nodes[uiState.dragging.id].y = uiState.dragging.origY + dy;
+      _renderFn();
+    }
+    if (uiState.panState) {
+      uiState.viewOffset.x = uiState.panState.origOffX + (e.clientX - uiState.panState.startX);
+      uiState.viewOffset.y = uiState.panState.origOffY + (e.clientY - uiState.panState.startY);
+      _applyViewFn();
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (uiState.dragging && uiState.dragging.moved) markDirty();
+    uiState.dragging = null;
+    uiState.panState = null;
+  });
+
+  // キーボード
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (uiState.edgeMode) toggleEdgeMode();
+      document.getElementById('contextMenu').classList.remove('active');
+      if (document.getElementById('modalOverlay').classList.contains('active')) {
+        document.getElementById('modalOverlay').classList.remove('active');
+      }
+    }
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      if (uiState.selectedNodeId) deleteSelectedNode();
+      if (uiState.selectedEdgeId) deleteSelectedEdge();
+    }
+  });
+
+  // コンテキストメニュー閉じ
+  document.addEventListener('click', () => {
+    document.getElementById('contextMenu').classList.remove('active');
+  });
+}
+
+// -------------------------------------------------------
+// Selection
+// -------------------------------------------------------
+
+function selectNode(id) {
+  uiState.selectedNodeId = id;
+  uiState.selectedEdgeId = null;
+  _renderFn();
+}
+
+function selectEdge(id) {
+  uiState.selectedEdgeId = id;
+  uiState.selectedNodeId = null;
+  _renderFn();
+}
+
+function deselect() {
+  uiState.selectedNodeId = null;
+  uiState.selectedEdgeId = null;
+  _renderFn();
+}
+
+// -------------------------------------------------------
+// Node click (edge mode 対応)
+// -------------------------------------------------------
+
+function onNodeClick(id) {
+  if (uiState.edgeMode) {
+    if (!uiState.edgeModeSource) {
+      uiState.edgeModeSource = id;
+      document.getElementById('edgeModeBanner').textContent =
+        `Edge: ${FSM.nodes[id].name} → ? (click target)  |  ESC to cancel`;
+    } else {
+      FSM.addEdge(uiState.edgeModeSource, id, '');
+      uiState.edgeModeSource = null;
+      markDirty();
+      toggleEdgeMode();
+      _renderFn();
+    }
   } else {
-    empty.style.display   = 'block';
-    content.style.display = 'none';
+    selectNode(id);
   }
 }
 
-function renderNodePanel(node) {
-  const content  = document.getElementById('panelContent');
-  const dodDone  = node.dod.filter(d => d.checked).length;
-  const dodTotal = node.dod.length;
-  const hasValidationGate = FSM.hasUncheckedValidation(node.id);
+// -------------------------------------------------------
+// Edge Mode
+// -------------------------------------------------------
 
-  content.innerHTML = `
-    <div class="panel-section">
-      <div class="panel-section-title">Node</div>
-      <div class="field-group">
-        <label class="field-label">Name</label>
-        <input class="field-input" value="${escHtml(node.name)}"
-          onchange="updateNodeName('${node.id}', this.value)" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Size (width × height)</label>
-        <div style="display:flex;gap:6px">
-          <input class="field-input" type="number" value="${node.width}" style="width:50%"
-            onchange="updateNodeSize('${node.id}', this.value, null)" />
-          <input class="field-input" type="number" value="${node.height}" style="width:50%"
-            onchange="updateNodeSize('${node.id}', null, this.value)" />
-        </div>
-      </div>
-      <div class="field-group">
-        <label class="field-label">Status</label>
-        <div class="status-toggle">
-          <div class="status-option ${node.status === 'idle' ? 'active-idle' : ''}"
-            onclick="setStatus('${node.id}', 'idle')">未着手</div>
-          <div class="status-option ${node.status === 'wip'  ? 'active-wip'  : ''}"
-            onclick="setStatus('${node.id}', 'wip')">実装中</div>
-          <div class="status-option ${node.status === 'done' ? 'active-done' : ''}"
-            onclick="setStatus('${node.id}', 'done')">完了</div>
-        </div>
-      </div>
-      ${hasValidationGate ? `
-      <div class="validation-gate">
-        <span class="validation-gate-icon">⚠</span>
-        Validation Gate: ユーザー確認待ち項目あり
-      </div>` : ''}
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-section-title">DoD — Definition of Done ${dodTotal > 0 ? `(${dodDone}/${dodTotal})` : ''}</div>
-      <div class="dod-list" id="dodList">
-        ${node.dod.map(d => `
-          <div class="dod-item type-${d.type} ${d.checked ? 'checked' : ''}" data-id="${d.id}">
-            <input type="checkbox" class="dod-check" ${d.checked ? 'checked' : ''}
-              onchange="toggleDoD('${node.id}', '${d.id}')" />
-            <span class="dod-text">${escHtml(d.text)}</span>
-            <span class="dod-type-badge ${d.type}">${d.type === 'validation' ? 'Val' : 'Ver'}</span>
-            <div class="dod-actions">
-              <button class="dod-action-btn"
-                onclick="removeDoDItem('${node.id}', '${d.id}')" title="Delete">✕</button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-      <div class="dod-add-row">
-        <input class="dod-add-input" id="dodAddInput" placeholder="Add DoD item..."
-          onkeydown="if(event.key==='Enter')addDoDFromInput('${node.id}')" />
-        <select class="dod-type-select" id="dodTypeSelect">
-          <option value="verification">Ver</option>
-          <option value="validation">Val</option>
-        </select>
-        <button class="btn" style="padding:4px 8px;font-size:10px"
-          onclick="addDoDFromInput('${node.id}')">+</button>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <div class="panel-section-title">Edges</div>
-      <div class="edge-list">
-        ${Object.values(FSM.edges)
-            .filter(e => e.fromNode === node.id || e.toNode === node.id)
-            .map(e => {
-              const other = e.fromNode === node.id
-                ? FSM.nodes[e.toNode]
-                : FSM.nodes[e.fromNode];
-              const dir = e.fromNode === node.id ? '→' : '←';
-              return `<div class="edge-list-item" onclick="selectEdge('${e.id}')">
-                <span class="edge-arrow">${dir}</span>
-                ${other ? escHtml(other.name) : '?'}
-                ${e.label
-                  ? `<span style="color:var(--text-dim);margin-left:auto">${escHtml(e.label)}</span>`
-                  : ''}
-              </div>`;
-            }).join('')
-          || '<div style="font-size:11px;color:var(--text-dim);padding:4px">No edges</div>'}
-      </div>
-    </div>
-
-    <div style="padding-top:4px">
-      <button class="btn btn-danger" style="width:100%"
-        onclick="deleteSelectedNode()">Delete Node</button>
-    </div>
-  `;
+function toggleEdgeMode() {
+  uiState.edgeMode       = !uiState.edgeMode;
+  uiState.edgeModeSource = null;
+  document.getElementById('edgeModeBtn').classList.toggle('btn-accent', uiState.edgeMode);
+  document.getElementById('edgeModeBanner').classList.toggle('active', uiState.edgeMode);
+  document.getElementById('canvas').style.cursor = uiState.edgeMode ? 'crosshair' : 'grab';
 }
 
-function renderEdgePanel(edge) {
-  const content = document.getElementById('panelContent');
-  const from    = FSM.nodes[edge.fromNode];
-  const to      = FSM.nodes[edge.toNode];
-
-  content.innerHTML = `
-    <div class="panel-section">
-      <div class="panel-section-title">Edge</div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-bottom:4px">
-        id: ${escHtml(edge.id)}
-      </div>
-      <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:10px">
-        ${from ? escHtml(from.name) : '?'} → ${to ? escHtml(to.name) : '?'}
-      </div>
-      <div class="field-group">
-        <label class="field-label">Label (遷移条件)</label>
-        <input class="field-input" value="${escHtml(edge.label)}"
-          onchange="updateEdgeLabel('${edge.id}', this.value)" />
-      </div>
-    </div>
-    <div style="padding-top:4px">
-      <button class="btn btn-danger" style="width:100%"
-        onclick="deleteSelectedEdge()">Delete Edge</button>
-    </div>
-  `;
-}
-
-
-// ============================================================
-// INTERACTIONS
-// ============================================================
+// -------------------------------------------------------
+// CRUD actions (panel の onclick から window.__fsm 経由で呼ばれる)
+// -------------------------------------------------------
 
 function addNode() {
   const canvasRect = document.getElementById('canvas').getBoundingClientRect();
-  const x = (canvasRect.width  / 2 - viewOffset.x) / viewScale;
-  const y = (canvasRect.height / 2 - viewOffset.y) / viewScale;
+  const x = (canvasRect.width  / 2 - uiState.viewOffset.x) / uiState.viewScale;
+  const y = (canvasRect.height / 2 - uiState.viewOffset.y) / uiState.viewScale;
   const id = FSM.addNode(
     'New Node',
     x + (Math.random() - 0.5) * 60,
@@ -1359,36 +1501,17 @@ function addNode() {
   );
   markDirty();
   selectNode(id);
-  render();
   setTimeout(() => {
     const input = document.querySelector('#panelContent .field-input');
     if (input) { input.focus(); input.select(); }
   }, 50);
 }
 
-function selectNode(id) {
-  selectedNodeId = id;
-  selectedEdgeId = null;
-  render();
-}
-
-function selectEdge(id) {
-  selectedEdgeId = id;
-  selectedNodeId = null;
-  render();
-}
-
-function deselect() {
-  selectedNodeId = null;
-  selectedEdgeId = null;
-  render();
-}
-
 function updateNodeName(id, name) {
   if (FSM.nodes[id]) {
     FSM.nodes[id].name = name;
     markDirty();
-    render();
+    _renderFn();
   }
 }
 
@@ -1398,7 +1521,7 @@ function updateNodeSize(id, w, h) {
   if (w !== null && w !== undefined) node.width  = Math.max(80,  parseInt(w) || DEFAULT_NODE_W);
   if (h !== null && h !== undefined) node.height = Math.max(40,  parseInt(h) || DEFAULT_NODE_H);
   markDirty();
-  render();
+  _renderFn();
 }
 
 function setStatus(id, status) {
@@ -1408,7 +1531,7 @@ function setStatus(id, status) {
     }
     FSM.nodes[id].status = status;
     markDirty();
-    render();
+    _renderFn();
   }
 }
 
@@ -1416,25 +1539,25 @@ function updateEdgeLabel(id, label) {
   if (FSM.edges[id]) {
     FSM.edges[id].label = label;
     markDirty();
-    render();
+    _renderFn();
   }
 }
 
 function deleteSelectedNode() {
-  if (selectedNodeId) {
-    FSM.removeNode(selectedNodeId);
-    selectedNodeId = null;
+  if (uiState.selectedNodeId) {
+    FSM.removeNode(uiState.selectedNodeId);
+    uiState.selectedNodeId = null;
     markDirty();
-    render();
+    _renderFn();
   }
 }
 
 function deleteSelectedEdge() {
-  if (selectedEdgeId) {
-    FSM.removeEdge(selectedEdgeId);
-    selectedEdgeId = null;
+  if (uiState.selectedEdgeId) {
+    FSM.removeEdge(uiState.selectedEdgeId);
+    uiState.selectedEdgeId = null;
     markDirty();
-    render();
+    _renderFn();
   }
 }
 
@@ -1444,7 +1567,7 @@ function addDoDFromInput(nodeId) {
   if (!input || !input.value.trim()) return;
   FSM.addDoDItem(nodeId, input.value.trim(), select.value);
   markDirty();
-  render();
+  _renderFn();
   setTimeout(() => {
     const newInput = document.getElementById('dodAddInput');
     if (newInput) newInput.focus();
@@ -1461,177 +1584,42 @@ function toggleDoD(nodeId, dodId) {
       node.status = 'done';
     }
     markDirty();
-    render();
+    _renderFn();
   }
 }
 
 function removeDoDItem(nodeId, dodId) {
   FSM.removeDoDItem(nodeId, dodId);
   markDirty();
-  render();
+  _renderFn();
 }
 
-function toggleEdgeMode() {
-  edgeMode = !edgeMode;
-  edgeModeSource = null;
-  document.getElementById('edgeModeBtn').classList.toggle('btn-accent', edgeMode);
-  document.getElementById('edgeModeBanner').classList.toggle('active', edgeMode);
-  document.getElementById('canvas').style.cursor = edgeMode ? 'crosshair' : 'grab';
-}
+// -------------------------------------------------------
+// Context Menu
+// -------------------------------------------------------
 
-function onNodeClick(e, id) {
-  e.stopPropagation();
-  if (edgeMode) {
-    if (!edgeModeSource) {
-      edgeModeSource = id;
-      document.getElementById('edgeModeBanner').textContent =
-        `Edge: ${FSM.nodes[id].name} → ? (click target)  |  ESC to cancel`;
-    } else {
-      FSM.addEdge(edgeModeSource, id, '');
-      edgeModeSource = null;
-      markDirty();
-      toggleEdgeMode();
-      render();
-    }
-  } else {
-    selectNode(id);
-  }
-}
-
-function onNodeMouseDown(e, id) {
-  if (edgeMode || e.button !== 0) return;
-  e.stopPropagation();
-  dragging = {
-    id,
-    startX: e.clientX, startY: e.clientY,
-    origX: FSM.nodes[id].x, origY: FSM.nodes[id].y,
-    moved: false
-  };
-}
-
-document.addEventListener('mousemove', e => {
-  if (dragging) {
-    const dx = (e.clientX - dragging.startX) / viewScale;
-    const dy = (e.clientY - dragging.startY) / viewScale;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragging.moved = true;
-    FSM.nodes[dragging.id].x = dragging.origX + dx;
-    FSM.nodes[dragging.id].y = dragging.origY + dy;
-    render();
-  }
-  if (panState) {
-    viewOffset.x = panState.origOffX + (e.clientX - panState.startX);
-    viewOffset.y = panState.origOffY + (e.clientY - panState.startY);
-    applyView();
-  }
-});
-
-document.addEventListener('mouseup', () => {
-  if (dragging && dragging.moved) markDirty();
-  dragging  = null;
-  panState  = null;
-});
-
-document.getElementById('canvas').addEventListener('mousedown', e => {
-  if (e.target === document.getElementById('canvas') ||
-      e.target === document.getElementById('svgCanvas') ||
-      e.target.tagName === 'svg') {
-    if (edgeMode) {
-      if (edgeModeSource) edgeModeSource = null;
-      return;
-    }
-    panState = {
-      startX: e.clientX, startY: e.clientY,
-      origOffX: viewOffset.x, origOffY: viewOffset.y
-    };
-  }
-});
-
-document.getElementById('canvas').addEventListener('click', e => {
-  if (e.target === document.getElementById('canvas') ||
-      e.target === document.getElementById('svgCanvas') ||
-      (e.target.closest('svg') === document.getElementById('svgCanvas') &&
-       !e.target.closest('.fsm-node') &&
-       !e.target.closest('.fsm-edge'))) {
-    if (!edgeMode && !panState) deselect();
-  }
-});
-
-document.getElementById('canvas').addEventListener('wheel', e => {
-  e.preventDefault();
-  const delta    = e.deltaY > 0 ? 0.9 : 1.1;
-  const newScale = Math.max(0.2, Math.min(3, viewScale * delta));
-  const rect     = document.getElementById('canvas').getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-  viewOffset.x = mx - (mx - viewOffset.x) * (newScale / viewScale);
-  viewOffset.y = my - (my - viewOffset.y) * (newScale / viewScale);
-  viewScale = newScale;
-  applyView();
-}, { passive: false });
-
-function applyView() {
-  const ng = document.getElementById('nodesGroup');
-  const eg = document.getElementById('edgesGroup');
-  const t  = `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${viewScale})`;
-  ng.style.transform       = t;
-  eg.style.transform       = t;
-  ng.style.transformOrigin = '0 0';
-  eg.style.transformOrigin = '0 0';
-}
-
-function fitView() {
-  const nodes = Object.values(FSM.nodes);
-  if (nodes.length === 0) {
-    viewOffset = { x: 0, y: 0 };
-    viewScale  = 1;
-    applyView();
-    return;
-  }
-  const rect = document.getElementById('canvas').getBoundingClientRect();
-  const pad  = 80;
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  nodes.forEach(n => {
-    minX = Math.min(minX, n.x - n.width  / 2);
-    maxX = Math.max(maxX, n.x + n.width  / 2);
-    minY = Math.min(minY, n.y - n.height / 2);
-    maxY = Math.max(maxY, n.y + n.height / 2);
-  });
-  const w = maxX - minX + pad * 2;
-  const h = maxY - minY + pad * 2;
-  viewScale    = Math.min(1.5, Math.min(rect.width / w, rect.height / h));
-  viewOffset.x = (rect.width  - w * viewScale) / 2 - minX * viewScale + pad * viewScale;
-  viewOffset.y = (rect.height - h * viewScale) / 2 - minY * viewScale + pad * viewScale;
-  applyView();
-}
-
-function onNodeContext(e, id) {
-  e.preventDefault();
-  e.stopPropagation();
-  selectNode(id);
-  showContextMenu(e.clientX, e.clientY, [
+function nodeContextItems(id) {
+  return [
     { label: 'ステータス: 未着手', action: () => setStatus(id, 'idle') },
     { label: 'ステータス: 実装中', action: () => setStatus(id, 'wip')  },
     { label: 'ステータス: 完了',   action: () => setStatus(id, 'done') },
     { type: 'separator' },
     { label: '削除', danger: true, action: () => {
         FSM.removeNode(id);
-        selectedNodeId = null;
-        render();
+        uiState.selectedNodeId = null;
+        _renderFn();
     }}
-  ]);
+  ];
 }
 
-function onEdgeContext(e, id) {
-  e.preventDefault();
-  e.stopPropagation();
-  selectEdge(id);
-  showContextMenu(e.clientX, e.clientY, [
+function edgeContextItems(id) {
+  return [
     { label: '削除', danger: true, action: () => {
         FSM.removeEdge(id);
-        selectedEdgeId = null;
-        render();
+        uiState.selectedEdgeId = null;
+        _renderFn();
     }}
-  ]);
+  ];
 }
 
 function showContextMenu(x, y, items) {
@@ -1657,97 +1645,51 @@ function showContextMenu(x, y, items) {
   });
 }
 
-document.addEventListener('click', () => {
-  document.getElementById('contextMenu').classList.remove('active');
-});
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (edgeMode) toggleEdgeMode();
-    document.getElementById('contextMenu').classList.remove('active');
-    if (document.getElementById('modalOverlay').classList.contains('active')) closeModal();
-  }
-  if (e.key === 'Delete' || e.key === 'Backspace') {
-    if (document.activeElement.tagName === 'INPUT' ||
-        document.activeElement.tagName === 'TEXTAREA') return;
-    if (selectedNodeId) deleteSelectedNode();
-    if (selectedEdgeId) deleteSelectedEdge();
-  }
-});
-
-
 // ============================================================
-// JSON IMPORT / EXPORT
+// MAIN — エントリーポイント
+// モジュール間の配線と初期化のみ担当。
 // ============================================================
 
-function showExportModal() {
-  clearDirty();
-  document.getElementById('modalTitle').textContent        = 'Export JSON (Canvas Schema)';
-  document.getElementById('modalTextarea').value           = FSM.toJSON();
-  document.getElementById('modalTextarea').readOnly        = true;
-  document.getElementById('modalFooter').innerHTML = `
-    <button class="btn" onclick="copyExport()">Copy</button>
-    <button class="btn" onclick="closeModal()">Close</button>
-  `;
-  document.getElementById('modalOverlay').classList.add('active');
-}
+// -------------------------------------------------------
+// panel.js の innerHTML inline-handler から呼ばれる関数群を
+// window.__fsm に束ねる。
+// -------------------------------------------------------
+window.__fsm = {
+  selectEdge,
+  updateNodeName,
+  updateNodeSize,
+  setStatus,
+  updateEdgeLabel,
+  deleteSelectedNode,
+  deleteSelectedEdge,
+  addDoDFromInput,
+  toggleDoD,
+  removeDoDItem,
+  closeModal,
+  copyExport,
+  doImport: () => doImport(render, fitView),
+};
 
-function showImportModal() {
-  document.getElementById('modalTitle').textContent        = 'Import JSON (Canvas / Legacy)';
-  document.getElementById('modalTextarea').value           = '';
-  document.getElementById('modalTextarea').readOnly        = false;
-  document.getElementById('modalFooter').innerHTML = `
-    <button class="btn btn-accent" onclick="doImport()">Import</button>
-    <button class="btn" onclick="closeModal()">Cancel</button>
-  `;
-  document.getElementById('modalOverlay').classList.add('active');
-  document.getElementById('modalTextarea').focus();
-}
+// -------------------------------------------------------
+// toolbar の onclick から呼ばれる関数を window に公開
+// -------------------------------------------------------
+window.addNode        = addNode;
+window.toggleEdgeMode = toggleEdgeMode;
+window.fitView        = fitView;
+window.showImportModal = showImportModal;
+window.showExportModal = showExportModal;
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('active');
-}
+// -------------------------------------------------------
+// 初期化
+// -------------------------------------------------------
+function init() {
+  // イベント初期化 (render / applyView を注入)
+  initEvents(render, applyView);
 
-function copyExport() {
-  const ta = document.getElementById('modalTextarea');
-  ta.select();
-  navigator.clipboard.writeText(ta.value);
-}
+  // 未保存警告
+  initBeforeUnload();
 
-function doImport() {
-  try {
-    FSM.fromJSON(document.getElementById('modalTextarea').value);
-    selectedNodeId = null;
-    selectedEdgeId = null;
-    clearDirty();
-    closeModal();
-    render();
-    fitView();
-  } catch (err) {
-    alert('JSON parse error: ' + err.message);
-  }
-}
-
-
-// ============================================================
-// UTILS
-// ============================================================
-
-function escHtml(s) {
-  if (s == null) return '';
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-
-// ============================================================
-// INIT — サンプルデータ (PDCA / Canvas JSON スキーマ)
-// ============================================================
-
-(function init() {
+  // サンプルデータ (PDCA)
   const s1 = FSM.addNode('Plan',  300,  50);
   const s2 = FSM.addNode('Do',    300, 300);
   const s3 = FSM.addNode('Check', 600, 300);
@@ -1759,10 +1701,10 @@ function escHtml(s) {
   FSM.addEdge(s3, s4, 'check');
   FSM.addEdge(s4, s1, 'act');
 
-  FSM.addDoDItem(s1, 'verification1', 'verification');
-  FSM.addDoDItem(s1, 'validation1',   'validation');
-  FSM.addDoDItem(s2, 'verification2', 'verification');
-  FSM.addDoDItem(s2, 'validation2',   'validation');
+  FSM.addDoDItem(s1, 'verification1',   'verification');
+  FSM.addDoDItem(s1, 'validation1',     'validation');
+  FSM.addDoDItem(s2, 'verification2',   'verification');
+  FSM.addDoDItem(s2, 'validation2',     'validation');
   FSM.addDoDItem(s3, 'verification3-1', 'verification');
   FSM.addDoDItem(s3, 'verification3-2', 'verification');
   FSM.addDoDItem(s4, 'validation4-1',   'verification');
@@ -1770,8 +1712,10 @@ function escHtml(s) {
 
   render();
   setTimeout(fitView, 100);
-  // init完了時点はclean状態 (markDirty不要)
-})();
+  // init完了時点はclean状態
+}
+
+init();
 </script>
 </body>
 </html>
