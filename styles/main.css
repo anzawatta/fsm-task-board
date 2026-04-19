@@ -443,56 +443,6 @@ body {
 .edge-mode-banner.active { display: block; }
 
 /* === JSON MODAL === */
-.modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.3);
-  z-index: 1000; display: none;
-  align-items: center; justify-content: center;
-}
-
-.modal-overlay.active { display: flex; }
-
-.modal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-mid);
-  border-radius: 8px;
-  width: 600px; max-height: 80vh;
-  display: flex; flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-}
-
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-dim);
-}
-
-.modal-title {
-  font-family: var(--font-mono);
-  font-size: 12px; font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase; letter-spacing: 0.05em;
-}
-
-.modal-body { padding: 16px; overflow-y: auto; flex: 1; }
-
-.modal-textarea {
-  width: 100%; min-height: 300px;
-  font-family: var(--font-mono);
-  font-size: 11px; line-height: 1.5;
-  padding: 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-dim);
-  border-radius: 4px;
-  color: var(--text-primary);
-  resize: vertical; outline: none;
-}
-
-.modal-footer {
-  display: flex; justify-content: flex-end; gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--border-dim);
-}
 
 /* === CONTEXT MENU === */
 .context-menu {
@@ -520,25 +470,27 @@ body {
 .context-menu-item.danger { color: var(--accent-danger); }
 .context-menu-item.danger:hover { background: rgba(220,38,38,0.08); }
 
+/* === FILE NAME BADGE === */
+.file-name-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 0 8px;
+  align-self: center;
+  user-select: none;
+}
+
 /* === DIRTY BADGE === */
 .dirty-badge {
   font-family: var(--font-mono);
-  font-size: 10px; font-weight: 600;
+  font-size: 14px; font-weight: 600;
   color: var(--accent-wip);
-  display: none; align-items: center; gap: 4px;
-  padding: 3px 8px;
-  border: 1px solid var(--accent-wip);
-  border-radius: 3px;
-  background: rgba(200,112,0,0.06);
-  animation: dirty-pulse 2s ease-in-out infinite;
+  display: none; align-items: center;
+  padding: 0 2px;
+  line-height: 1;
 }
 
 .dirty-badge.visible { display: flex; }
-
-@keyframes dirty-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.55; }
-}
 
 /* === SCROLLBAR === */
 ::-webkit-scrollbar { width: 6px; }
