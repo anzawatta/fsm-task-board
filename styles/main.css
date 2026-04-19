@@ -442,8 +442,6 @@ body {
 
 .edge-mode-banner.active { display: block; }
 
-/* === JSON MODAL === */
-
 /* === CONTEXT MENU === */
 .context-menu {
   position: fixed;

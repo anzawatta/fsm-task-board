@@ -35,7 +35,7 @@ function updateFileNameBadge() {
 // -------------------------------------------------------
 async function writeToHandle(handle) {
   const writable = await handle.createWritable();
-  await writable.write(JSON.stringify(FSM.toJSON(), null, 2));
+  await writable.write(FSM.toJSON());
   await writable.close();
 }
 
@@ -76,6 +76,8 @@ export async function openFile(renderFn, fitViewFn) {
   FSM.fromJSON(data);
   uiState.fileHandle = handle;
   uiState.fileName = file.name;
+  uiState.selectedNodeId = null;
+  uiState.selectedEdgeId = null;
   clearDirty();
   updateFileNameBadge();
   renderFn();
