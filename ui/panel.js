@@ -1,12 +1,11 @@
 // ============================================================
-// PANEL — サイドパネル / モーダル描画層
-// ノード・エッジの詳細表示とJSON Import/Export UI。
+// PANEL — サイドパネル描画層
+// ノード・エッジの詳細表示。
 // ============================================================
 
 import FSM from '../core/fsm.js';
 import { uiState } from '../core/state.js';
 import { escHtml } from '../core/utils.js';
-import { clearDirty } from './dirty.js';
 
 // render() からコールバックとして注入される
 let _render = null;
@@ -173,54 +172,3 @@ function renderEdgePanel(edge) {
   `;
 }
 
-// -------------------------------------------------------
-// JSON Modal
-// -------------------------------------------------------
-
-export function showExportModal() {
-  clearDirty();
-  document.getElementById('modalTitle').textContent = 'Export JSON (Canvas Schema)';
-  document.getElementById('modalTextarea').value    = FSM.toJSON();
-  document.getElementById('modalTextarea').readOnly = true;
-  document.getElementById('modalFooter').innerHTML  = `
-    <button class="btn" onclick="window.__fsm.copyExport()">Copy</button>
-    <button class="btn" onclick="window.__fsm.closeModal()">Close</button>
-  `;
-  document.getElementById('modalOverlay').classList.add('active');
-}
-
-export function showImportModal() {
-  document.getElementById('modalTitle').textContent = 'Import JSON (Canvas / Legacy)';
-  document.getElementById('modalTextarea').value    = '';
-  document.getElementById('modalTextarea').readOnly = false;
-  document.getElementById('modalFooter').innerHTML  = `
-    <button class="btn btn-accent" onclick="window.__fsm.doImport()">Import</button>
-    <button class="btn" onclick="window.__fsm.closeModal()">Cancel</button>
-  `;
-  document.getElementById('modalOverlay').classList.add('active');
-  document.getElementById('modalTextarea').focus();
-}
-
-export function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('active');
-}
-
-export function copyExport() {
-  const ta = document.getElementById('modalTextarea');
-  ta.select();
-  navigator.clipboard.writeText(ta.value);
-}
-
-export function doImport(renderFn, fitViewFn) {
-  try {
-    FSM.fromJSON(document.getElementById('modalTextarea').value);
-    uiState.selectedNodeId = null;
-    uiState.selectedEdgeId = null;
-    clearDirty();
-    closeModal();
-    renderFn();
-    fitViewFn();
-  } catch (err) {
-    alert('JSON parse error: ' + err.message);
-  }
-}

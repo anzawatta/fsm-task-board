@@ -177,9 +177,6 @@ export function initEvents(renderFn, applyViewFn) {
     if (e.key === 'Escape') {
       if (uiState.edgeMode) toggleEdgeMode();
       document.getElementById('contextMenu').classList.remove('active');
-      if (document.getElementById('modalOverlay').classList.contains('active')) {
-        document.getElementById('modalOverlay').classList.remove('active');
-      }
     }
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;

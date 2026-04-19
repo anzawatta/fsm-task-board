@@ -17,9 +17,11 @@
     <div class="toolbar-sep"></div>
     <button class="btn" onclick="fitView()">Fit View</button>
     <div class="toolbar-right">
-      <div class="dirty-badge" id="dirtyBadge">● 未保存</div>
-      <button class="btn" onclick="showImportModal()">Import JSON</button>
-      <button class="btn btn-accent" onclick="showExportModal()">Export JSON</button>
+      <span class="file-name-badge" id="fileNameBadge">untitled</span>
+      <div class="dirty-badge" id="dirtyBadge">*</div>
+      <button class="btn" onclick="openFile()">Open</button>
+      <button class="btn" onclick="saveFile()">Save</button>
+      <button class="btn btn-accent" onclick="saveFileAs()">Save As</button>
     </div>
   </div>
 
@@ -55,19 +57,6 @@
 <!-- CONTEXT MENU -->
 <div class="context-menu" id="contextMenu"></div>
 
-<!-- JSON MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">Export JSON</span>
-      <button class="btn" onclick="window.__fsm.closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <textarea class="modal-textarea" id="modalTextarea" spellcheck="false"></textarea>
-    </div>
-    <div class="modal-footer" id="modalFooter"></div>
-  </div>
-</div>
 
 <script type="module" src="./main.js"></script>
 </body>

@@ -10,8 +10,7 @@ import { initEvents, toggleEdgeMode, addNode, selectEdge,
          updateNodeName, updateNodeSize, setStatus, updateEdgeLabel,
          deleteSelectedNode, deleteSelectedEdge,
          addDoDFromInput, toggleDoD, removeDoDItem, toggleDoDType } from './interaction/events.js';
-import { showExportModal, showImportModal, closeModal,
-         copyExport, doImport } from './ui/panel.js';
+import { openFile, saveFile, saveFileAs } from './interaction/file-io.js';
 import { initBeforeUnload } from './ui/dirty.js';
 
 // -------------------------------------------------------
@@ -31,19 +30,17 @@ window.__fsm = {
   toggleDoD,
   removeDoDItem,
   toggleDoDType,
-  closeModal,
-  copyExport,
-  doImport: () => doImport(render, fitView),
 };
 
 // -------------------------------------------------------
 // toolbar の onclick から呼ばれる関数を window に公開
 // -------------------------------------------------------
-window.addNode       = addNode;
+window.addNode        = addNode;
 window.toggleEdgeMode = toggleEdgeMode;
-window.fitView       = fitView;
-window.showImportModal = showImportModal;
-window.showExportModal = showExportModal;
+window.fitView        = fitView;
+window.openFile       = () => openFile(render, fitView);
+window.saveFile       = () => saveFile(render, fitView);
+window.saveFileAs     = () => saveFileAs(render, fitView);
 
 // -------------------------------------------------------
 // 初期化
