@@ -1,3 +1,4 @@
 fsm-*.json
 .DS_Store
 .env
+output
