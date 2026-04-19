@@ -37,9 +37,9 @@ const FSM = {
     return id;
   },
 
-  addEdge(fromNode, toNode, label) {
+  addEdge(fromNode, toNode, label, guard) {
     const id = this.genEdgeId();
-    this.edges[id] = { id, fromNode, toNode, label: label || '' };
+    this.edges[id] = { id, fromNode, toNode, label: label || '', guard: guard || null };
     return id;
   },
 
@@ -70,10 +70,28 @@ const FSM = {
     node.dod = node.dod.filter(d => d.id !== dodId);
   },
 
-  hasUncheckedValidation(nodeId) {
+  updateDoDItemType(nodeId, dodId, newType) {
+    const node = this.nodes[nodeId];
+    if (!node) return;
+    const item = node.dod.find(d => d.id === dodId);
+    if (item) item.type = newType;
+  },
+
+  hasUncheckedVerification(nodeId) {
     const node = this.nodes[nodeId];
     if (!node) return false;
-    return node.dod.some(d => d.type === 'validation' && !d.checked);
+    return node.dod.some(d => d.type === 'verification' && !d.checked);
+  },
+
+  // 後方互換エイリアス
+  hasUncheckedValidation(nodeId) { return this.hasUncheckedVerification(nodeId); },
+
+  allValidationChecked(nodeId) {
+    const node = this.nodes[nodeId];
+    if (!node) return true;
+    const validation = node.dod.filter(d => d.type === 'validation');
+    if (validation.length === 0) return true;
+    return validation.every(d => d.checked);
   },
 
   allDoDChecked(nodeId) {
@@ -101,12 +119,11 @@ const FSM = {
           checked: d.checked
         }))
       })),
-      edges: Object.values(this.edges).map(e => ({
-        id:       e.id,
-        fromNode: e.fromNode,
-        toNode:   e.toNode,
-        label:    e.label
-      }))
+      edges: Object.values(this.edges).map(e => {
+        const obj = { id: e.id, fromNode: e.fromNode, toNode: e.toNode, label: e.label };
+        if (e.guard) obj.guard = e.guard;
+        return obj;
+      })
     }, null, 2);
   },
 
@@ -151,7 +168,8 @@ const FSM = {
         id,
         fromNode: e.fromNode || e.from,
         toNode:   e.toNode   || e.to,
-        label:    e.label || ''
+        label:    e.label || '',
+        guard:    e.guard || null
       };
     });
   }

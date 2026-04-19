@@ -21,9 +21,24 @@ export function initEvents(renderFn, applyViewFn) {
   // ノードグループへの委譲リスナー
   const ng = document.getElementById('nodesGroup');
   ng.addEventListener('mousedown', e => {
-    const g = e.target.closest('.fsm-node');
-    if (!g || e.button !== 0) return;
+    if (e.button !== 0) return;
     if (uiState.edgeMode) return;
+
+    // リサイズハンドルの判定（先に処理）
+    if (e.target.classList.contains('resize-handle')) {
+      e.stopPropagation();
+      const nodeId = e.target._resizeNodeId || e.target.closest('.fsm-node')._nodeId;
+      const node = FSM.nodes[nodeId];
+      uiState.resizing = {
+        id: nodeId,
+        startX: e.clientX, startY: e.clientY,
+        origW: node.width, origH: node.height
+      };
+      return;
+    }
+
+    const g = e.target.closest('.fsm-node');
+    if (!g) return;
     e.stopPropagation();
     const id = g._nodeId;
     uiState.dragging = {
@@ -56,7 +71,17 @@ export function initEvents(renderFn, applyViewFn) {
     const g = e.target.closest('.fsm-edge');
     if (!g) return;
     e.stopPropagation();
-    selectEdge(g._edgeId);
+    const edgeId = g._edgeId;
+    const edge   = FSM.edges[edgeId];
+    // guard チェック: dod_complete の場合は source が done でないとブロック
+    if (edge && edge.guard === 'dod_complete') {
+      const srcNode = FSM.nodes[edge.fromNode];
+      if (srcNode && srcNode.status !== 'done') {
+        alert(`遷移ブロック: "${srcNode.name}" が完了 (done) ではありません。\nguard: ${edge.guard}`);
+        return;
+      }
+    }
+    selectEdge(edgeId);
   });
 
   eg.addEventListener('contextmenu', e => {
@@ -114,6 +139,17 @@ export function initEvents(renderFn, applyViewFn) {
 
   // グローバル mousemove / mouseup
   document.addEventListener('mousemove', e => {
+    if (uiState.resizing) {
+      const dx = (e.clientX - uiState.resizing.startX) / uiState.viewScale;
+      const dy = (e.clientY - uiState.resizing.startY) / uiState.viewScale;
+      const node = FSM.nodes[uiState.resizing.id];
+      if (node) {
+        node.width  = Math.max(80, uiState.resizing.origW + dx * 2);
+        node.height = Math.max(40, uiState.resizing.origH + dy * 2);
+        _render();
+      }
+      return;
+    }
     if (uiState.dragging) {
       const dx = (e.clientX - uiState.dragging.startX) / uiState.viewScale;
       const dy = (e.clientY - uiState.dragging.startY) / uiState.viewScale;
@@ -130,6 +166,7 @@ export function initEvents(renderFn, applyViewFn) {
   });
 
   document.addEventListener('mouseup', () => {
+    if (uiState.resizing) { markDirty(); uiState.resizing = null; }
     if (uiState.dragging && uiState.dragging.moved) markDirty();
     uiState.dragging = null;
     uiState.panState = null;
@@ -156,13 +193,6 @@ export function initEvents(renderFn, applyViewFn) {
     document.getElementById('contextMenu').classList.remove('active');
   });
 }
-
-// -------------------------------------------------------
-// Node / Edge event-delegation後のID紐付け
-// renderer.js が _nodeId / _edgeId を各groupに設定済みのため、
-// bindNodeEvents / bindEdgeEvents は不要。
-// (renderer.js からの動的importも不要)
-// -------------------------------------------------------
 
 // -------------------------------------------------------
 // Selection
@@ -260,8 +290,11 @@ export function updateNodeSize(id, w, h) {
 
 export function setStatus(id, status) {
   if (FSM.nodes[id]) {
-    if (status === 'done' && FSM.hasUncheckedValidation(id)) {
-      if (!confirm('Validation項目が未チェックです。完了にしますか？')) return;
+    if (status === 'done') {
+      const uncheckedValidation = FSM.nodes[id].dod.filter(d => d.type === 'validation' && !d.checked).length;
+      if (uncheckedValidation > 0 || FSM.hasUncheckedVerification(id)) {
+        if (!confirm('DoDが未チェックです。完了にしますか？')) return;
+      }
     }
     FSM.nodes[id].status = status;
     markDirty();
@@ -314,9 +347,21 @@ export function toggleDoD(nodeId, dodId) {
   const item = node.dod.find(d => d.id === dodId);
   if (item) {
     item.checked = !item.checked;
-    if (FSM.allDoDChecked(nodeId) && !FSM.hasUncheckedValidation(nodeId)) {
+    if (FSM.allValidationChecked(nodeId) && !FSM.hasUncheckedVerification(nodeId) && FSM.allDoDChecked(nodeId)) {
       node.status = 'done';
     }
+    markDirty();
+    _render();
+  }
+}
+
+export function toggleDoDType(nodeId, dodId) {
+  const node = FSM.nodes[nodeId];
+  if (!node) return;
+  const item = node.dod.find(d => d.id === dodId);
+  if (item) {
+    item.type = item.type === 'validation' ? 'verification' : 'validation';
+    FSM.updateDoDItemType(nodeId, dodId, item.type);
     markDirty();
     _render();
   }
@@ -334,8 +379,8 @@ export function removeDoDItem(nodeId, dodId) {
 
 function nodeContextItems(id) {
   return [
-    { label: 'ステータス: 未着手', action: () => setStatus(id, 'idle') },
-    { label: 'ステータス: 実装中', action: () => setStatus(id, 'wip')  },
+    { label: 'ステータス: 未実施', action: () => setStatus(id, 'idle') },
+    { label: 'ステータス: 作業中', action: () => setStatus(id, 'wip')  },
     { label: 'ステータス: 完了',   action: () => setStatus(id, 'done') },
     { type: 'separator' },
     { label: '削除', danger: true, action: () => {

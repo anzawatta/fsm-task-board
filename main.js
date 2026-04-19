@@ -9,7 +9,7 @@ import { render, applyView, fitView } from './ui/renderer.js';
 import { initEvents, toggleEdgeMode, addNode, selectEdge,
          updateNodeName, updateNodeSize, setStatus, updateEdgeLabel,
          deleteSelectedNode, deleteSelectedEdge,
-         addDoDFromInput, toggleDoD, removeDoDItem } from './interaction/events.js';
+         addDoDFromInput, toggleDoD, removeDoDItem, toggleDoDType } from './interaction/events.js';
 import { showExportModal, showImportModal, closeModal,
          copyExport, doImport } from './ui/panel.js';
 import { initBeforeUnload } from './ui/dirty.js';
@@ -30,6 +30,7 @@ window.__fsm = {
   addDoDFromInput,
   toggleDoD,
   removeDoDItem,
+  toggleDoDType,
   closeModal,
   copyExport,
   doImport: () => doImport(render, fitView),

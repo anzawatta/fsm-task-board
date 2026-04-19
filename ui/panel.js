@@ -5,8 +5,8 @@
 
 import FSM from '../core/fsm.js';
 import { uiState } from '../core/state.js';
-import { escHtml } from '../utils.js';
-import { markDirty, clearDirty } from './dirty.js';
+import { escHtml } from '../core/utils.js';
+import { clearDirty } from './dirty.js';
 
 // render() からコールバックとして注入される
 let _render = null;
@@ -38,7 +38,6 @@ function renderNodePanel(node) {
   const content  = document.getElementById('panelContent');
   const dodDone  = node.dod.filter(d => d.checked).length;
   const dodTotal = node.dod.length;
-  const hasValidationGate = FSM.hasUncheckedValidation(node.id);
 
   content.innerHTML = `
     <div class="panel-section">
@@ -61,42 +60,51 @@ function renderNodePanel(node) {
         <label class="field-label">Status</label>
         <div class="status-toggle">
           <div class="status-option ${node.status === 'idle' ? 'active-idle' : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'idle')">未着手</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'idle')">未実施</div>
           <div class="status-option ${node.status === 'wip'  ? 'active-wip'  : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'wip')">実装中</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'wip')">作業中</div>
           <div class="status-option ${node.status === 'done' ? 'active-done' : ''}"
             onclick="window.__fsm.setStatus('${node.id}', 'done')">完了</div>
         </div>
       </div>
-      ${hasValidationGate ? `
-      <div class="validation-gate">
-        <span class="validation-gate-icon">⚠</span>
-        Validation Gate: ユーザー確認待ち項目あり
-      </div>` : ''}
     </div>
 
     <div class="panel-section">
-      <div class="panel-section-title">DoD — Definition of Done ${dodTotal > 0 ? `(${dodDone}/${dodTotal})` : ''}</div>
+      <div class="panel-section-title">Definition of Done ${dodTotal > 0 ? `(${dodDone}/${dodTotal})` : ''}</div>
       <div class="dod-list" id="dodList">
-        ${node.dod.map(d => `
-          <div class="dod-item type-${d.type} ${d.checked ? 'checked' : ''}" data-id="${d.id}">
-            <input type="checkbox" class="dod-check" ${d.checked ? 'checked' : ''}
-              onchange="window.__fsm.toggleDoD('${node.id}', '${d.id}')" />
-            <span class="dod-text">${escHtml(d.text)}</span>
-            <span class="dod-type-badge ${d.type}">${d.type === 'validation' ? 'Val' : 'Ver'}</span>
-            <div class="dod-actions">
-              <button class="dod-action-btn"
-                onclick="window.__fsm.removeDoDItem('${node.id}', '${d.id}')" title="Delete">✕</button>
-            </div>
-          </div>
-        `).join('')}
+        ${(() => {
+          const verificationItems  = node.dod.filter(d => d.type === 'verification');
+          const validationItems = node.dod.filter(d => d.type === 'validation');
+          const renderItem = d => `
+            <div class="dod-item type-${d.type} ${d.checked ? 'checked' : ''}" data-id="${d.id}">
+              <input type="checkbox" class="dod-check" ${d.checked ? 'checked' : ''}
+                onchange="window.__fsm.toggleDoD('${node.id}', '${d.id}')" />
+              <span class="dod-text">${escHtml(d.text)}</span>
+              <div class="dod-actions">
+                <button class="dod-action-btn"
+                  onclick="window.__fsm.toggleDoDType('${node.id}', '${d.id}')" title="タイプ切り替え">↕️</button>
+                <button class="dod-action-btn"
+                  onclick="window.__fsm.removeDoDItem('${node.id}', '${d.id}')" title="Delete">✕</button>
+              </div>
+            </div>`;
+          let html = '';
+          if (verificationItems.length > 0) {
+            html += `<div class="dod-group-header dod-group-verification">📐 verification</div>`;
+            html += verificationItems.map(renderItem).join('');
+          }
+          if (validationItems.length > 0) {
+            html += `<div class="dod-group-header dod-group-validation">👍 validation</div>`;
+            html += validationItems.map(renderItem).join('');
+          }
+          return html || '<div style="font-size:11px;color:var(--text-dim);padding:4px">No DoD items</div>';
+        })()}
       </div>
       <div class="dod-add-row">
         <input class="dod-add-input" id="dodAddInput" placeholder="Add DoD item..."
           onkeydown="if(event.key==='Enter')window.__fsm.addDoDFromInput('${node.id}')" />
         <select class="dod-type-select" id="dodTypeSelect">
-          <option value="verification">Ver</option>
-          <option value="validation">Val</option>
+          <option value="verification">📐</option>
+          <option value="validation">👍</option>
         </select>
         <button class="btn" style="padding:4px 8px;font-size:10px"
           onclick="window.__fsm.addDoDFromInput('${node.id}')">+</button>
@@ -116,6 +124,7 @@ function renderNodePanel(node) {
               return `<div class="edge-list-item" onclick="window.__fsm.selectEdge('${e.id}')">
                 <span class="edge-arrow">${dir}</span>
                 ${other ? escHtml(other.name) : '?'}
+                ${e.guard ? `<span style="color:var(--text-dim);margin-left:auto">🔒</span>` : ''}
                 ${e.label
                   ? `<span style="color:var(--text-dim);margin-left:auto">${escHtml(e.label)}</span>`
                   : ''}
@@ -151,6 +160,11 @@ function renderEdgePanel(edge) {
         <input class="field-input" value="${escHtml(edge.label)}"
           onchange="window.__fsm.updateEdgeLabel('${edge.id}', this.value)" />
       </div>
+      ${edge.guard ? `
+      <div class="verification-gate" style="margin-top:8px">
+        <span class="verification-gate-icon">🔒</span>
+        Guard: ${escHtml(edge.guard)} — source が done でないと遷移不可
+      </div>` : ''}
     </div>
     <div style="padding-top:4px">
       <button class="btn btn-danger" style="width:100%"

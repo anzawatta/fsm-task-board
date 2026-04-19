@@ -13,4 +13,5 @@ export const uiState = {
   viewOffset:     { x: 0, y: 0 },
   viewScale:      1,
   isDirty:        false,
+  resizing: null,
 };

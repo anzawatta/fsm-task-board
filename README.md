@@ -7,5 +7,5 @@ python3 -m http.server 8080
 ```
 
 ```
-open index.html
+open http://localhost:8080
 ```

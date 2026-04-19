@@ -7,15 +7,16 @@ import FSM from '../core/fsm.js';
 import { uiState } from '../core/state.js';
 import { renderSidePanel } from './panel.js';
 
+// アイコン定数（window経由で上書き可能）
+const STATUS_ICONS  = window.__FSM_STATUS_ICONS  || { idle: '📝', wip: '▶️', done: '✅' };
+const STATUS_LABELS = window.__FSM_STATUS_LABELS || { idle: '未実施', wip: '作業中', done: '完了' };
+
+const WRAP_CHARS = 13;
+
 export function statusColor(status) {
   return status === 'wip'  ? 'var(--accent-wip)'  :
          status === 'done' ? 'var(--accent-done)'  :
                              'var(--accent-idle)';
-}
-
-export function statusLabel(status) {
-  return status === 'wip'  ? '実装中' :
-         status === 'done' ? '完了'   : '未着手';
 }
 
 export function render() {
@@ -64,6 +65,16 @@ export function fitView() {
 // Nodes
 // -------------------------------------------------------
 
+function wrapText(name) {
+  const lines = [];
+  let pos = 0;
+  while (pos < name.length) {
+    lines.push(name.slice(pos, pos + WRAP_CHARS));
+    pos += WRAP_CHARS;
+  }
+  return lines;
+}
+
 export function renderNodes() {
   const g = document.getElementById('nodesGroup');
   g.innerHTML = '';
@@ -76,6 +87,7 @@ export function renderNodes() {
     group.classList.add('fsm-node');
     if (node.id === uiState.selectedNodeId) group.classList.add('node-selected');
     group.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+    group.setAttribute('pointer-events', 'bounding-box');
 
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
     rect.classList.add('node-body');
@@ -86,29 +98,68 @@ export function renderNodes() {
     rect.setAttribute('fill',   'var(--bg-secondary)');
     rect.setAttribute('stroke', statusColor(node.status));
     rect.setAttribute('stroke-width', node.id === uiState.selectedNodeId ? '2' : '1.5');
+    rect.setAttribute('pointer-events', 'bounding-box');
 
-    if (FSM.hasUncheckedValidation(node.id)) {
+    if (FSM.hasUncheckedVerification(node.id)) {
       rect.setAttribute('stroke-dasharray', '6 3');
     }
     group.appendChild(rect);
 
+    // ノード名: tspan 複数行折り返し
+    const lines = wrapText(node.name);
+    const lineHeight = 14;
+    const totalTextH = lines.length * lineHeight;
+    const textStartY = -(totalTextH / 2) + lineHeight / 2;
+
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.classList.add('node-label');
-    label.setAttribute('y', -6);
-    label.textContent = node.name.length > 14
-      ? node.name.slice(0, 13) + '…'
-      : node.name;
+    label.setAttribute('pointer-events', 'none');
+    lines.forEach((line, i) => {
+      const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      tspan.setAttribute('x', '0');
+      tspan.setAttribute('dy', i === 0 ? `${textStartY}` : `${lineHeight}`);
+      tspan.textContent = line;
+      label.appendChild(tspan);
+    });
     group.appendChild(label);
 
-    const statusText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    statusText.classList.add('node-status-indicator');
-    statusText.setAttribute('y', 12);
-    statusText.setAttribute('fill', statusColor(node.status));
-    const dodDone  = node.dod.filter(d => d.checked).length;
-    const dodTotal = node.dod.length;
-    const dodStr   = dodTotal > 0 ? ` [${dodDone}/${dodTotal}]` : '';
-    statusText.textContent = statusLabel(node.status) + dodStr;
-    group.appendChild(statusText);
+    // ステータスアイコン + ラベル + DoDカウント（左上）
+    const dodDone       = node.dod.filter(d => d.checked).length;
+    const dodTotal      = node.dod.length;
+    const statusIcon    = STATUS_ICONS[node.status]  || '';
+    const statusLbl     = STATUS_LABELS[node.status] || '';
+    const dodCount      = dodTotal > 0 ? `${dodDone}/${dodTotal}` : '';
+    const isNarrow      = nw < 120;
+    const statusIconContent = isNarrow
+      ? statusIcon + (dodCount ? ' ' + dodCount : '')
+      : statusIcon + ' ' + statusLbl + (dodCount ? '[' + dodCount + ']' : '');
+
+    const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    iconText.classList.add('node-status-icon');
+    iconText.setAttribute('x', -nw / 2 + 6);
+    iconText.setAttribute('y', -nh / 2 + 12);
+    iconText.setAttribute('font-size', '10');
+    iconText.setAttribute('text-anchor', 'start');
+    iconText.setAttribute('dominant-baseline', 'central');
+    iconText.setAttribute('pointer-events', 'none');
+    iconText.setAttribute('fill', statusColor(node.status));
+    iconText.textContent = statusIconContent;
+    group.appendChild(iconText);
+
+    // リサイズハンドル（選択時のみ）
+    if (node.id === uiState.selectedNodeId) {
+      const handle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      handle.classList.add('resize-handle');
+      handle.setAttribute('x', nw / 2 - 8);
+      handle.setAttribute('y', nh / 2 - 8);
+      handle.setAttribute('width', 8);
+      handle.setAttribute('height', 8);
+      handle.setAttribute('fill', 'var(--accent-wip)');
+      handle.setAttribute('cursor', 'se-resize');
+      handle.setAttribute('rx', '2');
+      handle._resizeNodeId = node.id;
+      group.appendChild(handle);
+    }
 
     group._nodeId = node.id;
     g.appendChild(group);
@@ -178,6 +229,7 @@ export function renderEdges() {
       const cy = from.y - from.height / 2;
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.classList.add('edge-line');
+      if (edge.guard) path.classList.add('guard-edge');
       path.setAttribute('d',
         `M ${cx - loopW/2} ${cy}` +
         ` C ${cx - loopW} ${cy - loopH},` +
@@ -185,7 +237,7 @@ export function renderEdges() {
         `   ${cx + loopW/2} ${cy}`
       );
       group.appendChild(path);
-      if (edge.label) addEdgeLabel(group, cx, cy - loopH + 8, edge.label);
+      if (edge.label || edge.guard) addEdgeLabel(group, cx, cy - loopH + 8, edge.label, edge.guard);
 
     } else {
       const { index, groupSize, hasBidi } = layout;
@@ -203,10 +255,11 @@ export function renderEdges() {
       if (totalOffset === 0) {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.classList.add('edge-line');
+        if (edge.guard) line.classList.add('guard-edge');
         line.setAttribute('x1', x1); line.setAttribute('y1', y1);
         line.setAttribute('x2', x2); line.setAttribute('y2', y2);
         group.appendChild(line);
-        if (edge.label) addEdgeLabel(group, (x1+x2)/2, (y1+y2)/2, edge.label);
+        if (edge.label || edge.guard) addEdgeLabel(group, (x1+x2)/2, (y1+y2)/2, edge.label, edge.guard);
 
       } else {
         const dx  = x2 - x1, dy = y2 - y1;
@@ -218,9 +271,10 @@ export function renderEdges() {
 
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.classList.add('edge-line');
+        if (edge.guard) path.classList.add('guard-edge');
         path.setAttribute('d', `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`);
         group.appendChild(path);
-        if (edge.label) addEdgeLabel(group, mx, my, edge.label);
+        if (edge.label || edge.guard) addEdgeLabel(group, mx, my, edge.label, edge.guard);
       }
     }
 
@@ -229,10 +283,22 @@ export function renderEdges() {
   });
 }
 
-export function addEdgeLabel(group, x, y, text) {
+export function addEdgeLabel(group, x, y, text, guard) {
+  const displayText = (guard ? '🔒 ' : '') + (text || '');
+  if (!displayText.trim()) {
+    if (guard) {
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      icon.classList.add('edge-guard-lock');
+      icon.setAttribute('x', x);
+      icon.setAttribute('y', y);
+      icon.textContent = '🔒';
+      group.appendChild(icon);
+    }
+    return;
+  }
   const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bg.classList.add('edge-label-bg');
-  const textLen = text.length * 6 + 12;
+  const textLen = displayText.length * 6 + 12;
   bg.setAttribute('x', x - textLen / 2);
   bg.setAttribute('y', y - 8);
   bg.setAttribute('width',  textLen);
@@ -243,6 +309,6 @@ export function addEdgeLabel(group, x, y, text) {
   label.classList.add('edge-label');
   label.setAttribute('x', x);
   label.setAttribute('y', y);
-  label.textContent = text;
+  label.textContent = displayText;
   group.appendChild(label);
 }

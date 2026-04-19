@@ -15,7 +15,7 @@
   --accent-idle: #8080a0;
   --accent-wip: #c87000;
   --accent-done: #15803d;
-  --accent-validation: #7c3aed;
+  --accent-validation: #1d6ac4;
   --accent-verification: #1d6ac4;
   --accent-danger: #dc2626;
   --accent-edge: #9090a8;
@@ -159,17 +159,13 @@ body {
   dominant-baseline: central;
 }
 
-.node-status-indicator {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 500;
-  pointer-events: none;
-  text-anchor: middle;
-}
-
 .node-selected .node-body {
   stroke-width: 2;
   filter: drop-shadow(0 0 6px rgba(200, 112, 0, 0.25));
+}
+
+.node-status-icon {
+  fill: var(--text-primary);
 }
 
 /* === EDGES === */
@@ -184,6 +180,19 @@ body {
 }
 
 .fsm-edge:hover .edge-line { stroke: var(--text-secondary); stroke-width: 2; }
+
+/* === GUARD EDGE === */
+.edge-line.guard-edge {
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+
+.edge-guard-lock {
+  font-size: 11px;
+  pointer-events: none;
+  dominant-baseline: central;
+  text-anchor: middle;
+}
 
 .edge-label-bg { fill: var(--bg-primary); rx: 3; ry: 3; }
 
@@ -283,7 +292,7 @@ body {
 .status-option.active-done { border-color: var(--accent-done); color: var(--accent-done); background: rgba(21,128,61,0.08); }
 
 /* === DoD LIST === */
-.dod-list { display: flex; flex-direction: column; gap: 6px; }
+.dod-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 
 .dod-item {
   display: flex;
@@ -337,6 +346,19 @@ body {
 
 .dod-action-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
 
+/* === DoD GROUP HEADERS === */
+.dod-group-header {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 2px 2px;
+  margin-top: 2px;
+}
+.dod-group-header:first-child { margin-top: 0; }
+.dod-group-verification  { color: var(--accent-verification); }
+.dod-group-validation { color: var(--accent-validation); }
+
 .dod-add-row { display: flex; gap: 4px; margin-top: 4px; }
 
 .dod-add-input {
@@ -383,8 +405,12 @@ body {
 .edge-list-item:hover { border-color: var(--border-mid); }
 .edge-arrow { color: var(--text-dim); }
 
-/* === VALIDATION GATE === */
-.validation-gate {
+/* === RESIZE HANDLE === */
+.resize-handle { cursor: se-resize; }
+.resize-handle:hover { opacity: 0.75; }
+
+/* === EXISTENCE GATE === */
+.existence-gate {
   display: flex; align-items: center; gap: 6px;
   padding: 6px 8px;
   background: rgba(124,58,237,0.05);
@@ -392,11 +418,11 @@ body {
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--accent-validation);
+  color: var(--accent-existence);
   margin-top: 8px;
 }
 
-.validation-gate-icon { font-size: 14px; }
+.existence-gate-icon { font-size: 14px; }
 
 /* === EDGE CREATION MODE === */
 .edge-mode-banner {
@@ -513,19 +539,6 @@ body {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.55; }
 }
-
-/* === LEGEND === */
-.legend {
-  position: absolute;
-  bottom: 12px; left: 12px;
-  display: flex; gap: 12px;
-  font-family: var(--font-mono);
-  font-size: 9px; color: var(--text-dim);
-  z-index: 10; pointer-events: none;
-}
-
-.legend-item { display: flex; align-items: center; gap: 4px; }
-.legend-swatch { width: 8px; height: 8px; border-radius: 2px; }
 
 /* === SCROLLBAR === */
 ::-webkit-scrollbar { width: 6px; }
