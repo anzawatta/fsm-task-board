@@ -15,6 +15,9 @@ export function setRenderCallback(fn) { _render = fn; }
 // Side Panel
 // -------------------------------------------------------
 
+// @see EARS-002#REQ-S003
+// @see EARS-002#REQ-S004
+// @see EARS-002#REQ-S005
 export function renderSidePanel() {
   const empty   = document.getElementById('panelEmpty');
   const content = document.getElementById('panelContent');
@@ -28,11 +31,18 @@ export function renderSidePanel() {
     content.style.display = 'block';
     renderEdgePanel(FSM.edges[uiState.selectedEdgeId]);
   } else {
+    // @see EARS-002#REQ-S005
     empty.style.display   = 'block';
     content.style.display = 'none';
   }
 }
 
+// @see EARS-003#REQ-E001
+// @see EARS-003#REQ-E002
+// @see EARS-003#REQ-E003
+// @see EARS-003#REQ-E004
+// @see EARS-003#REQ-E005
+// @see EARS-003#REQ-E006
 function renderNodePanel(node) {
   const content  = document.getElementById('panelContent');
   const dodDone  = node.dod.filter(d => d.checked).length;
@@ -140,6 +150,8 @@ function renderNodePanel(node) {
   `;
 }
 
+// @see EARS-001#REQ-E004
+// @see EARS-004#REQ-E001
 function renderEdgePanel(edge) {
   const content = document.getElementById('panelContent');
   const from    = FSM.nodes[edge.fromNode];

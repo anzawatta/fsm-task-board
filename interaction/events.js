@@ -25,6 +25,7 @@ export function initEvents(renderFn, applyViewFn) {
     if (uiState.edgeMode) return;
 
     // リサイズハンドルの判定（先に処理）
+    // @see EARS-001#REQ-E008
     if (e.target.classList.contains('resize-handle')) {
       e.stopPropagation();
       const nodeId = e.target._resizeNodeId || e.target.closest('.fsm-node')._nodeId;
@@ -67,6 +68,9 @@ export function initEvents(renderFn, applyViewFn) {
 
   // エッジグループへの委譲リスナー
   const eg = document.getElementById('edgesGroup');
+  // @see EARS-002#REQ-E002
+  // @see EARS-004#REQ-W001
+  // @see EARS-004#REQ-S001
   eg.addEventListener('click', e => {
     const g = e.target.closest('.fsm-edge');
     if (!g) return;
@@ -96,6 +100,7 @@ export function initEvents(renderFn, applyViewFn) {
   // キャンバスのパン
   const canvas = document.getElementById('canvas');
 
+  // @see EARS-002#REQ-E005
   canvas.addEventListener('mousedown', e => {
     const svgEl = document.getElementById('svgCanvas');
     if (e.target === canvas || e.target === svgEl || e.target.tagName === 'svg') {
@@ -111,6 +116,7 @@ export function initEvents(renderFn, applyViewFn) {
     }
   });
 
+  // @see EARS-002#REQ-E003
   canvas.addEventListener('click', e => {
     const svgEl = document.getElementById('svgCanvas');
     const isBackground =
@@ -139,6 +145,7 @@ export function initEvents(renderFn, applyViewFn) {
 
   // グローバル mousemove / mouseup
   document.addEventListener('mousemove', e => {
+    // @see EARS-001#REQ-E008
     if (uiState.resizing) {
       const dx = (e.clientX - uiState.resizing.startX) / uiState.viewScale;
       const dy = (e.clientY - uiState.resizing.startY) / uiState.viewScale;
@@ -150,6 +157,7 @@ export function initEvents(renderFn, applyViewFn) {
       }
       return;
     }
+    // @see EARS-001#REQ-E007
     if (uiState.dragging) {
       const dx = (e.clientX - uiState.dragging.startX) / uiState.viewScale;
       const dy = (e.clientY - uiState.dragging.startY) / uiState.viewScale;
@@ -158,6 +166,7 @@ export function initEvents(renderFn, applyViewFn) {
       FSM.nodes[uiState.dragging.id].y = uiState.dragging.origY + dy;
       _render();
     }
+    // @see EARS-002#REQ-E005
     if (uiState.panState) {
       uiState.viewOffset.x = uiState.panState.origOffX + (e.clientX - uiState.panState.startX);
       uiState.viewOffset.y = uiState.panState.origOffY + (e.clientY - uiState.panState.startY);
@@ -174,10 +183,14 @@ export function initEvents(renderFn, applyViewFn) {
 
   // キーボード
   document.addEventListener('keydown', e => {
+    // @see EARS-001#REQ-S003
+    // @see EARS-002#REQ-E004
     if (e.key === 'Escape') {
       if (uiState.edgeMode) toggleEdgeMode();
       document.getElementById('contextMenu').classList.remove('active');
     }
+    // @see EARS-001#REQ-E005
+    // @see EARS-001#REQ-E006
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
       if (uiState.selectedNodeId) deleteSelectedNode();
@@ -195,18 +208,27 @@ export function initEvents(renderFn, applyViewFn) {
 // Selection
 // -------------------------------------------------------
 
+// @see EARS-002#REQ-E001
+// @see EARS-002#REQ-S001
+// @see EARS-002#REQ-S003
 export function selectNode(id) {
   uiState.selectedNodeId = id;
   uiState.selectedEdgeId = null;
   _render();
 }
 
+// @see EARS-002#REQ-E002
+// @see EARS-002#REQ-S002
+// @see EARS-002#REQ-S004
 export function selectEdge(id) {
   uiState.selectedEdgeId = id;
   uiState.selectedNodeId = null;
   _render();
 }
 
+// @see EARS-002#REQ-E003
+// @see EARS-002#REQ-E004
+// @see EARS-002#REQ-S005
 export function deselect() {
   uiState.selectedNodeId = null;
   uiState.selectedEdgeId = null;
@@ -217,13 +239,17 @@ export function deselect() {
 // Node click (edge mode 対応)
 // -------------------------------------------------------
 
+// @see EARS-001#REQ-S001
+// @see EARS-001#REQ-S002
 function onNodeClick(id) {
   if (uiState.edgeMode) {
     if (!uiState.edgeModeSource) {
+      // @see EARS-001#REQ-S001
       uiState.edgeModeSource = id;
       document.getElementById('edgeModeBanner').textContent =
         `Edge: ${FSM.nodes[id].name} → ? (click target)  |  ESC to cancel`;
     } else {
+      // @see EARS-001#REQ-S002
       FSM.addEdge(uiState.edgeModeSource, id, '');
       uiState.edgeModeSource = null;
       markDirty();
@@ -239,6 +265,8 @@ function onNodeClick(id) {
 // Edge Mode
 // -------------------------------------------------------
 
+// @see EARS-001#REQ-E003
+// @see EARS-001#REQ-S003
 export function toggleEdgeMode() {
   uiState.edgeMode       = !uiState.edgeMode;
   uiState.edgeModeSource = null;
@@ -251,6 +279,7 @@ export function toggleEdgeMode() {
 // CRUD actions (panel の onclick から window.__fsm 経由で呼ばれる)
 // -------------------------------------------------------
 
+// @see EARS-001#REQ-E001
 export function addNode() {
   const canvasRect = document.getElementById('canvas').getBoundingClientRect();
   const x = (canvasRect.width  / 2 - uiState.viewOffset.x) / uiState.viewScale;
@@ -268,6 +297,7 @@ export function addNode() {
   }, 50);
 }
 
+// @see EARS-001#REQ-E002
 export function updateNodeName(id, name) {
   if (FSM.nodes[id]) {
     FSM.nodes[id].name = name;
@@ -276,6 +306,7 @@ export function updateNodeName(id, name) {
   }
 }
 
+// @see EARS-001#REQ-E008
 export function updateNodeSize(id, w, h) {
   const node = FSM.nodes[id];
   if (!node) return;
@@ -285,6 +316,7 @@ export function updateNodeSize(id, w, h) {
   _render();
 }
 
+// @see EARS-003#REQ-E001
 export function setStatus(id, status) {
   if (FSM.nodes[id]) {
     if (status === 'done') {
@@ -299,6 +331,7 @@ export function setStatus(id, status) {
   }
 }
 
+// @see EARS-001#REQ-E004
 export function updateEdgeLabel(id, label) {
   if (FSM.edges[id]) {
     FSM.edges[id].label = label;
@@ -307,6 +340,8 @@ export function updateEdgeLabel(id, label) {
   }
 }
 
+// @see EARS-001#REQ-E005
+// @see EARS-001#REQ-W001
 export function deleteSelectedNode() {
   if (uiState.selectedNodeId) {
     FSM.removeNode(uiState.selectedNodeId);
@@ -316,6 +351,7 @@ export function deleteSelectedNode() {
   }
 }
 
+// @see EARS-001#REQ-E006
 export function deleteSelectedEdge() {
   if (uiState.selectedEdgeId) {
     FSM.removeEdge(uiState.selectedEdgeId);
@@ -325,6 +361,7 @@ export function deleteSelectedEdge() {
   }
 }
 
+// @see EARS-003#REQ-E002
 export function addDoDFromInput(nodeId) {
   const input  = document.getElementById('dodAddInput');
   const select = document.getElementById('dodTypeSelect');
@@ -338,6 +375,7 @@ export function addDoDFromInput(nodeId) {
   }, 50);
 }
 
+// @see EARS-003#REQ-E005
 export function toggleDoD(nodeId, dodId) {
   const node = FSM.nodes[nodeId];
   if (!node) return;
@@ -352,6 +390,7 @@ export function toggleDoD(nodeId, dodId) {
   }
 }
 
+// @see EARS-003#REQ-E004
 export function toggleDoDType(nodeId, dodId) {
   const node = FSM.nodes[nodeId];
   if (!node) return;
@@ -364,6 +403,7 @@ export function toggleDoDType(nodeId, dodId) {
   }
 }
 
+// @see EARS-003#REQ-E006
 export function removeDoDItem(nodeId, dodId) {
   FSM.removeDoDItem(nodeId, dodId);
   markDirty();

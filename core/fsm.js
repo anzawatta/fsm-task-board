@@ -19,9 +19,15 @@ const FSM = {
   _idCounter: 0,
   _edgeIdCounter: 0,
 
+  // @see EARS-001#REQ-U001
+  // @see EARS-006#REQ-W002
   genId()     { return 's' + (++this._idCounter); },
+  // @see EARS-001#REQ-U001
+  // @see EARS-006#REQ-W002
   genEdgeId() { return 'e' + (++this._edgeIdCounter); },
 
+  // @see EARS-001#REQ-E001
+  // @see EARS-006#REQ-U002
   addNode(name, x, y, width, height) {
     const id = this.genId();
     this.nodes[id] = {
@@ -37,22 +43,29 @@ const FSM = {
     return id;
   },
 
+  // @see EARS-001#REQ-U002
+  // @see EARS-006#REQ-U003
   addEdge(fromNode, toNode, label, guard) {
     const id = this.genEdgeId();
     this.edges[id] = { id, fromNode, toNode, label: label || '', guard: guard || null };
     return id;
   },
 
+  // @see EARS-001#REQ-E005
+  // @see EARS-001#REQ-W001
   removeNode(id) {
     delete this.nodes[id];
     Object.keys(this.edges).forEach(eid => {
       const e = this.edges[eid];
+      // @see EARS-001#REQ-W001
       if (e.fromNode === id || e.toNode === id) delete this.edges[eid];
     });
   },
 
+  // @see EARS-001#REQ-E006
   removeEdge(id) { delete this.edges[id]; },
 
+  // @see EARS-003#REQ-E002
   addDoDItem(nodeId, text, type) {
     const node = this.nodes[nodeId];
     if (!node) return;
@@ -64,12 +77,14 @@ const FSM = {
     return item;
   },
 
+  // @see EARS-003#REQ-E006
   removeDoDItem(nodeId, dodId) {
     const node = this.nodes[nodeId];
     if (!node) return;
     node.dod = node.dod.filter(d => d.id !== dodId);
   },
 
+  // @see EARS-003#REQ-E004
   updateDoDItemType(nodeId, dodId, newType) {
     const node = this.nodes[nodeId];
     if (!node) return;
@@ -77,6 +92,8 @@ const FSM = {
     if (item) item.type = newType;
   },
 
+  // @see EARS-004#REQ-U001
+  // @see EARS-004#REQ-W001
   hasUncheckedVerification(nodeId) {
     const node = this.nodes[nodeId];
     if (!node) return false;
@@ -103,6 +120,9 @@ const FSM = {
   // -------------------------------------------------------
   // Canvas JSON Schema Export
   // -------------------------------------------------------
+  // @see EARS-006#REQ-U001
+  // @see EARS-006#REQ-U002
+  // @see EARS-006#REQ-U003
   toJSON() {
     return JSON.stringify({
       nodes: Object.values(this.nodes).map(n => ({
@@ -131,6 +151,9 @@ const FSM = {
   // Canvas JSON Schema Import
   // (後方互換: states[] / from / to も受容)
   // -------------------------------------------------------
+  // @see EARS-006#REQ-E001
+  // @see EARS-006#REQ-U004
+  // @see EARS-006#REQ-U005
   fromJSON(json) {
     const data = typeof json === 'string' ? JSON.parse(json) : json;
     this.nodes = {};

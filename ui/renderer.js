@@ -19,6 +19,8 @@ export function statusColor(status) {
                              'var(--accent-idle)';
 }
 
+// @see EARS-002#REQ-U001
+// @see EARS-007#REQ-U005
 export function render() {
   renderEdges();
   renderNodes();
@@ -36,6 +38,7 @@ export function applyView() {
   eg.style.transformOrigin = '0 0';
 }
 
+// @see EARS-002#REQ-E006
 export function fitView() {
   const nodes = Object.values(FSM.nodes);
   if (nodes.length === 0) {
@@ -75,6 +78,9 @@ function wrapText(name) {
   return lines;
 }
 
+// @see EARS-002#REQ-S001
+// @see EARS-003#REQ-S001
+// @see EARS-003#REQ-S002
 export function renderNodes() {
   const g = document.getElementById('nodesGroup');
   g.innerHTML = '';
@@ -170,6 +176,9 @@ export function renderNodes() {
 // Edges
 // -------------------------------------------------------
 
+// @see EARS-004#REQ-S001
+// @see EARS-004#REQ-S002
+// @see EARS-004#REQ-W002
 export function renderEdges() {
   const g = document.getElementById('edgesGroup');
   g.innerHTML = '';
@@ -283,6 +292,7 @@ export function renderEdges() {
   });
 }
 
+// @see EARS-004#REQ-W002
 export function addEdgeLabel(group, x, y, text, guard) {
   const displayText = (guard ? '🔒 ' : '') + (text || '');
   if (!displayText.trim()) {

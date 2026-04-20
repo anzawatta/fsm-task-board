@@ -10,6 +10,8 @@ import { clearDirty } from '../ui/dirty.js';
 // -------------------------------------------------------
 // スキーマ検証: nodes / edges が配列で各要素に id があること
 // -------------------------------------------------------
+// @see EARS-006#REQ-W001
+// @see EARS-007#REQ-S002
 function validateSchema(data) {
   if (!Array.isArray(data.nodes) || !Array.isArray(data.edges)) {
     throw new Error('JSON に nodes / edges 配列が存在しません。');
@@ -42,7 +44,13 @@ async function writeToHandle(handle) {
 // -------------------------------------------------------
 // Open
 // -------------------------------------------------------
+// @see EARS-005#REQ-E001
+// @see EARS-005#REQ-E002
+// @see EARS-005#REQ-E003
+// @see EARS-005#REQ-W001
+// @see EARS-007#REQ-S001
 export async function openFile(renderFn, fitViewFn) {
+  // @see EARS-005#REQ-W001
   if (uiState.isDirty) {
     const ok = confirm('未保存の変更があります。破棄して開きますか？');
     if (!ok) return;
@@ -64,16 +72,20 @@ export async function openFile(renderFn, fitViewFn) {
   try {
     data = JSON.parse(text);
   } catch {
+    // @see EARS-007#REQ-S001
     alert('JSON の構文エラーです。ファイルを確認してください。');
     return;
   }
   try {
     validateSchema(data);
   } catch (e) {
+    // @see EARS-007#REQ-S002
     alert('スキーマエラー: ' + e.message);
     return;
   }
+  // @see EARS-005#REQ-E002
   FSM.fromJSON(data);
+  // @see EARS-005#REQ-E003
   uiState.fileHandle = handle;
   uiState.fileName = file.name;
   uiState.selectedNodeId = null;
@@ -87,15 +99,21 @@ export async function openFile(renderFn, fitViewFn) {
 // -------------------------------------------------------
 // Save
 // -------------------------------------------------------
+// @see EARS-005#REQ-S001
+// @see EARS-005#REQ-S002
+// @see EARS-007#REQ-S003
 export async function saveFile(renderFn, fitViewFn) {
+  // @see EARS-005#REQ-S002
   if (!uiState.fileHandle) {
     return saveFileAs(renderFn, fitViewFn);
   }
   try {
+    // @see EARS-005#REQ-S001
     await writeToHandle(uiState.fileHandle);
     clearDirty();
   } catch (e) {
     if (e.name === 'AbortError') return;
+    // @see EARS-007#REQ-S003
     alert('保存できませんでした。Save As で別ファイルを選択してください。');
   }
 }
@@ -103,6 +121,8 @@ export async function saveFile(renderFn, fitViewFn) {
 // -------------------------------------------------------
 // Save As
 // -------------------------------------------------------
+// @see EARS-005#REQ-E004
+// @see EARS-005#REQ-E005
 export async function saveFileAs(renderFn, fitViewFn) {
   let handle;
   try {
