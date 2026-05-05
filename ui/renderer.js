@@ -92,6 +92,7 @@ export function renderNodes() {
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.classList.add('fsm-node');
     if (node.id === uiState.selectedNodeId) group.classList.add('node-selected');
+    if (node.status === 'done') group.classList.add('node-done');
     group.setAttribute('transform', `translate(${node.x}, ${node.y})`);
     group.setAttribute('pointer-events', 'bounding-box');
 

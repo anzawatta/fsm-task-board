@@ -164,6 +164,14 @@ body {
   filter: drop-shadow(0 0 6px rgba(200, 112, 0, 0.25));
 }
 
+/* 完了ノード: グレーアウトして目立たなくする */
+.node-done .node-body {
+  fill: var(--bg-tertiary);
+  stroke: var(--border-bright);
+}
+.node-done .node-label { fill: var(--text-dim); }
+.node-done .node-status-icon { fill: var(--text-dim); }
+
 .node-status-icon {
   fill: var(--text-primary);
 }
