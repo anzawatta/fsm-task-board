@@ -16,6 +16,10 @@
     <button class="btn" id="edgeModeBtn" onclick="toggleEdgeMode()" title="Add Edge">+ Edge</button>
     <div class="toolbar-sep"></div>
     <button class="btn" onclick="fitView()">Fit View</button>
+    <label class="toolbar-checkbox" title="ノード ID をボードに表示">
+      <input type="checkbox" id="showIdsCheckbox" onchange="toggleShowIds()" />
+      Show IDs
+    </label>
     <div class="toolbar-right">
       <span class="file-name-badge" id="fileNameBadge">untitled</span>
       <div class="dirty-badge" id="dirtyBadge">*</div>

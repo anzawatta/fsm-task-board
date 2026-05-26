@@ -19,4 +19,7 @@ export const uiState = {
   resizing:       null,
   fileHandle:     null,
   fileName:       'untitled',
+  // Why: ボード上にノード ID を可視化するデバッグ向けトグル。
+  // 既定 off — 通常の閲覧ノイズにならないようにする。
+  showIds:        false,
 };

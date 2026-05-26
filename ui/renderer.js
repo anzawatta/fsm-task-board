@@ -25,6 +25,15 @@ export function render() {
   renderEdges();
   renderNodes();
   renderSidePanel();
+  syncShowIdsCheckbox();
+}
+
+// Why: Edge Mode ボタンが render 時に uiState.edgeMode を反映するのと同じパターン。
+// 状態をシリアライズ/復元するルートが将来増えたとき (例: localStorage 復元)、
+// チェックボックスの DOM 状態を render() で必ず再同期させる構造にしておく。
+function syncShowIdsCheckbox() {
+  const cb = document.getElementById('showIdsCheckbox');
+  if (cb) cb.checked = !!uiState.showIds;
 }
 
 export function applyView() {
@@ -152,6 +161,23 @@ export function renderNodes() {
     iconText.setAttribute('fill', statusColor(node.status));
     iconText.textContent = statusIconContent;
     group.appendChild(iconText);
+
+    // Why: Show IDs トグル ON のときだけ ID ラベルをノード左下に描画する。
+    // 既存の左上 status icon (-nw/2 + 6, -nh/2 + 12) と対称の位置で、ボーダーから内側に
+    // 6px / 6px オフセット。エッジ ID をボードに描かないのは、エッジラベル位置が
+    // パラレル/セルフループ間で詰まっており追加文字を載せる余地がないため
+    // (ID 表示はサイドパネル側に集約する設計に従う)。
+    if (uiState.showIds) {
+      const idText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      idText.classList.add('node-id-label');
+      idText.setAttribute('x', -nw / 2 + 6);
+      idText.setAttribute('y', nh / 2 - 6);
+      idText.setAttribute('text-anchor', 'start');
+      idText.setAttribute('dominant-baseline', 'alphabetic');
+      idText.setAttribute('pointer-events', 'none');
+      idText.textContent = node.id;
+      group.appendChild(idText);
+    }
 
     // リサイズハンドル（選択時のみ）
     if (node.id === uiState.selectedNodeId) {

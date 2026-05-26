@@ -51,7 +51,7 @@ function renderNodePanel(node) {
 
   content.innerHTML = `
     <div class="panel-section">
-      <div class="panel-section-title">Node</div>
+      <div class="panel-section-title">Node（id=${escHtml(node.id)}）</div>
       <div class="field-group">
         <label class="field-label">Name</label>
         <input class="field-input" value="${escHtml(node.name)}"
@@ -398,12 +398,12 @@ function renderEdgePanel(edge) {
   const from    = FSM.nodes[edge.fromNode];
   const to      = FSM.nodes[edge.toNode];
 
+  // Why: 旧実装ではタイトル "Edge" 直下に独立した <div>id: xxx</div> が並んでいた。
+  // 仕様 (feat-fsm-id-visibility) で ID は panel-section-title に統合する方針に変更。
+  // 縦方向の情報密度を上げ、Node パネルと表現を揃える。
   content.innerHTML = `
     <div class="panel-section">
-      <div class="panel-section-title">Edge</div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-bottom:4px">
-        id: ${escHtml(edge.id)}
-      </div>
+      <div class="panel-section-title">Edge（id=${escHtml(edge.id)}）</div>
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);margin-bottom:10px">
         ${from ? escHtml(from.name) : '?'} → ${to ? escHtml(to.name) : '?'}
       </div>
