@@ -276,6 +276,19 @@ export function toggleEdgeMode() {
 }
 
 // -------------------------------------------------------
+// Show IDs toggle
+// -------------------------------------------------------
+
+// Why: チェックボックス onchange から呼ばれるトグル。
+// uiState を反転 → 再描画で renderNodes() が ID ラベルを書くかどうか分岐する。
+// チェックボックスの checked 状態は render() 側で uiState.showIds を反映させない
+// （= ここでは DOM 直接更新せず、index.html の checked 属性更新は render 経由）。
+export function toggleShowIds() {
+  uiState.showIds = !uiState.showIds;
+  if (_render) _render();
+}
+
+// -------------------------------------------------------
 // CRUD actions (panel の onclick から window.__fsm 経由で呼ばれる)
 // -------------------------------------------------------
 

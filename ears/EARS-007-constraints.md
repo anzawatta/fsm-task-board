@@ -28,3 +28,7 @@
 2. REQ-S002: If loaded JSON fails schema validation (`nodes`/`edges` not arrays), the system SHALL display a schema error alert and abort
 3. REQ-S003: If file write permission is denied by the browser, the system SHALL display an alert and suggest using "Save As"
 4. REQ-S004: Where the browser does not support File System Access API, the system SHALL notify the user with an alert and abort the file operation
+
+## プラットフォーム制約
+
+1. REQ-P001: File System Access API は `FileSystemFileHandle` からフルパスを公開しない。ファイル名（`handle.name`）のみ取得可能。フルパス表示機能は実装不可。

@@ -6,7 +6,7 @@
 
 import FSM from './core/fsm.js';
 import { render, applyView, fitView } from './ui/renderer.js';
-import { initEvents, toggleEdgeMode, addNode, selectEdge,
+import { initEvents, toggleEdgeMode, toggleShowIds, addNode, selectEdge,
          updateNodeName, updateNodeSize, setStatus, updateEdgeLabel,
          deleteSelectedNode, deleteSelectedEdge,
          addDoDFromInput, toggleDoD, removeDoDItem, toggleDoDType } from './interaction/events.js';
@@ -37,6 +37,7 @@ window.__fsm = {
 // -------------------------------------------------------
 window.addNode        = addNode;
 window.toggleEdgeMode = toggleEdgeMode;
+window.toggleShowIds  = toggleShowIds;
 window.fitView        = fitView;
 window.openFile       = () => openFile(render, fitView);
 window.saveFile       = () => saveFile(render, fitView);
