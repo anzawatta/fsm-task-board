@@ -114,7 +114,10 @@ def _check_mtime(filename: str, path: Path, force: bool) -> dict | None:
     """Return error dict if mtime changed since last read, else None."""
     # @see EARS-008#REQ-U010
     if filename not in _last_mtime:
-        # Never read by this instance — allow write (no baseline).
+        # No prior read — seed the baseline from current mtime and allow this write.
+        # Subsequent writes in this session will be protected.
+        # @see EARS-008#REQ-U010
+        _last_mtime[filename] = path.stat().st_mtime
         return None
     current_mtime = path.stat().st_mtime
     if current_mtime != _last_mtime[filename] and not force:
@@ -214,7 +217,10 @@ def add_node(
     error dict when a precondition is violated.
     """
     # @see EARS-008#REQ-U011
-    path = _safe_path(filename)
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
 
     # @see EARS-008#REQ-W008
     if len(name) > 80:
@@ -281,7 +287,10 @@ def update_node(
     省略した場合（デフォルト ``"__unset__"``）は既存値を保持する。
     """
     # @see EARS-008#REQ-U011
-    path = _safe_path(filename)
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
 
     # @see EARS-008#REQ-W008
     if name is not None and len(name) > 80:
@@ -336,7 +345,10 @@ def add_edge(
     Returns full created edge object with ``"status": "created"``.
     """
     # @see EARS-008#REQ-U011
-    path = _safe_path(filename)
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
 
     # @see EARS-008#REQ-W008
     if len(label) > 80:
@@ -381,7 +393,10 @@ def add_edge(
     _last_mtime[filename] = path.stat().st_mtime
 
     # @see EARS-008#REQ-E002
-    return {"status": "created", **new_edge}
+    # Why: wrap edge under "edge" key for consistent return shape with node tools
+    # Spreading **new_edge flat would collide with the operation "status" key if
+    # edge data ever gains a status field, and breaks symmetry with add_node.
+    return {"status": "created", "edge": new_edge}
 
 
 @mcp.tool()
@@ -398,7 +413,10 @@ def change_edge(
     Supplied fields are updated; omitted fields are left unchanged (REQ-E003).
     """
     # @see EARS-008#REQ-U011
-    path = _safe_path(filename)
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
 
     # @see EARS-008#REQ-W008
     if label is not None and len(label) > 80:
@@ -420,20 +438,21 @@ def change_edge(
 
     node_ids = {n.get("id") for n in nodes}
 
+    # Validate both before mutating
     # @see EARS-008#REQ-U005
     # @see EARS-008#REQ-W002
-    if from_node is not None:
-        if from_node not in node_ids:
-            return {"status": "error", "reason": "fromNode not found", "conflicting_id": from_node}
-        target["fromNode"] = from_node
-
+    if from_node is not None and from_node not in node_ids:
+        return {"status": "error", "reason": "fromNode not found", "conflicting_id": from_node}
     # @see EARS-008#REQ-W003
-    if to_node is not None:
-        if to_node not in node_ids:
-            return {"status": "error", "reason": "toNode not found", "conflicting_id": to_node}
-        target["toNode"] = to_node
+    if to_node is not None and to_node not in node_ids:
+        return {"status": "error", "reason": "toNode not found", "conflicting_id": to_node}
 
+    # Apply mutations only after all validations pass
     # @see EARS-008#REQ-E003
+    if from_node is not None:
+        target["fromNode"] = from_node
+    if to_node is not None:
+        target["toNode"] = to_node
     if label is not None:
         target["label"] = label
 
@@ -443,7 +462,8 @@ def change_edge(
     _write_atomic(path, canvas)
     _last_mtime[filename] = path.stat().st_mtime
 
-    return {"status": "updated", **target}
+    # Why: same edge/status collision avoidance as add_edge — wrap under "edge" key.
+    return {"status": "updated", "edge": dict(target)}
 
 
 @mcp.tool()
@@ -454,7 +474,10 @@ def remove_node(
 ) -> dict:
     """ノードとその接続エッジをカスケード削除する (REQ-E004)。"""
     # @see EARS-008#REQ-U011
-    path = _safe_path(filename)
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
 
     # @see EARS-008#REQ-U010
     mtime_err = _check_mtime(filename, path, force)
@@ -496,7 +519,10 @@ def remove_edge(
 ) -> dict:
     """エッジのみを削除する（接続ノードは変更しない）(REQ-E005)。"""
     # @see EARS-008#REQ-U011
-    path = _safe_path(filename)
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
 
     # @see EARS-008#REQ-U010
     mtime_err = _check_mtime(filename, path, force)

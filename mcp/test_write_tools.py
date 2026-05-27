@@ -168,7 +168,7 @@ class TestAddEdgeOrphanNodes:
         self._canvas_with_two_nodes("e_valid.json")
         result = add_edge("e_valid.json", from_node="s1", to_node="s2", label="go")
         assert result["status"] == "created"
-        assert result["id"] == "e1"  # edges have no status field collision
+        assert result["edge"]["id"] == "e1"
 
 
 class TestAddEdgeLabelTooLong:
@@ -197,7 +197,7 @@ class TestAddEdgeIdSequence:
              "name": "B", "status": None, "dod": []},
         ])
         result = add_edge("e_seq.json", from_node="s1", to_node="s2")
-        assert result["id"] == "e1"
+        assert result["edge"]["id"] == "e1"
 
 
 # ---------------------------------------------------------------------------
@@ -426,6 +426,19 @@ class TestAutoPlacement:
 
 
 # ---------------------------------------------------------------------------
+# Path traversal — safe_path error dict
+# ---------------------------------------------------------------------------
+
+class TestSafePathTraversal:
+    """REQ-U011: path traversal attempt returns error dict."""
+
+    def test_traversal_returns_error_dict(self):
+        result = add_node("../outside.json", name="X")
+        assert result["status"] == "error"
+        assert "error" in result["reason"].lower() or "禁止" in result["reason"]
+
+
+# ---------------------------------------------------------------------------
 # Standalone runner (no pytest)
 # ---------------------------------------------------------------------------
 
@@ -447,6 +460,7 @@ if __name__ == "__main__":
         TestRemoveEdge,
         TestMtimeCheck,
         TestAutoPlacement,
+        TestSafePathTraversal,
     ]
 
     passed = 0
