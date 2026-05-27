@@ -439,6 +439,43 @@ class TestSafePathTraversal:
 
 
 # ---------------------------------------------------------------------------
+# String dod regression
+# ---------------------------------------------------------------------------
+
+class TestStringDodHandling:
+    """Regression: add_node with string dod items must not crash read_canvas (canvas_to_md)."""
+
+    def test_add_node_with_string_dod_normalizes(self):
+        """add_node with string dod items converts them to dict format."""
+        _make_canvas("dod_str.json")
+        result = add_node("dod_str.json", name="Node", dod=["requirement 1", "requirement 2"])
+        assert result["status"] == "created"
+        # dod items should be normalized to dicts
+        node_dod = result["node"]["dod"]
+        for item in node_dod:
+            assert isinstance(item, dict), f"Expected dict, got {type(item)}: {item}"
+            assert "text" in item
+
+    def test_canvas_to_md_handles_string_dod(self):
+        """canvas_to_md.to_dod_section must not crash on string dod items."""
+        # Create canvas with string dod items (pre-existing data scenario)
+        canvas = {
+            "nodes": [
+                {"id": "s1", "x": 0, "y": 0, "width": 120, "height": 60,
+                 "name": "Test", "status": None, "dod": ["string item 1", "string item 2"]}
+            ],
+            "edges": []
+        }
+        from canvas_to_md import convert
+        # Should not raise
+        try:
+            result = convert(canvas)
+            assert "string item 1" in result
+        except AttributeError as e:
+            assert False, f"convert() crashed with string dod: {e}"
+
+
+# ---------------------------------------------------------------------------
 # Standalone runner (no pytest)
 # ---------------------------------------------------------------------------
 
@@ -461,6 +498,7 @@ if __name__ == "__main__":
         TestMtimeCheck,
         TestAutoPlacement,
         TestSafePathTraversal,
+        TestStringDodHandling,
     ]
 
     passed = 0

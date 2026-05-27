@@ -79,8 +79,11 @@ def format_diff(diff: dict) -> str:
             if b["status"] != a["status"]:
                 lines.append(f"  - status: `{b['status']}` → `{a['status']}`")
             if b["dod"] != a["dod"]:
-                bt = {d["text"] for d in b["dod"]}
-                at = {d["text"] for d in a["dod"]}
+                def _dod_text(d: dict | str) -> str:
+                    # Why: defensive handling for string dod items in pre-existing data
+                    return d if isinstance(d, str) else d.get("text", str(d))
+                bt = {_dod_text(d) for d in b["dod"]}
+                at = {_dod_text(d) for d in a["dod"]}
                 for t in at - bt:
                     lines.append(f"  - DoD追加: {t}")
                 for t in bt - at:

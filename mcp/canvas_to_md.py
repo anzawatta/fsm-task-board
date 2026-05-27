@@ -34,9 +34,14 @@ def to_dod_section(nodes: list) -> str:
         has_any = True
         parts.append(f"### {n['name']}")
         for item in dod:
-            t = item.get("type", "")
-            suffix = f" _({t})_" if t else ""
-            parts.append(f"- {item['text']}{suffix}")
+            if isinstance(item, str):
+                # Why: defensive handling for pre-existing canvas data where dod items
+                # may be plain strings instead of {"text":...,"type":...} dicts.
+                parts.append(f"- {item}")
+            else:
+                t = item.get("type", "")
+                suffix = f" _({t})_" if t else ""
+                parts.append(f"- {item.get('text', str(item))}{suffix}")
         parts.append("")  # blank line
     return "\n".join(parts) if has_any else ""
 

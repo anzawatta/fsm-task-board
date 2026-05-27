@@ -247,6 +247,19 @@ def add_node(
     # @see EARS-008#REQ-E001
     x, y = _auto_place(nodes)
 
+    # @see EARS-008#REQ-E001
+    # Why: normalize dod items — callers (LLM models) may pass plain strings
+    # instead of {"text":..., "type":..., "checked":...} dicts. Convert defensively
+    # to prevent canvas_to_md.py from crashing on subsequent read_canvas calls.
+    raw_dod = dod if dod is not None else []
+    normalized_dod = []
+    for item in raw_dod:
+        if isinstance(item, str):
+            normalized_dod.append({"text": item, "type": "", "checked": False})
+        elif isinstance(item, dict):
+            normalized_dod.append(item)
+        # skip non-string, non-dict items silently
+
     new_node: dict = {
         "id": new_id,
         "x": x,
@@ -255,7 +268,7 @@ def add_node(
         "height": _NODE_HEIGHT,
         "name": name,
         "status": status,
-        "dod": dod if dod is not None else [],
+        "dod": normalized_dod,
     }
     nodes.append(new_node)
 
