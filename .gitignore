@@ -3,3 +3,4 @@ fsm-*.json
 .env
 output
 .cartographer_state
+__pycache__/
