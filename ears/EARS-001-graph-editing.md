@@ -1,3 +1,22 @@
+---
+provides:
+  - REQ-U001
+  - REQ-U002
+  - REQ-W001
+  - REQ-W002
+  - REQ-W003
+  - REQ-S001
+  - REQ-S002
+  - REQ-S003
+  - REQ-E001
+  - REQ-E002
+  - REQ-E003
+  - REQ-E004
+  - REQ-E005
+  - REQ-E006
+  - REQ-E007
+  - REQ-E008
+---
 # EARS-001: Graph Editing
 
 **Status:** Active

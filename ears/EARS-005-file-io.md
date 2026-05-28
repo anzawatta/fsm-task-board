@@ -1,3 +1,22 @@
+---
+provides:
+  - REQ-U001
+  - REQ-U002
+  - REQ-U003
+  - REQ-W001
+  - REQ-W002
+  - REQ-W003
+  - REQ-S001
+  - REQ-S002
+  - REQ-S003
+  - REQ-E001
+  - REQ-E002
+  - REQ-E003
+  - REQ-E004
+  - REQ-E005
+requires:
+  - EARS-006
+---
 # EARS-005: File I/O
 
 **Status:** Active

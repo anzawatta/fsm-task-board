@@ -1,3 +1,40 @@
+---
+provides:
+  - REQ-U001
+  - REQ-U002
+  - REQ-U003
+  - REQ-U004
+  - REQ-U005
+  - REQ-U006
+  - REQ-U007
+  - REQ-U008
+  - REQ-U009
+  - REQ-U010
+  - REQ-U011
+  - REQ-W001
+  - REQ-W002
+  - REQ-W003
+  - REQ-W004
+  - REQ-W005
+  - REQ-W006
+  - REQ-W007
+  - REQ-W008
+  - REQ-S001
+  - REQ-S002
+  - REQ-E001
+  - REQ-E002
+  - REQ-E003
+  - REQ-E004
+  - REQ-E005
+  - REQ-E006
+requires:
+  - EARS-001#REQ-W002
+  - EARS-001#REQ-W003
+  - EARS-003#REQ-U001
+  - EARS-003#REQ-W001
+  - EARS-005
+  - EARS-006
+---
 # EARS-008: MCP Write Tools
 
 **Status:** Draft  

@@ -1,3 +1,22 @@
+---
+provides:
+  - REQ-U001
+  - REQ-U002
+  - REQ-U003
+  - REQ-U004
+  - REQ-U005
+  - REQ-W001
+  - REQ-W002
+  - REQ-W003
+  - REQ-S001
+  - REQ-S002
+  - REQ-S003
+  - REQ-S004
+  - REQ-P001
+requires:
+  - EARS-005
+  - EARS-006
+---
 # EARS-007: Constraints
 
 **Status:** Active

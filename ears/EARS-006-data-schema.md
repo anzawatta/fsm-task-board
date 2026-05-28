@@ -1,3 +1,14 @@
+---
+provides:
+  - REQ-U001
+  - REQ-U002
+  - REQ-U003
+  - REQ-U004
+  - REQ-U005
+  - REQ-W001
+  - REQ-W002
+  - REQ-E001
+---
 # EARS-006: Data Schema
 
 **Status:** Active
