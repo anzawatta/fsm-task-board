@@ -1,3 +1,14 @@
+---
+provides:
+  - REQ-U001
+  - REQ-W001
+  - REQ-W002
+  - REQ-S001
+  - REQ-S002
+  - REQ-E001
+requires:
+  - EARS-003
+---
 # EARS-004: Validation Guard
 
 **Status:** Active

@@ -1,3 +1,19 @@
+---
+provides:
+  - REQ-U001
+  - REQ-U002
+  - REQ-S001
+  - REQ-S002
+  - REQ-S003
+  - REQ-S004
+  - REQ-S005
+  - REQ-E001
+  - REQ-E002
+  - REQ-E003
+  - REQ-E004
+  - REQ-E005
+  - REQ-E006
+---
 # EARS-002: Canvas Interaction
 
 **Status:** Active
