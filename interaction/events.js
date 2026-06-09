@@ -59,6 +59,12 @@ export function initEvents(renderFn, applyViewFn) {
     // regular click delegates to onNodeClick for single-select / edge mode.
     if (e.shiftKey) {
       const id = g._nodeId;
+      // Why: Seed selectedNodeIds with the already-selected node on the first
+      // Shift+click so "click A → Shift+click B" works without holding Shift
+      // from the very first click.
+      if (uiState.selectedNodeIds.size === 0 && uiState.selectedNodeId) {
+        uiState.selectedNodeIds.add(uiState.selectedNodeId);
+      }
       if (uiState.selectedNodeIds.has(id)) {
         uiState.selectedNodeIds.delete(id);
       } else {
@@ -104,6 +110,11 @@ export function initEvents(renderFn, applyViewFn) {
       e.stopPropagation();
       if (e.shiftKey) {
         const id = g._nodeId;
+        // Why: same seed logic as nodesGroup click — ensure the plain-selected node
+        // is included when Shift+click starts a multi-select from a group frame.
+        if (uiState.selectedNodeIds.size === 0 && uiState.selectedNodeId) {
+          uiState.selectedNodeIds.add(uiState.selectedNodeId);
+        }
         if (uiState.selectedNodeIds.has(id)) {
           uiState.selectedNodeIds.delete(id);
         } else {
