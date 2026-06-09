@@ -79,6 +79,25 @@ export function initEvents(renderFn, applyViewFn) {
   // @see EARS-002#REQ-U003
   // グループフレームへの委譲リスナー（グループノードも通常ノードと同じ操作をサポート）
   const gg = document.getElementById('groupsGroup');
+
+  // @see EARS-002#REQ-E004
+  // Why: drag must move all descendants, not only direct children — nested groups
+  // would otherwise leave their own children behind (EARS-002 REQ-E004).
+  function _allDescendants(groupId) {
+    const result = [];
+    const queue = [groupId];
+    while (queue.length) {
+      const pid = queue.shift();
+      Object.values(FSM.nodes).forEach(n => {
+        if (n.parentId === pid) {
+          result.push(n);
+          if (n.type === 'group') queue.push(n.id);
+        }
+      });
+    }
+    return result;
+  }
+
   if (gg) {
     gg.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
@@ -98,8 +117,7 @@ export function initEvents(renderFn, applyViewFn) {
         // @see EARS-002#REQ-E004
         // Why: capture original positions of all children so drag applies the same
         // delta to each child (EARS-002 REQ-E004), avoiding accumulated rounding error.
-        childOrigPositions: Object.values(FSM.nodes)
-          .filter(n => n.parentId === id)
+        childOrigPositions: _allDescendants(id)
           .map(n => ({ id: n.id, origX: n.x, origY: n.y })),
       };
     });
