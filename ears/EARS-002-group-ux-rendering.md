@@ -43,6 +43,8 @@
 
 2. REQ-S002: WHILE `isDirty` is `false` and a group creation completes successfully (new group node added, children's `parentId` updated), `isDirty` SHALL be set to `true` — identical to the dirty-marking behavior triggered by any other node mutation.
 
+3. REQ-S003: WHILE a group node is selected, the side panel SHALL display only the Name, Size, and Edges sections. The Status toggle and Definition of Done section SHALL NOT be rendered for group nodes, as these are task-node-specific concepts.
+
 ---
 
 ## イベント駆動条件 [EVENT-DRIVEN]
