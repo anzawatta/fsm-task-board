@@ -49,23 +49,8 @@ function renderNodePanel(node) {
   const dodDone  = node.dod.filter(d => d.checked).length;
   const dodTotal = node.dod.length;
 
-  content.innerHTML = `
-    <div class="panel-section">
-      <div class="panel-section-title">Node（id=${escHtml(node.id)}）</div>
-      <div class="field-group">
-        <label class="field-label">Name</label>
-        <input class="field-input" value="${escHtml(node.name)}"
-          onchange="window.__fsm.updateNodeName('${node.id}', this.value)" />
-      </div>
-      <div class="field-group">
-        <label class="field-label">Size (width × height)</label>
-        <div style="display:flex;gap:6px">
-          <input class="field-input" type="number" value="${node.width}" style="width:50%"
-            onchange="window.__fsm.updateNodeSize('${node.id}', this.value, null)" />
-          <input class="field-input" type="number" value="${node.height}" style="width:50%"
-            onchange="window.__fsm.updateNodeSize('${node.id}', null, this.value)" />
-        </div>
-      </div>
+  // Why: group nodes are containers — status/DoD are task-node concepts (EARS-002)
+  const statusAndDodSections = node.type !== 'group' ? `
       <div class="field-group">
         <label class="field-label">Status</label>
         <div class="status-toggle">
@@ -80,7 +65,7 @@ function renderNodePanel(node) {
     </div>
 
     <div class="panel-section">
-      <div class="panel-section-title">Definition of Done ${dodTotal > 0 ? `(${dodDone}/${dodTotal})` : ''}</div>
+      <div class="panel-section-title">Definition of Done ${dodTotal > 0 ? '(' + dodDone + '/' + dodTotal + ')' : ''}</div>
       <div class="dod-list" id="dodList">
         ${(() => {
           const verificationItems  = node.dod.filter(d => d.type === 'verification');
@@ -100,11 +85,11 @@ function renderNodePanel(node) {
             </div>`;
           let html = '';
           if (verificationItems.length > 0) {
-            html += `<div class="dod-group-header dod-group-verification">📐 verification</div>`;
+            html += '<div class="dod-group-header dod-group-verification">📐 verification</div>';
             html += verificationItems.map(renderItem).join('');
           }
           if (validationItems.length > 0) {
-            html += `<div class="dod-group-header dod-group-validation">👍 validation</div>`;
+            html += '<div class="dod-group-header dod-group-validation">👍 validation</div>';
             html += validationItems.map(renderItem).join('');
           }
           return html || '<div style="font-size:11px;color:var(--text-dim);padding:4px">No DoD items</div>';
@@ -121,6 +106,26 @@ function renderNodePanel(node) {
           onclick="window.__fsm.addDoDFromInput('${node.id}')">+</button>
       </div>
     </div>
+    ` : '</div>';
+
+  content.innerHTML = `
+    <div class="panel-section">
+      <div class="panel-section-title">Node（id=${escHtml(node.id)}）</div>
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input class="field-input" value="${escHtml(node.name)}"
+          onchange="window.__fsm.updateNodeName('${node.id}', this.value)" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Size (width × height)</label>
+        <div style="display:flex;gap:6px">
+          <input class="field-input" type="number" value="${node.width}" style="width:50%"
+            onchange="window.__fsm.updateNodeSize('${node.id}', this.value, null)" />
+          <input class="field-input" type="number" value="${node.height}" style="width:50%"
+            onchange="window.__fsm.updateNodeSize('${node.id}', null, this.value)" />
+        </div>
+      </div>
+      ${statusAndDodSections}
 
     <div class="panel-section">
       <div class="panel-section-title">Edges</div>

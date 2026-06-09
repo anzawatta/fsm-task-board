@@ -20,8 +20,13 @@ export function statusColor(status) {
 }
 
 // @see EARS-002#REQ-U001
+// @see EARS-002#REQ-W004
 // @see EARS-007#REQ-U005
 export function render() {
+  // @see EARS-002#REQ-E005
+  // Why: renderGroups must execute before renderNodes so group frames are drawn
+  // beneath node bodies in the SVG paint order (EARS-002 REQ-E005, REQ-W004).
+  renderGroups();
   renderEdges();
   renderNodes();
   renderSidePanel();
@@ -39,12 +44,17 @@ function syncShowIdsCheckbox() {
 export function applyView() {
   const ng = document.getElementById('nodesGroup');
   const eg = document.getElementById('edgesGroup');
+  const gg = document.getElementById('groupsGroup');
   const { viewOffset, viewScale } = uiState;
   const t  = `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${viewScale})`;
   ng.style.transform       = t;
   eg.style.transform       = t;
   ng.style.transformOrigin = '0 0';
   eg.style.transformOrigin = '0 0';
+  if (gg) {
+    gg.style.transform       = t;
+    gg.style.transformOrigin = '0 0';
+  }
 }
 
 // @see EARS-002#REQ-E006
@@ -74,6 +84,66 @@ export function fitView() {
 }
 
 // -------------------------------------------------------
+// Groups
+// -------------------------------------------------------
+
+// @see EARS-002#REQ-U001
+// @see EARS-002#REQ-U002
+// @see EARS-002#REQ-E003
+// @see EARS-002#REQ-W004
+export function renderGroups() {
+  const g = document.getElementById('groupsGroup');
+  if (!g) return;
+  g.innerHTML = '';
+
+  // @see EARS-002#REQ-E003
+  // Why: iterate only nodes with type === "group"; legacy nodes without type field
+  // are treated as regular text nodes and never rendered as group frames (ADV-001).
+  Object.values(FSM.nodes).forEach(node => {
+    if (node.type !== 'group') return;
+
+    const nw = node.width;
+    const nh = node.height;
+
+    const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    wrapper.classList.add('fsm-group');
+    if (node.id === uiState.selectedNodeId) wrapper.classList.add('node-selected');
+    wrapper.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+    wrapper.setAttribute('pointer-events', 'bounding-box');
+
+    // @see EARS-002#REQ-U001
+    // Why: dashed semi-transparent rect distinguishes the group frame visually
+    // from regular node boxes while staying behind member nodes in paint order.
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', -nw / 2);
+    rect.setAttribute('y', -nh / 2);
+    rect.setAttribute('width',  nw);
+    rect.setAttribute('height', nh);
+    rect.setAttribute('fill',   'rgba(100, 149, 237, 0.08)');
+    rect.setAttribute('stroke', node.id === uiState.selectedNodeId ? 'var(--accent-wip)' : 'cornflowerblue');
+    rect.setAttribute('stroke-width', node.id === uiState.selectedNodeId ? '2' : '1.5');
+    rect.setAttribute('stroke-dasharray', '8 4');
+    rect.setAttribute('rx', '6');
+    rect.setAttribute('pointer-events', 'bounding-box');
+    wrapper.appendChild(rect);
+
+    // @see EARS-002#REQ-U002
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', -nw / 2 + 8);
+    label.setAttribute('y', -nh / 2 + 14);
+    label.setAttribute('font-size', '11');
+    label.setAttribute('fill', 'cornflowerblue');
+    label.setAttribute('font-weight', 'bold');
+    label.setAttribute('pointer-events', 'none');
+    label.textContent = node.name;
+    wrapper.appendChild(label);
+
+    wrapper._nodeId = node.id;
+    g.appendChild(wrapper);
+  });
+}
+
+// -------------------------------------------------------
 // Nodes
 // -------------------------------------------------------
 
@@ -95,12 +165,22 @@ export function renderNodes() {
   g.innerHTML = '';
 
   Object.values(FSM.nodes).forEach(node => {
+    // @see EARS-002#REQ-U001
+    // Why: group nodes are rendered exclusively by renderGroups() in the groupsGroup
+    // layer (below nodesGroup). Rendering them again here would overlay a second
+    // box on top of the group frame, breaking the visual layering.
+    if (node.type === 'group') return;
+
     const nw = node.width;
     const nh = node.height;
 
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.classList.add('fsm-node');
     if (node.id === uiState.selectedNodeId) group.classList.add('node-selected');
+    // @see EARS-002#REQ-U005
+    // Why: nodes in the multi-select set get a subtle visual indicator (dashed outline)
+    // so the user knows which nodes will be grouped.
+    if (uiState.selectedNodeIds.has(node.id)) group.classList.add('node-multi-selected');
     if (node.status === 'done') group.classList.add('node-done');
     group.setAttribute('transform', `translate(${node.x}, ${node.y})`);
     group.setAttribute('pointer-events', 'bounding-box');

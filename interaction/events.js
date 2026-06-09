@@ -54,8 +54,105 @@ export function initEvents(renderFn, applyViewFn) {
     const g = e.target.closest('.fsm-node');
     if (!g) return;
     e.stopPropagation();
-    onNodeClick(g._nodeId);
+    // @see EARS-002#REQ-U005
+    // Why: Shift+click adds to selectedNodeIds for multi-select (group creation);
+    // regular click delegates to onNodeClick for single-select / edge mode.
+    if (e.shiftKey) {
+      const id = g._nodeId;
+      // Why: Seed selectedNodeIds with the already-selected node on the first
+      // Shift+click so "click A → Shift+click B" works without holding Shift
+      // from the very first click.
+      if (uiState.selectedNodeIds.size === 0 && uiState.selectedNodeId) {
+        uiState.selectedNodeIds.add(uiState.selectedNodeId);
+      }
+      if (uiState.selectedNodeIds.has(id)) {
+        uiState.selectedNodeIds.delete(id);
+      } else {
+        uiState.selectedNodeIds.add(id);
+      }
+      _render();
+    } else {
+      onNodeClick(g._nodeId);
+    }
   });
+
+  // @see EARS-002#REQ-U003
+  // グループフレームへの委譲リスナー（グループノードも通常ノードと同じ操作をサポート）
+  const gg = document.getElementById('groupsGroup');
+
+  // @see EARS-002#REQ-E004
+  // Why: drag must move all descendants, not only direct children — nested groups
+  // would otherwise leave their own children behind (EARS-002 REQ-E004).
+  function _allDescendants(groupId) {
+    const result = [];
+    const queue = [groupId];
+    while (queue.length) {
+      const pid = queue.shift();
+      Object.values(FSM.nodes).forEach(n => {
+        if (n.parentId === pid) {
+          result.push(n);
+          if (n.type === 'group') queue.push(n.id);
+        }
+      });
+    }
+    return result;
+  }
+
+  if (gg) {
+    gg.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      if (uiState.edgeMode) return;
+      const g = e.target.closest('.fsm-group');
+      if (!g) return;
+      e.stopPropagation();
+      const id = g._nodeId;
+      const node = FSM.nodes[id];
+      if (!node) return;
+      uiState.dragging = {
+        id,
+        startX: e.clientX, startY: e.clientY,
+        origX: node.x, origY: node.y,
+        moved: false,
+        isGroup: true,
+        // @see EARS-002#REQ-E004
+        // Why: capture original positions of all children so drag applies the same
+        // delta to each child (EARS-002 REQ-E004), avoiding accumulated rounding error.
+        childOrigPositions: _allDescendants(id)
+          .map(n => ({ id: n.id, origX: n.x, origY: n.y })),
+      };
+    });
+
+    gg.addEventListener('click', e => {
+      const g = e.target.closest('.fsm-group');
+      if (!g) return;
+      e.stopPropagation();
+      if (e.shiftKey) {
+        const id = g._nodeId;
+        // Why: same seed logic as nodesGroup click — ensure the plain-selected node
+        // is included when Shift+click starts a multi-select from a group frame.
+        if (uiState.selectedNodeIds.size === 0 && uiState.selectedNodeId) {
+          uiState.selectedNodeIds.add(uiState.selectedNodeId);
+        }
+        if (uiState.selectedNodeIds.has(id)) {
+          uiState.selectedNodeIds.delete(id);
+        } else {
+          uiState.selectedNodeIds.add(id);
+        }
+        _render();
+      } else {
+        onNodeClick(g._nodeId);
+      }
+    });
+
+    gg.addEventListener('contextmenu', e => {
+      const g = e.target.closest('.fsm-group');
+      if (!g) return;
+      e.preventDefault();
+      e.stopPropagation();
+      selectNode(g._nodeId);
+      showContextMenu(e.clientX, e.clientY, nodeContextItems(g._nodeId));
+    });
+  }
 
   ng.addEventListener('contextmenu', e => {
     const g = e.target.closest('.fsm-node');
@@ -158,12 +255,25 @@ export function initEvents(renderFn, applyViewFn) {
       return;
     }
     // @see EARS-001#REQ-E007
+    // @see EARS-002#REQ-E004
     if (uiState.dragging) {
       const dx = (e.clientX - uiState.dragging.startX) / uiState.viewScale;
       const dy = (e.clientY - uiState.dragging.startY) / uiState.viewScale;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) uiState.dragging.moved = true;
       FSM.nodes[uiState.dragging.id].x = uiState.dragging.origX + dx;
       FSM.nodes[uiState.dragging.id].y = uiState.dragging.origY + dy;
+      // @see EARS-002#REQ-E004
+      // Why: when dragging a group, apply the same delta to every child node so
+      // member positions track the group frame (EARS-002 REQ-E004).
+      if (uiState.dragging.isGroup && uiState.dragging.childOrigPositions) {
+        uiState.dragging.childOrigPositions.forEach(cp => {
+          const child = FSM.nodes[cp.id];
+          if (child) {
+            child.x = cp.origX + dx;
+            child.y = cp.origY + dy;
+          }
+        });
+      }
       _render();
     }
     // @see EARS-002#REQ-E005
@@ -214,6 +324,8 @@ export function initEvents(renderFn, applyViewFn) {
 export function selectNode(id) {
   uiState.selectedNodeId = id;
   uiState.selectedEdgeId = null;
+  // Clear multi-select when switching to single selection
+  uiState.selectedNodeIds.clear();
   _render();
 }
 
@@ -232,6 +344,7 @@ export function selectEdge(id) {
 export function deselect() {
   uiState.selectedNodeId = null;
   uiState.selectedEdgeId = null;
+  uiState.selectedNodeIds.clear();
   _render();
 }
 
@@ -308,6 +421,75 @@ export function addNode() {
     const input = document.querySelector('#panelContent .field-input');
     if (input) { input.focus(); input.select(); }
   }, 50);
+}
+
+// @see EARS-002#REQ-E001
+// @see EARS-002#REQ-W001
+// @see EARS-002#REQ-W003
+export function groupSelectedNodes() {
+  const ids = Array.from(uiState.selectedNodeIds);
+  // @see EARS-002#REQ-W001
+  if (ids.length < 2) {
+    alert('グループ化するには2つ以上のノードを選択してください（Shift+クリックで複数選択）。');
+    return;
+  }
+
+  const selectedNodes = ids.map(id => FSM.nodes[id]).filter(Boolean);
+  if (selectedNodes.length < 2) return;
+
+  // Bounding box of selected nodes + 20px padding on all sides
+  // @see EARS-002#REQ-E001
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  selectedNodes.forEach(n => {
+    minX = Math.min(minX, n.x - n.width  / 2);
+    maxX = Math.max(maxX, n.x + n.width  / 2);
+    minY = Math.min(minY, n.y - n.height / 2);
+    maxY = Math.max(maxY, n.y + n.height / 2);
+  });
+  const PAD  = 20;
+  const cx   = (minX + maxX) / 2;
+  const cy   = (minY + maxY) / 2;
+  const gw   = (maxX - minX) + PAD * 2;
+  const gh   = (maxY - minY) + PAD * 2;
+
+  // @see EARS-002#REQ-E001
+  const groupId = FSM.addNode('Group', cx, cy, gw, gh, { type: 'group' });
+
+  // @see EARS-002#REQ-W003
+  // @see EARS-001#REQ-U005
+  // Why: the new group is placed at depth 0 (no parent). Selected nodes become
+  // depth 1. Any descendants of selected nodes inherit depth+1. The total depth
+  // of the deepest descendant must not exceed 3.
+  // subtreeHeight of a node = max descendant depth below it (0 = leaf).
+  // After grouping: new node depth = 1 + subtreeHeight must be ≤ 3.
+  for (const n of selectedNodes) {
+    const subtreeHeight = _maxDescendantDepth(n.id, 0);
+    // After wrapping: n is at depth 1, deepest descendant at depth 1 + subtreeHeight
+    if (1 + subtreeHeight > 3) {
+      alert(`グループ化するとネスト深度が3を超えます。グループ化を中止します。`);
+      // Rollback the created group node
+      delete FSM.nodes[groupId];
+      FSM._groupIdCounter--;
+      return;
+    }
+  }
+
+  // Set parentId of selected nodes to the new group
+  ids.forEach(id => {
+    if (FSM.nodes[id]) FSM.nodes[id].parentId = groupId;
+  });
+
+  uiState.selectedNodeIds.clear();
+  uiState.selectedNodeId = groupId;
+  markDirty();
+  _render();
+}
+
+/** Returns the maximum depth from node `id` downward (0 = leaf). */
+function _maxDescendantDepth(id, current) {
+  const children = Object.values(FSM.nodes).filter(n => n.parentId === id);
+  if (children.length === 0) return current;
+  return Math.max(...children.map(c => _maxDescendantDepth(c.id, current + 1)));
 }
 
 // @see EARS-001#REQ-E002
