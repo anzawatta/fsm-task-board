@@ -9,7 +9,8 @@ import { render, applyView, fitView } from './ui/renderer.js';
 import { initEvents, toggleEdgeMode, toggleShowIds, addNode, selectEdge,
          updateNodeName, updateNodeSize, setStatus, updateEdgeLabel,
          deleteSelectedNode, deleteSelectedEdge,
-         addDoDFromInput, toggleDoD, removeDoDItem, toggleDoDType } from './interaction/events.js';
+         addDoDFromInput, toggleDoD, removeDoDItem, toggleDoDType,
+         groupSelectedNodes } from './interaction/events.js';
 import { openFile, saveFile, saveFileAs } from './interaction/file-io.js';
 import { initBeforeUnload } from './ui/dirty.js';
 
@@ -35,10 +36,12 @@ window.__fsm = {
 // -------------------------------------------------------
 // toolbar の onclick から呼ばれる関数を window に公開
 // -------------------------------------------------------
-window.addNode        = addNode;
-window.toggleEdgeMode = toggleEdgeMode;
-window.toggleShowIds  = toggleShowIds;
-window.fitView        = fitView;
+window.addNode             = addNode;
+window.toggleEdgeMode      = toggleEdgeMode;
+window.toggleShowIds       = toggleShowIds;
+window.fitView             = fitView;
+// @see EARS-002#REQ-E001
+window.groupSelectedNodes  = groupSelectedNodes;
 window.openFile       = () => openFile(render, fitView);
 window.saveFile       = () => saveFile(render, fitView);
 window.saveFileAs     = () => saveFileAs(render, fitView);

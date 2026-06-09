@@ -9,6 +9,11 @@
 export const uiState = {
   selectedNodeId: null,
   selectedEdgeId: null,
+  // @see EARS-002#REQ-U005
+  // Why: selectedNodeIds is a Set of node IDs for multi-select, used by the
+  // "グループ化" button.  selectedNodeId (single) is kept for backward compat
+  // with panel.js / renderer highlight logic.
+  selectedNodeIds: new Set(),
   edgeMode:       false,
   edgeModeSource: null,
   dragging:       null,

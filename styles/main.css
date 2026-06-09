@@ -159,9 +159,21 @@ body {
   z-index: 0;
 }
 
+/* === GROUP FRAMES === */
+/* @see EARS-002#REQ-U001 */
+.fsm-group { cursor: pointer; user-select: none; }
+.fsm-group:hover rect { filter: brightness(0.96); }
+
 /* === NODES === */
 .fsm-node { cursor: pointer; user-select: none; }
 .fsm-node:hover .node-body { filter: brightness(0.96); }
+
+/* @see EARS-002#REQ-U005 — multi-select highlight */
+.node-multi-selected .node-body {
+  stroke-dasharray: 5 3;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(100, 149, 237, 0.40));
+}
 
 .node-body { rx: 6; ry: 6; transition: filter 0.15s; }
 
