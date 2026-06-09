@@ -86,6 +86,44 @@ def _next_node_id(nodes: list[dict]) -> str:
     return f"s{max_n + 1}"
 
 
+# @see EARS-003#REQ-U001
+# @see EARS-003#REQ-W001
+def _next_group_id(nodes: list[dict]) -> str:
+    """Compute next group node ID as g{max_numeric_suffix + 1}.
+
+    Mirrors _next_node_id() but scans g{N} IDs, keeping the two namespaces
+    independent (EARS-003 REQ-U001, EARS-001 REQ-W007).
+    """
+    max_n = 0
+    for n in nodes:
+        nid = str(n.get("id", ""))
+        if nid.startswith("g") and nid[1:].isdigit():
+            max_n = max(max_n, int(nid[1:]))
+    return f"g{max_n + 1}"
+
+
+def _resolve_depth(node_id: str, nodes: list[dict]) -> int:
+    """Return the ancestor depth of node_id (0 = root, 1 = one parent, …)."""
+    id_map = {n.get("id"): n for n in nodes}
+    depth = 0
+    current_id: str | None = node_id
+    visited: set[str] = set()
+    while True:
+        node = id_map.get(current_id)
+        if node is None:
+            break
+        parent_id = node.get("parentId")
+        if parent_id is None:
+            break
+        if parent_id in visited:
+            # circular — caller should have validated earlier, but be safe
+            break
+        visited.add(current_id)  # type: ignore[arg-type]
+        current_id = parent_id
+        depth += 1
+    return depth
+
+
 def _next_edge_id(edges: list[dict]) -> str:
     """Compute next edge ID as e{max_numeric_suffix + 1}."""
     # @see EARS-008#REQ-U003
@@ -203,6 +241,9 @@ def reset_snapshot(filename: str) -> str:
 # Write tools
 # ---------------------------------------------------------------------------
 
+_VALID_NODE_TYPES = {"text", "group"}
+
+
 @mcp.tool()
 def add_node(
     filename: str,
@@ -210,8 +251,13 @@ def add_node(
     status: str | None = None,
     dod: list | None = None,
     force: bool = False,
+    type: str = "text",
+    parentId: str | None = None,
 ) -> dict:
     """ノードを追加し採番・自動配置を行う。
+
+    ``type`` は ``"text"`` (デフォルト) または ``"group"``。
+    ``parentId`` は省略可能 (デフォルト ``null``)。
 
     Returns full created node object with ``"status": "created"``, or an
     error dict when a precondition is violated.
@@ -231,6 +277,10 @@ def add_node(
     if status not in _VALID_STATUSES:
         return {"status": "error", "reason": "invalid status", "conflicting_id": None}
 
+    # @see EARS-003#REQ-U002
+    if type not in _VALID_NODE_TYPES:
+        return {"status": "error", "reason": "invalid type"}
+
     # @see EARS-008#REQ-U010
     mtime_err = _check_mtime(filename, path, force)
     if mtime_err:
@@ -241,8 +291,42 @@ def add_node(
     nodes: list[dict] = canvas.setdefault("nodes", [])
     edges: list[dict] = canvas.setdefault("edges", [])
 
-    # @see EARS-008#REQ-U002
-    new_id = _next_node_id(nodes)
+    # @see EARS-003#REQ-U003 — validate parentId
+    if parentId is not None:
+        parent_node = next((n for n in nodes if n.get("id") == parentId), None)
+        if parent_node is None:
+            return {"status": "error", "reason": "invalid parentId"}
+        if parent_node.get("type") != "group":
+            return {"status": "error", "reason": "invalid parentId"}
+
+    # @see EARS-003#REQ-U004 — validate nesting depth
+    if parentId is not None:
+        parent_depth = _resolve_depth(parentId, nodes)
+        # new node depth = parent_depth + 1; must not exceed 3
+        if parent_depth + 1 > 3:
+            return {"status": "error", "reason": "nesting depth exceeds 3"}
+
+    # @see EARS-003#REQ-W003 — circular reference check (guard for group nodes)
+    # A new node cannot be its own ancestor (trivially safe here since new_id
+    # doesn't exist yet, but validate that parentId chain contains no cycles).
+    if parentId is not None:
+        visited_ids: set[str] = set()
+        cur: str | None = parentId
+        id_map = {n.get("id"): n for n in nodes}
+        while cur is not None:
+            if cur in visited_ids:
+                return {"status": "error", "reason": "circular parentId reference"}
+            visited_ids.add(cur)
+            cur = id_map.get(cur, {}).get("parentId")
+
+    # @see EARS-003#REQ-W001 / REQ-W002 — use correct ID namespace per type
+    if type == "group":
+        # @see EARS-003#REQ-W001
+        new_id = _next_group_id(nodes)
+    else:
+        # @see EARS-003#REQ-W002
+        # @see EARS-008#REQ-U002
+        new_id = _next_node_id(nodes)
 
     # @see EARS-008#REQ-E001
     x, y = _auto_place(nodes)
@@ -260,6 +344,7 @@ def add_node(
             normalized_dod.append(item)
         # skip non-string, non-dict items silently
 
+    # @see EARS-003#REQ-E001 / REQ-E002
     new_node: dict = {
         "id": new_id,
         "x": x,
@@ -269,6 +354,8 @@ def add_node(
         "name": name,
         "status": status,
         "dod": normalized_dod,
+        "type": type,
+        "parentId": parentId,
     }
     nodes.append(new_node)
 
@@ -485,7 +572,11 @@ def remove_node(
     id: str,
     force: bool = False,
 ) -> dict:
-    """ノードとその接続エッジをカスケード削除する (REQ-E004)。"""
+    """ノードとその接続エッジをカスケード削除する (REQ-E004)。
+
+    対象ノードが ``type: "group"`` の場合は子ノードの ``parentId`` を ``null`` に
+    リセットしてから削除する（孤立化）。子ノード自体は削除しない (EARS-003 REQ-W006)。
+    """
     # @see EARS-008#REQ-U011
     try:
         path = _safe_path(filename)
@@ -502,10 +593,20 @@ def remove_node(
     nodes: list[dict] = canvas.setdefault("nodes", [])
     edges: list[dict] = canvas.setdefault("edges", [])
 
-    original_len = len(nodes)
-    canvas["nodes"] = [n for n in nodes if n.get("id") != id]
-    if len(canvas["nodes"]) == original_len:
+    target_node = next((n for n in nodes if n.get("id") == id), None)
+    if target_node is None:
         return {"status": "error", "reason": "node not found", "conflicting_id": id}
+
+    # @see EARS-003#REQ-E003 — orphan children before deleting the group
+    # @see EARS-003#REQ-W006
+    # Why: group deletion must NOT cascade-delete children; instead reset their
+    # parentId to null (EARS-003 REQ-W006, EARS-001 REQ-S002).
+    if target_node.get("type") == "group":
+        for n in nodes:
+            if n.get("parentId") == id:
+                n["parentId"] = None
+
+    canvas["nodes"] = [n for n in nodes if n.get("id") != id]
 
     # @see EARS-008#REQ-E004
     removed_edges = [
