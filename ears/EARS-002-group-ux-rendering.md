@@ -59,7 +59,7 @@
 
 3. REQ-E003: WHEN `renderGroups()` is called during a full redraw, the system SHALL iterate all nodes whose `type === "group"`, and for each, append an SVG `<g>` element containing a `<rect>` and a `<text>` label to a dedicated SVG group layer that is ordered below the nodes layer (`nodesGroup`).
 
-4. REQ-E004: WHEN a group node is drag-moved by the user, the system SHALL update the group node's `x` and `y` in `FSM.nodes`, apply the same delta (`dx`, `dy`) to the `x`/`y` of every node whose `parentId` equals the moved group's ID, and call `render()`.
+4. REQ-E004: WHEN a group node is drag-moved by the user, the system SHALL update the group node's `x` and `y` in `FSM.nodes`, apply the same delta (`dx`, `dy`) to the `x`/`y` of **all descendants** (children, grandchildren, and deeper — collected via BFS on `parentId` chains) of the moved group, and call `render()`. A flat filter of direct children only is insufficient when nested groups are present.
 
 5. REQ-E005: WHEN `render()` is called, the system SHALL execute `renderGroups()` before `renderNodes()` so that group frames are drawn beneath node bodies in the SVG paint order.
 
