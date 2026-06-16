@@ -472,6 +472,120 @@ def update_node(
 
 
 @mcp.tool()
+def update_dod(
+    filename: str,
+    node_id: str,
+    dod: list | None = None,
+    force: bool = False,
+) -> dict:
+    """ノードの DoD（受け入れ条件）リストを差し替える。"""
+    # @see EARS-008#REQ-U011
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
+
+    # @see EARS-008#REQ-U010
+    mtime_err = _check_mtime(filename, path, force)
+    if mtime_err:
+        return mtime_err
+
+    # @see EARS-008#REQ-U001
+    canvas = json.loads(path.read_text(encoding="utf-8"))
+    nodes: list[dict] = canvas.setdefault("nodes", [])
+
+    target = next((n for n in nodes if n.get("id") == node_id), None)
+    if target is None:
+        return {"status": "error", "reason": "node not found", "conflicting_id": node_id}
+
+    # @see EARS-008#REQ-E007
+    # Why: normalize dod items — reuse add_node pattern for string→dict coercion
+    raw_dod = dod if dod is not None else []
+    normalized_dod = []
+    for item in raw_dod:
+        if isinstance(item, str):
+            normalized_dod.append({"text": item, "type": "", "checked": False})
+        elif isinstance(item, dict):
+            normalized_dod.append(item)
+        # skip non-string, non-dict items silently
+    target["dod"] = normalized_dod
+
+    # @see EARS-008#REQ-U008
+    _write_backup(filename, canvas)
+    # @see EARS-008#REQ-U007
+    _write_atomic(path, canvas)
+    _last_mtime[filename] = path.stat().st_mtime
+
+    return {"status": "updated", "node": dict(target)}
+
+
+@mcp.tool()
+def update_nodes(
+    filename: str,
+    nodes: list[dict],
+    force: bool = False,
+) -> dict:
+    """複数ノードの name / status を一括更新する。dod・座標は変更しない。"""
+    # @see EARS-008#REQ-U011
+    try:
+        path = _safe_path(filename)
+    except ValueError as e:
+        return {"status": "error", "reason": str(e)}
+
+    # @see EARS-008#REQ-U010
+    mtime_err = _check_mtime(filename, path, force)
+    if mtime_err:
+        return mtime_err
+
+    if not nodes:
+        return {"status": "error", "reason": "nodes list is empty"}
+
+    # Why: fail-fast: validate all entries before reading canvas — avoid partial state from rejected batch
+    # @see EARS-008#REQ-U012
+    for i, entry in enumerate(nodes):
+        if "id" not in entry:
+            return {"status": "error", "reason": "missing id in nodes entry", "entry_index": i}
+        # @see EARS-008#REQ-U004
+        # @see EARS-008#REQ-W001
+        if "status" in entry and entry["status"] not in _VALID_STATUSES:
+            return {
+                "status": "error",
+                "reason": "invalid status",
+                "allowed": [None, "wip", "done"],
+                "conflicting_id": entry["id"],
+            }
+        # @see EARS-008#REQ-W008
+        if "name" in entry and len(entry["name"]) > 80:
+            return {"status": "error", "reason": "name exceeds 80 characters", "conflicting_id": entry["id"]}
+
+    # @see EARS-008#REQ-U001
+    canvas = json.loads(path.read_text(encoding="utf-8"))
+    node_map = {n.get("id"): n for n in canvas.get("nodes", [])}
+
+    for entry in nodes:
+        if entry["id"] not in node_map:
+            return {"status": "error", "reason": "node not found", "conflicting_id": entry["id"]}
+
+    # @see EARS-008#REQ-E008
+    updated_nodes = []
+    for entry in nodes:
+        target = node_map[entry["id"]]
+        if "name" in entry:
+            target["name"] = entry["name"]
+        if "status" in entry:
+            target["status"] = entry["status"]
+        updated_nodes.append(dict(target))
+
+    # @see EARS-008#REQ-U008
+    _write_backup(filename, canvas)
+    # @see EARS-008#REQ-U007
+    _write_atomic(path, canvas)
+    _last_mtime[filename] = path.stat().st_mtime
+
+    return {"status": "updated", "nodes": updated_nodes}
+
+
+@mcp.tool()
 def add_edge(
     filename: str,
     from_node: str,
