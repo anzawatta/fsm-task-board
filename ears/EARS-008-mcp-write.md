@@ -27,6 +27,10 @@ provides:
   - REQ-E004
   - REQ-E005
   - REQ-E006
+  - REQ-U012
+  - REQ-W009
+  - REQ-E007
+  - REQ-E008
 requires:
   - EARS-001#REQ-W002
   - EARS-001#REQ-W003
@@ -51,6 +55,8 @@ MCP サーバー（`canvas_reader_mcp.py`）を通じたキャンバスへの書
 |------|-----------|------|
 | `add_node` | `(filename, name, status?, dod?)` | ノードを追加し、採番・自動配置を行う |
 | `update_node` | `(filename, id, name?, status?)` | 既存ノードの name または status を更新する |
+| `update_dod` | `(filename, node_id, dod?)` | ノードの DoD リストを差し替える |
+| `update_nodes` | `(filename, nodes, force?)` | 複数ノードの name / status を一括更新する |
 | `add_edge` | `(filename, from_node, to_node, label?)` | エッジを追加する |
 | `change_edge` | `(filename, edge_id, from_node?, to_node?, label?)` | エッジを in-place で書き換える（ID は保持） |
 | `remove_node` | `(filename, id)` | ノードとその接続エッジをカスケード削除する |
@@ -73,6 +79,7 @@ MCP サーバー（`canvas_reader_mcp.py`）を通じたキャンバスへの書
 9. REQ-U009: The write backup path (`SNAPSHOT_DIR/writes/`) SHALL be distinct from the read-diff snapshot path used by `read_canvas` — the two paths SHALL NOT overlap
 10. REQ-U010: Before each write, if the canvas file's mtime has changed since the MCP server last read it, the write SHALL be refused unless `force=True` is passed by the caller
 11. REQ-U011: All `filename` arguments SHALL be validated through `_safe_path()` before any file access
+12. REQ-U012: `update_nodes` SHALL validate all entries (id presence, status validity, name length) before reading the canvas file — fail-fast with no mutation on validation error
 
 ---
 
@@ -86,6 +93,7 @@ MCP サーバー（`canvas_reader_mcp.py`）を通じたキャンバスへの書
 6. REQ-W006: System SHALL NOT write to the canvas file non-atomically — direct write without temp-then-rename is prohibited
 7. REQ-W007: System SHALL NOT overwrite a canvas file that has been modified since the MCP last read it, unless `force=True` is explicitly passed — SHALL return `{"status":"error","reason":"file modified since last read"}`
 8. REQ-W008: System SHALL NOT accept a node `name` or edge `label` exceeding 80 characters — SHALL return `{"status":"error","reason":"name exceeds 80 characters"}` or `{"status":"error","reason":"label exceeds 80 characters"}`
+9. REQ-W009: System SHALL NOT accept an empty `nodes` list in `update_nodes` — SHALL return `{"status":"error","reason":"nodes list is empty"}`
 
 ---
 
@@ -104,6 +112,8 @@ MCP サーバー（`canvas_reader_mcp.py`）を通じたキャンバスへの書
 4. REQ-E004: When `remove_node` is called, the system SHALL delete the target node and also delete all edges whose `fromNode` or `toNode` matches the removed node ID (cascade delete)
 5. REQ-E005: When `remove_edge` is called, the system SHALL delete only the specified edge, leaving connected nodes intact
 6. REQ-E006: When `update_node` is called with a `name` or `status` argument, the system SHALL update only the supplied fields and leave all other node fields (including `dod`) unchanged
+7. REQ-E007: When `update_dod` is called with a valid `node_id`, the system SHALL replace the node's `dod` list (normalizing plain strings to `{"text":…,"type":"","checked":false}` dicts), save atomically, and return the updated node with `"status":"updated"`
+8. REQ-E008: When `update_nodes` is called with a valid list of node entries, the system SHALL apply all field updates in a single atomic write and return `{"status":"updated","nodes":[…]}`
 
 ---
 

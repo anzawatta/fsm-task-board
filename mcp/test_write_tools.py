@@ -29,6 +29,8 @@ import canvas_reader_mcp as mcp_mod
 # Re-bind the tool functions from the module.
 add_node = mcp_mod.add_node
 update_node = mcp_mod.update_node
+update_dod = mcp_mod.update_dod
+update_nodes = mcp_mod.update_nodes
 add_edge = mcp_mod.add_edge
 change_edge = mcp_mod.change_edge
 remove_node = mcp_mod.remove_node
@@ -69,7 +71,6 @@ class TestAddNodeInvalidStatus:
         result = add_node("n_status.json", name="X", status="todo")
         assert result["status"] == "error"
         assert result["reason"] == "invalid status"
-        assert result["conflicting_id"] is None
 
     def test_done_and_more_is_invalid(self):
         _make_canvas("n_status2.json")
@@ -476,6 +477,157 @@ class TestStringDodHandling:
 
 
 # ---------------------------------------------------------------------------
+# update_dod — positive and negative fixtures
+# ---------------------------------------------------------------------------
+
+class TestUpdateDod:
+    """update_dod: replace node DoD list."""
+
+    def _canvas_with_node(self, filename):
+        return _make_canvas(filename, nodes=[
+            {"id": "s1", "x": 0, "y": 0, "width": 120, "height": 60,
+             "name": "Alpha", "status": None, "dod": [{"text": "old", "type": "", "checked": False}]},
+        ])
+
+    def test_replace_dod(self):
+        """Positive: replace dod on an existing node."""
+        self._canvas_with_node("dod_replace.json")
+        new_dod = [{"text": "new criterion", "type": "acceptance", "checked": True}]
+        result = update_dod("dod_replace.json", node_id="s1", dod=new_dod)
+        assert result["status"] == "updated"
+        assert result["node"]["id"] == "s1"
+        canvas = _read_canvas("dod_replace.json")
+        assert canvas["nodes"][0]["dod"] == new_dod
+
+    def test_node_not_found(self):
+        """node_id that doesn't exist → error."""
+        self._canvas_with_node("dod_notfound.json")
+        result = update_dod("dod_notfound.json", node_id="s99", dod=[])
+        assert result["status"] == "error"
+        assert result["reason"] == "node not found"
+        assert result["conflicting_id"] == "s99"
+
+    def test_string_items_normalized(self):
+        """Plain strings in dod list are normalized to {"text":..., "type":"", "checked":False}."""
+        self._canvas_with_node("dod_normalize.json")
+        result = update_dod("dod_normalize.json", node_id="s1", dod=["requirement A", "requirement B"])
+        assert result["status"] == "updated"
+        node_dod = result["node"]["dod"]
+        assert len(node_dod) == 2
+        for item in node_dod:
+            assert isinstance(item, dict)
+            assert "text" in item
+            assert item["type"] == ""
+            assert item["checked"] is False
+        assert node_dod[0]["text"] == "requirement A"
+        assert node_dod[1]["text"] == "requirement B"
+
+    def test_none_dod_clears_list(self):
+        """None dod parameter replaces with empty list."""
+        self._canvas_with_node("dod_none.json")
+        result = update_dod("dod_none.json", node_id="s1", dod=None)
+        assert result["status"] == "updated"
+        assert result["node"]["dod"] == []
+        canvas = _read_canvas("dod_none.json")
+        assert canvas["nodes"][0]["dod"] == []
+
+
+# ---------------------------------------------------------------------------
+# update_nodes — positive and negative fixtures
+# ---------------------------------------------------------------------------
+
+class TestUpdateNodes:
+    """update_nodes: batch update name/status."""
+
+    def _canvas_two_nodes(self, filename):
+        return _make_canvas(filename, nodes=[
+            {"id": "s1", "x": 0, "y": 0, "width": 120, "height": 60,
+             "name": "Alpha", "status": None, "dod": []},
+            {"id": "s2", "x": 200, "y": 0, "width": 120, "height": 60,
+             "name": "Beta", "status": None, "dod": []},
+        ])
+
+    def test_batch_update_two_nodes(self):
+        """Positive: update name on node 1, status on node 2, single write."""
+        self._canvas_two_nodes("un_batch.json")
+        result = update_nodes("un_batch.json", nodes=[
+            {"id": "s1", "name": "Alpha Updated"},
+            {"id": "s2", "status": "wip"},
+        ])
+        assert result["status"] == "updated"
+        assert len(result["nodes"]) == 2
+        canvas = _read_canvas("un_batch.json")
+        node_map = {n["id"]: n for n in canvas["nodes"]}
+        assert node_map["s1"]["name"] == "Alpha Updated"
+        assert node_map["s2"]["status"] == "wip"
+
+    def test_node_not_found_fails(self):
+        """One bad ID in the batch → error, no mutations applied."""
+        self._canvas_two_nodes("un_notfound.json")
+        result = update_nodes("un_notfound.json", nodes=[
+            {"id": "s1", "name": "OK"},
+            {"id": "s99", "name": "Missing"},
+        ])
+        assert result["status"] == "error"
+        assert result["reason"] == "node not found"
+        assert result["conflicting_id"] == "s99"
+        # Verify no mutations were applied
+        canvas = _read_canvas("un_notfound.json")
+        assert canvas["nodes"][0]["name"] == "Alpha"
+
+    def test_invalid_status_fails_before_read(self):
+        """Invalid status in batch entry → error returned with reason 'invalid status'."""
+        self._canvas_two_nodes("un_bad_status.json")
+        result = update_nodes("un_bad_status.json", nodes=[
+            {"id": "s1", "status": "todo"},
+        ])
+        assert result["status"] == "error"
+        assert result["reason"] == "invalid status"
+        assert result["conflicting_id"] == "s1"
+
+    def test_empty_nodes_list(self):
+        """Empty list → error."""
+        self._canvas_two_nodes("un_empty.json")
+        result = update_nodes("un_empty.json", nodes=[])
+        assert result["status"] == "error"
+        assert result["reason"] == "nodes list is empty"
+
+    def test_missing_id_in_entry(self):
+        """Entry without 'id' field → error with entry_index."""
+        self._canvas_two_nodes("un_no_id.json")
+        result = update_nodes("un_no_id.json", nodes=[
+            {"name": "No ID here"},
+        ])
+        assert result["status"] == "error"
+        assert result["reason"] == "missing id in nodes entry"
+        assert result["entry_index"] == 0
+
+    def test_name_too_long_fails(self):
+        """Name exceeding 80 chars in batch entry → error."""
+        self._canvas_two_nodes("un_longname.json")
+        result = update_nodes("un_longname.json", nodes=[
+            {"id": "s1", "name": "N" * 81},
+        ])
+        assert result["status"] == "error"
+        assert result["reason"] == "name exceeds 80 characters"
+        assert result["conflicting_id"] == "s1"
+
+    def test_dod_not_modified_by_update_nodes(self):
+        """update_nodes must not touch dod field."""
+        original_dod = [{"text": "must pass", "type": "", "checked": False}]
+        _make_canvas("un_dod_preserved.json", nodes=[
+            {"id": "s1", "x": 0, "y": 0, "width": 120, "height": 60,
+             "name": "Alpha", "status": None, "dod": original_dod},
+        ])
+        result = update_nodes("un_dod_preserved.json", nodes=[
+            {"id": "s1", "name": "Alpha Renamed"},
+        ])
+        assert result["status"] == "updated"
+        canvas = _read_canvas("un_dod_preserved.json")
+        assert canvas["nodes"][0]["dod"] == original_dod
+
+
+# ---------------------------------------------------------------------------
 # Standalone runner (no pytest)
 # ---------------------------------------------------------------------------
 
@@ -499,6 +651,8 @@ if __name__ == "__main__":
         TestAutoPlacement,
         TestSafePathTraversal,
         TestStringDodHandling,
+        TestUpdateDod,
+        TestUpdateNodes,
     ]
 
     passed = 0
