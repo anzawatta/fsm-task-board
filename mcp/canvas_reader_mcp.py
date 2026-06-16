@@ -175,8 +175,11 @@ def _check_mtime(filename: str, path: Path, force: bool) -> dict | None:
 @mcp.tool()
 def list_canvases() -> list[dict]:
     """Canvas JSON一覧"""
+    # @see EARS-009#REQ-W002
     if not CANVAS_DIR.exists():
         return []
+    # @see EARS-009#REQ-U002
+    # @see EARS-009#REQ-U003
     return [
         {
             "filename": p.name,
@@ -194,18 +197,25 @@ def read_canvas(filename: str) -> str:
     前回読込時のスナップショットと比較し、差分があれば
     Markdown冒頭に変更サマリを付与する。
     """
+    # @see EARS-009#REQ-U001
     path = _safe_path(filename)
+    # @see EARS-009#REQ-W001
     if not path.exists():
         available = [p.name for p in CANVAS_DIR.glob("*.json")]
         raise FileNotFoundError(f"{filename} が見つかりません。利用可能: {available}")
 
     curr = json.loads(path.read_text(encoding="utf-8"))
+    # @see EARS-009#REQ-U005
     # @see EARS-008#REQ-U010
     _last_mtime[filename] = path.stat().st_mtime
+    # @see EARS-009#REQ-U004
     md = convert(curr)
 
     snap = _snapshot_path(filename)
     diff_section = ""
+    # @see EARS-009#REQ-S001
+    # @see EARS-009#REQ-S002
+    # @see EARS-009#REQ-E001
     if snap.exists():
         try:
             prev = json.loads(snap.read_text(encoding="utf-8"))
@@ -220,8 +230,10 @@ def read_canvas(filename: str) -> str:
     else:
         diff_section = "## 前回読込からの変更\n\n_初回読込_\n\n---\n\n"
 
+    # @see EARS-009#REQ-U006
     snap.write_text(json.dumps(curr, ensure_ascii=False), encoding="utf-8")
 
+    # @see EARS-009#REQ-U007
     # Why: generate legend from _STATUS_LABELS so it stays in sync with the dict.
     _legend_rows = ""
     for _sk, _sv in _STATUS_LABELS.items():
@@ -240,8 +252,11 @@ def read_canvas(filename: str) -> str:
 @mcp.tool()
 def read_canvas_raw(filename: str) -> str:
     """Canvas JSONの生内容(スナップショット更新せず)"""
+    # @see EARS-009#REQ-U001
     path = _safe_path(filename)
+    # @see EARS-009#REQ-U008
     text = path.read_text(encoding="utf-8")
+    # @see EARS-009#REQ-U009
     # @see EARS-008#REQ-U010
     _last_mtime[filename] = path.stat().st_mtime
     return text
@@ -251,7 +266,10 @@ def read_canvas_raw(filename: str) -> str:
 def reset_snapshot(filename: str) -> str:
     """スナップショットを削除(次回読込で初回扱い)"""
     snap = _snapshot_path(filename)
+    # @see EARS-009#REQ-E002
+    # @see EARS-009#REQ-E003
     if snap.exists():
+        # @see EARS-009#REQ-U010
         snap.unlink()
         return f"{filename} のスナップショットを削除しました"
     return f"{filename} のスナップショットは存在しません"
