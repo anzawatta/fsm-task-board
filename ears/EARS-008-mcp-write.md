@@ -78,7 +78,7 @@ MCP サーバー（`canvas_reader_mcp.py`）を通じたキャンバスへの書
 
 ## 敵対条件
 
-1. REQ-W001: System SHALL NOT write `status` values other than `null`, `"wip"`, or `"done"` — any other value SHALL result in `{"status":"error","reason":"invalid status","conflicting_id":null}` being returned (consistent with EARS-003 REQ-W001)
+1. REQ-W001: System SHALL NOT write `status` values other than `null`, `"wip"`, or `"done"` — any other value SHALL result in `{"status":"error","reason":"invalid status","allowed":[null,"wip","done"]}` being returned (consistent with EARS-003 REQ-W001). The `status` parameter SHALL be declared as `Literal["wip", "done"] | None` in tool signatures so that MCP schema generation exposes the enum to callers.
 2. REQ-W002: System SHALL NOT create an edge whose `fromNode` does not exist in the canvas at write time — SHALL return `{"status":"error","reason":"fromNode not found","conflicting_id":"<id>"}`
 3. REQ-W003: System SHALL NOT create an edge whose `toNode` does not exist in the canvas at write time — SHALL return `{"status":"error","reason":"toNode not found","conflicting_id":"<id>"}`
 4. REQ-W004: System SHALL NOT generate a node ID that already exists in the canvas (consistent with EARS-001 REQ-W002)

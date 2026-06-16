@@ -6,6 +6,7 @@ import statistics
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 from fastmcp import FastMCP
 
 from canvas_to_md import convert
@@ -26,7 +27,14 @@ mcp = FastMCP("canvas-reader")
 # passing state through the MCP protocol itself.
 _last_mtime: dict[str, float] = {}
 
-_VALID_STATUSES = {None, "wip", "done"}
+# Why: mapping exposes UIラベル↔内部enum to MCP callers (LLMs) in machine-readable form.
+# @see EARS-008#REQ-U004
+_STATUS_LABELS: dict[str | None, str] = {
+    None: "未着手",
+    "wip": "実装中",
+    "done": "完了",
+}
+_VALID_STATUSES = frozenset(_STATUS_LABELS.keys())
 
 # Default node dimensions per EARS-006 REQ-U002
 _NODE_WIDTH = 120
@@ -167,8 +175,11 @@ def _check_mtime(filename: str, path: Path, force: bool) -> dict | None:
 @mcp.tool()
 def list_canvases() -> list[dict]:
     """Canvas JSON一覧"""
+    # @see EARS-009#REQ-W002
     if not CANVAS_DIR.exists():
         return []
+    # @see EARS-009#REQ-U002
+    # @see EARS-009#REQ-U003
     return [
         {
             "filename": p.name,
@@ -186,18 +197,25 @@ def read_canvas(filename: str) -> str:
     前回読込時のスナップショットと比較し、差分があれば
     Markdown冒頭に変更サマリを付与する。
     """
+    # @see EARS-009#REQ-U001
     path = _safe_path(filename)
+    # @see EARS-009#REQ-W001
     if not path.exists():
         available = [p.name for p in CANVAS_DIR.glob("*.json")]
         raise FileNotFoundError(f"{filename} が見つかりません。利用可能: {available}")
 
     curr = json.loads(path.read_text(encoding="utf-8"))
+    # @see EARS-009#REQ-U005
     # @see EARS-008#REQ-U010
     _last_mtime[filename] = path.stat().st_mtime
+    # @see EARS-009#REQ-U004
     md = convert(curr)
 
     snap = _snapshot_path(filename)
     diff_section = ""
+    # @see EARS-009#REQ-S001
+    # @see EARS-009#REQ-S002
+    # @see EARS-009#REQ-E001
     if snap.exists():
         try:
             prev = json.loads(snap.read_text(encoding="utf-8"))
@@ -212,16 +230,33 @@ def read_canvas(filename: str) -> str:
     else:
         diff_section = "## 前回読込からの変更\n\n_初回読込_\n\n---\n\n"
 
+    # @see EARS-009#REQ-U006
     snap.write_text(json.dumps(curr, ensure_ascii=False), encoding="utf-8")
 
-    return diff_section + md
+    # @see EARS-009#REQ-U007
+    # Why: generate legend from _STATUS_LABELS so it stays in sync with the dict.
+    _legend_rows = ""
+    for _sk, _sv in _STATUS_LABELS.items():
+        _key_repr = "null" if _sk is None else f'"{_sk}"'
+        _legend_rows += f"| {_key_repr} | {_sv} |\n"
+    status_legend = (
+        "## ステータス凡例\n\n"
+        "| enum値 | UIラベル |\n"
+        "|---|---|\n"
+        + _legend_rows
+        + "\n---\n\n"
+    )
+    return status_legend + diff_section + md
 
 
 @mcp.tool()
 def read_canvas_raw(filename: str) -> str:
     """Canvas JSONの生内容(スナップショット更新せず)"""
+    # @see EARS-009#REQ-U001
     path = _safe_path(filename)
+    # @see EARS-009#REQ-U008
     text = path.read_text(encoding="utf-8")
+    # @see EARS-009#REQ-U009
     # @see EARS-008#REQ-U010
     _last_mtime[filename] = path.stat().st_mtime
     return text
@@ -231,7 +266,10 @@ def read_canvas_raw(filename: str) -> str:
 def reset_snapshot(filename: str) -> str:
     """スナップショットを削除(次回読込で初回扱い)"""
     snap = _snapshot_path(filename)
+    # @see EARS-009#REQ-E002
+    # @see EARS-009#REQ-E003
     if snap.exists():
+        # @see EARS-009#REQ-U010
         snap.unlink()
         return f"{filename} のスナップショットを削除しました"
     return f"{filename} のスナップショットは存在しません"
@@ -248,7 +286,7 @@ _VALID_NODE_TYPES = {"text", "group"}
 def add_node(
     filename: str,
     name: str,
-    status: str | None = None,
+    status: Literal["wip", "done"] | None = None,
     dod: list | None = None,
     force: bool = False,
     type: str = "text",
@@ -275,7 +313,7 @@ def add_node(
     # @see EARS-008#REQ-U004
     # @see EARS-008#REQ-W001
     if status not in _VALID_STATUSES:
-        return {"status": "error", "reason": "invalid status", "conflicting_id": None}
+        return {"status": "error", "reason": "invalid status", "allowed": [None, "wip", "done"]}
 
     # @see EARS-003#REQ-U002
     if type not in _VALID_NODE_TYPES:
@@ -377,7 +415,7 @@ def update_node(
     filename: str,
     id: str,
     name: str | None = None,
-    status: str | None = "__unset__",
+    status: Literal["wip", "done"] | None = "__unset__",  # type: ignore[assignment]
     force: bool = False,
 ) -> dict:
     """既存ノードの name または status を更新する。
@@ -385,6 +423,7 @@ def update_node(
     ``dod`` および座標フィールドは変更しない (REQ-E006)。
     ``status`` を明示的に ``None`` (null) にしたい場合は ``status=null`` を渡す。
     省略した場合（デフォルト ``"__unset__"``）は既存値を保持する。
+    有効値: null (未着手), "wip" (実装中), "done" (完了)。省略時は既存値を保持する。
     """
     # @see EARS-008#REQ-U011
     try:
@@ -401,7 +440,7 @@ def update_node(
     # Why: sentinel "__unset__" distinguishes "caller passed null" from "caller
     # omitted the argument entirely", since FastMCP maps JSON null → None.
     if status != "__unset__" and status not in _VALID_STATUSES:
-        return {"status": "error", "reason": "invalid status", "conflicting_id": None}
+        return {"status": "error", "reason": "invalid status", "allowed": [None, "wip", "done"]}
 
     # @see EARS-008#REQ-U010
     mtime_err = _check_mtime(filename, path, force)
