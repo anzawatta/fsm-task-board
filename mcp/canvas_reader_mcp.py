@@ -6,6 +6,7 @@ import statistics
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 from fastmcp import FastMCP
 
 from canvas_to_md import convert
@@ -26,7 +27,14 @@ mcp = FastMCP("canvas-reader")
 # passing state through the MCP protocol itself.
 _last_mtime: dict[str, float] = {}
 
-_VALID_STATUSES = {None, "wip", "done"}
+# Why: mapping exposes UIラベル↔内部enum to MCP callers (LLMs) in machine-readable form.
+# @see EARS-008#REQ-U004
+_STATUS_LABELS: dict[str | None, str] = {
+    None: "未着手",
+    "wip": "実装中",
+    "done": "完了",
+}
+_VALID_STATUSES = frozenset(_STATUS_LABELS.keys())
 
 # Default node dimensions per EARS-006 REQ-U002
 _NODE_WIDTH = 120
@@ -214,7 +222,19 @@ def read_canvas(filename: str) -> str:
 
     snap.write_text(json.dumps(curr, ensure_ascii=False), encoding="utf-8")
 
-    return diff_section + md
+    # Why: generate legend from _STATUS_LABELS so it stays in sync with the dict.
+    _legend_rows = ""
+    for _sk, _sv in _STATUS_LABELS.items():
+        _key_repr = "null" if _sk is None else f'"{_sk}"'
+        _legend_rows += f"| {_key_repr} | {_sv} |\n"
+    status_legend = (
+        "## ステータス凡例\n\n"
+        "| enum値 | UIラベル |\n"
+        "|---|---|\n"
+        + _legend_rows
+        + "\n---\n\n"
+    )
+    return status_legend + diff_section + md
 
 
 @mcp.tool()
@@ -248,7 +268,7 @@ _VALID_NODE_TYPES = {"text", "group"}
 def add_node(
     filename: str,
     name: str,
-    status: str | None = None,
+    status: Literal["wip", "done"] | None = None,
     dod: list | None = None,
     force: bool = False,
     type: str = "text",
@@ -275,7 +295,7 @@ def add_node(
     # @see EARS-008#REQ-U004
     # @see EARS-008#REQ-W001
     if status not in _VALID_STATUSES:
-        return {"status": "error", "reason": "invalid status", "conflicting_id": None}
+        return {"status": "error", "reason": "invalid status", "allowed": [None, "wip", "done"]}
 
     # @see EARS-003#REQ-U002
     if type not in _VALID_NODE_TYPES:
@@ -377,7 +397,7 @@ def update_node(
     filename: str,
     id: str,
     name: str | None = None,
-    status: str | None = "__unset__",
+    status: Literal["wip", "done"] | None = "__unset__",  # type: ignore[assignment]
     force: bool = False,
 ) -> dict:
     """既存ノードの name または status を更新する。
@@ -385,6 +405,7 @@ def update_node(
     ``dod`` および座標フィールドは変更しない (REQ-E006)。
     ``status`` を明示的に ``None`` (null) にしたい場合は ``status=null`` を渡す。
     省略した場合（デフォルト ``"__unset__"``）は既存値を保持する。
+    有効値: null (未着手), "wip" (実装中), "done" (完了)。省略時は既存値を保持する。
     """
     # @see EARS-008#REQ-U011
     try:
@@ -401,7 +422,7 @@ def update_node(
     # Why: sentinel "__unset__" distinguishes "caller passed null" from "caller
     # omitted the argument entirely", since FastMCP maps JSON null → None.
     if status != "__unset__" and status not in _VALID_STATUSES:
-        return {"status": "error", "reason": "invalid status", "conflicting_id": None}
+        return {"status": "error", "reason": "invalid status", "allowed": [None, "wip", "done"]}
 
     # @see EARS-008#REQ-U010
     mtime_err = _check_mtime(filename, path, force)
