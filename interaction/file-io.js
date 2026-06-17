@@ -92,8 +92,43 @@ export async function openFile(renderFn, fitViewFn) {
   uiState.selectedEdgeId = null;
   clearDirty();
   updateFileNameBadge();
+  updateReloadBtn();
   renderFn();
   fitViewFn();
+}
+
+// -------------------------------------------------------
+// Reload button state helper
+// -------------------------------------------------------
+function updateReloadBtn() {
+  const btn = document.getElementById('reloadBtn');
+  if (btn) btn.disabled = !uiState.fileHandle;
+}
+
+// -------------------------------------------------------
+// Reload from handle
+// -------------------------------------------------------
+export async function reloadFromHandle(renderFn, fitViewFn) {
+  if (!uiState.fileHandle) return;
+  if (uiState.isDirty) {
+    const ok = window.confirm('未保存の変更があります。リロードすると失われます。続けますか？');
+    if (!ok) return;
+  }
+  try {
+    const file = await uiState.fileHandle.getFile();
+    const text = await file.text();
+    const data = JSON.parse(text);
+    validateSchema(data);
+    FSM.fromJSON(data);
+    uiState.selectedNodeId = null;
+    uiState.selectedEdgeId = null;
+    clearDirty();
+    updateFileNameBadge();
+    renderFn();
+    fitViewFn();
+  } catch (e) {
+    alert(`リロードに失敗しました: ${e.message}`);
+  }
 }
 
 // -------------------------------------------------------

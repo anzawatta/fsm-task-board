@@ -11,7 +11,7 @@ import { initEvents, toggleEdgeMode, toggleShowIds, addNode, selectEdge,
          deleteSelectedNode, deleteSelectedEdge,
          addDoDFromInput, toggleDoD, removeDoDItem, toggleDoDType,
          groupSelectedNodes } from './interaction/events.js';
-import { openFile, saveFile, saveFileAs } from './interaction/file-io.js';
+import { openFile, saveFile, saveFileAs, reloadFromHandle } from './interaction/file-io.js';
 import { initBeforeUnload } from './ui/dirty.js';
 
 // -------------------------------------------------------
@@ -42,9 +42,10 @@ window.toggleShowIds       = toggleShowIds;
 window.fitView             = fitView;
 // @see EARS-002#REQ-E001
 window.groupSelectedNodes  = groupSelectedNodes;
-window.openFile       = () => openFile(render, fitView);
-window.saveFile       = () => saveFile(render, fitView);
-window.saveFileAs     = () => saveFileAs(render, fitView);
+window.openFile          = () => openFile(render, fitView);
+window.saveFile          = () => saveFile(render, fitView);
+window.saveFileAs        = () => saveFileAs(render, fitView);
+window.reloadFromHandle  = () => reloadFromHandle(render, fitView);
 
 // -------------------------------------------------------
 // 初期化
