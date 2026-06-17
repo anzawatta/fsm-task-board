@@ -9,7 +9,7 @@ import { renderSidePanel } from './panel.js';
 
 // アイコン定数（window経由で上書き可能）
 const STATUS_ICONS  = window.__FSM_STATUS_ICONS  || { idle: '📝', wip: '▶️', done: '✅' };
-const STATUS_LABELS = window.__FSM_STATUS_LABELS || { idle: '未実施', wip: '作業中', done: '完了' };
+const STATUS_LABELS = window.__FSM_STATUS_LABELS || { idle: 'Idle', wip: 'In progress', done: 'Done' };
 
 const WRAP_CHARS = 13;
 

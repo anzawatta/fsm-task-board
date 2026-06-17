@@ -60,17 +60,17 @@ def format_diff(diff: dict) -> str:
     e = diff["edges"]
 
     if n["added"]:
-        lines.append("**ノード追加:**")
+        lines.append("**Nodes added:**")
         for x in n["added"]:
             lines.append(f"- `{x['id']}` {x.get('name', '')}")
 
     if n["removed"]:
-        lines.append("**ノード削除:**")
+        lines.append("**Nodes removed:**")
         for x in n["removed"]:
             lines.append(f"- `{x['id']}` {x.get('name', '')}")
 
     if n["changed"]:
-        lines.append("**ノード変更:**")
+        lines.append("**Nodes changed:**")
         for x in n["changed"]:
             lines.append(f"- `{x['id']}` {x['name']}")
             b, a = x["before"], x["after"]
@@ -85,24 +85,24 @@ def format_diff(diff: dict) -> str:
                 bt = {_dod_text(d) for d in b["dod"]}
                 at = {_dod_text(d) for d in a["dod"]}
                 for t in at - bt:
-                    lines.append(f"  - DoD追加: {t}")
+                    lines.append(f"  - DoD added: {t}")
                 for t in bt - at:
-                    lines.append(f"  - DoD削除: {t}")
+                    lines.append(f"  - DoD removed: {t}")
 
     if e["added"]:
-        lines.append("**エッジ追加:**")
+        lines.append("**Edges added:**")
         for x in e["added"]:
             label = f" (label: {x['label']})" if x.get("label") else ""
             lines.append(f"- `{x['fromNode']}` → `{x['toNode']}`{label}")
 
     if e["removed"]:
-        lines.append("**エッジ削除:**")
+        lines.append("**Edges removed:**")
         for x in e["removed"]:
             label = f" (label: {x['label']})" if x.get("label") else ""
             lines.append(f"- `{x['fromNode']}` → `{x['toNode']}`{label}")
 
     if e["changed"]:
-        lines.append("**エッジ変更:**")
+        lines.append("**Edges changed:**")
         for x in e["changed"]:
             b, a = x["before"], x["after"]
             lines.append(f"- `{x['id']}`: {b['fromNode']}→{b['toNode']} ⇒ {a['fromNode']}→{a['toNode']}")

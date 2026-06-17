@@ -52,7 +52,7 @@ async function writeToHandle(handle) {
 export async function openFile(renderFn, fitViewFn) {
   // @see EARS-005#REQ-W001
   if (uiState.isDirty) {
-    const ok = confirm('未保存の変更があります。破棄して開きますか？');
+    const ok = confirm('Unsaved changes. Discard and open?');
     if (!ok) return;
   }
   let fileHandles;
@@ -62,7 +62,7 @@ export async function openFile(renderFn, fitViewFn) {
     });
   } catch (e) {
     if (e.name === 'AbortError') return;
-    alert('ファイルを開けませんでした: ' + e.message);
+    alert('Failed to open file: ' + e.message);
     return;
   }
   const handle = fileHandles[0];
@@ -73,14 +73,14 @@ export async function openFile(renderFn, fitViewFn) {
     data = JSON.parse(text);
   } catch {
     // @see EARS-007#REQ-S001
-    alert('JSON の構文エラーです。ファイルを確認してください。');
+    alert('JSON syntax error. Please check the file.');
     return;
   }
   try {
     validateSchema(data);
   } catch (e) {
     // @see EARS-007#REQ-S002
-    alert('スキーマエラー: ' + e.message);
+    alert('Schema error: ' + e.message);
     return;
   }
   // @see EARS-005#REQ-E002
@@ -114,7 +114,7 @@ export async function saveFile(renderFn, fitViewFn) {
   } catch (e) {
     if (e.name === 'AbortError') return;
     // @see EARS-007#REQ-S003
-    alert('保存できませんでした。Save As で別ファイルを選択してください。');
+    alert('Save failed. Use Save As to choose a file.');
   }
 }
 
@@ -132,13 +132,13 @@ export async function saveFileAs(renderFn, fitViewFn) {
     });
   } catch (e) {
     if (e.name === 'AbortError') return;
-    alert('ファイルを選択できませんでした: ' + e.message);
+    alert('Could not select file: ' + e.message);
     return;
   }
   try {
     await writeToHandle(handle);
   } catch (e) {
-    alert('保存できませんでした。Save As で別ファイルを選択してください。');
+    alert('Save failed. Use Save As to choose a file.');
     return;
   }
   uiState.fileHandle = handle;

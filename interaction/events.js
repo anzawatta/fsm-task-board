@@ -178,7 +178,7 @@ export function initEvents(renderFn, applyViewFn) {
     if (edge && edge.guard === 'dod_complete') {
       const srcNode = FSM.nodes[edge.fromNode];
       if (srcNode && srcNode.status !== 'done') {
-        alert(`遷移ブロック: "${srcNode.name}" が完了 (done) ではありません。\nguard: ${edge.guard}`);
+        alert(`Transition blocked: "${srcNode.name}" is not done.\nguard: ${edge.guard}`);
         return;
       }
     }
@@ -430,7 +430,7 @@ export function groupSelectedNodes() {
   const ids = Array.from(uiState.selectedNodeIds);
   // @see EARS-002#REQ-W001
   if (ids.length < 2) {
-    alert('グループ化するには2つ以上のノードを選択してください（Shift+クリックで複数選択）。');
+    alert('Select 2 or more nodes to group (Shift+click for multiple selection).');
     return;
   }
 
@@ -466,7 +466,7 @@ export function groupSelectedNodes() {
     const subtreeHeight = _maxDescendantDepth(n.id, 0);
     // After wrapping: n is at depth 1, deepest descendant at depth 1 + subtreeHeight
     if (1 + subtreeHeight > 3) {
-      alert(`グループ化するとネスト深度が3を超えます。グループ化を中止します。`);
+      alert(`Grouping would exceed nesting depth 3. Grouping cancelled.`);
       // Rollback the created group node
       delete FSM.nodes[groupId];
       FSM._groupIdCounter--;
@@ -517,7 +517,7 @@ export function setStatus(id, status) {
     if (status === 'done') {
       const uncheckedValidation = FSM.nodes[id].dod.filter(d => d.type === 'validation' && !d.checked).length;
       if (uncheckedValidation > 0 || FSM.hasUncheckedVerification(id)) {
-        if (!confirm('DoDが未チェックです。完了にしますか？')) return;
+        if (!confirm('DoD items are unchecked. Mark as done?')) return;
       }
     }
     FSM.nodes[id].status = status;
@@ -611,11 +611,11 @@ export function removeDoDItem(nodeId, dodId) {
 
 function nodeContextItems(id) {
   return [
-    { label: 'ステータス: 未実施', action: () => setStatus(id, 'idle') },
-    { label: 'ステータス: 作業中', action: () => setStatus(id, 'wip')  },
-    { label: 'ステータス: 完了',   action: () => setStatus(id, 'done') },
+    { label: 'Status: Idle', action: () => setStatus(id, 'idle') },
+    { label: 'Status: In progress', action: () => setStatus(id, 'wip')  },
+    { label: 'Status: Done',   action: () => setStatus(id, 'done') },
     { type: 'separator' },
-    { label: '削除', danger: true, action: () => {
+    { label: 'Delete', danger: true, action: () => {
         FSM.removeNode(id);
         uiState.selectedNodeId = null;
         _render();
@@ -625,7 +625,7 @@ function nodeContextItems(id) {
 
 function edgeContextItems(id) {
   return [
-    { label: '削除', danger: true, action: () => {
+    { label: 'Delete', danger: true, action: () => {
         FSM.removeEdge(id);
         uiState.selectedEdgeId = null;
         _render();

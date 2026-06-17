@@ -55,11 +55,11 @@ function renderNodePanel(node) {
         <label class="field-label">Status</label>
         <div class="status-toggle">
           <div class="status-option ${node.status === 'idle' ? 'active-idle' : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'idle')">未実施</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'idle')">Idle</div>
           <div class="status-option ${node.status === 'wip'  ? 'active-wip'  : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'wip')">作業中</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'wip')">In progress</div>
           <div class="status-option ${node.status === 'done' ? 'active-done' : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'done')">完了</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'done')">Done</div>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ function renderNodePanel(node) {
               <span class="dod-text" data-dod-id="${d.id}">${escHtml(d.text)}</span>
               <div class="dod-actions">
                 <button class="dod-action-btn"
-                  onclick="window.__fsm.toggleDoDType('${node.id}', '${d.id}')" title="タイプ切り替え">↕️</button>
+                  onclick="window.__fsm.toggleDoDType('${node.id}', '${d.id}')" title="Toggle type">↕️</button>
                 <button class="dod-action-btn"
                   onclick="window.__fsm.removeDoDItem('${node.id}', '${d.id}')" title="Delete">✕</button>
               </div>
@@ -413,14 +413,14 @@ function renderEdgePanel(edge) {
         ${from ? escHtml(from.name) : '?'} → ${to ? escHtml(to.name) : '?'}
       </div>
       <div class="field-group">
-        <label class="field-label">Label (遷移条件)</label>
+        <label class="field-label">Label (transition condition)</label>
         <input class="field-input" value="${escHtml(edge.label)}"
           onchange="window.__fsm.updateEdgeLabel('${edge.id}', this.value)" />
       </div>
       ${edge.guard ? `
       <div class="verification-gate" style="margin-top:8px">
         <span class="verification-gate-icon">🔒</span>
-        Guard: ${escHtml(edge.guard)} — source が done でないと遷移不可
+        Guard: ${escHtml(edge.guard)} — transition requires source to be done
       </div>` : ''}
     </div>
     <div style="padding-top:4px">

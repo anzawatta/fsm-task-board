@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +14,10 @@
     <div class="toolbar-title">FSM<span>:</span>Task Board</div>
     <button class="btn" onclick="addNode()" title="Add Node">+ Node</button>
     <button class="btn" id="edgeModeBtn" onclick="toggleEdgeMode()" title="Add Edge">+ Edge</button>
-    <button class="btn" id="groupBtn" onclick="groupSelectedNodes()" title="選択中のノードをグループ化">グループ化</button>
+    <button class="btn" id="groupBtn" onclick="groupSelectedNodes()" title="Group selected nodes">Group</button>
     <div class="toolbar-sep"></div>
     <button class="btn" onclick="fitView()">Fit View</button>
-    <label class="toolbar-checkbox" title="ノード ID をボードに表示">
+    <label class="toolbar-checkbox" title="Show node IDs on board">
       <input type="checkbox" id="showIdsCheckbox" onchange="toggleShowIds()" />
       Show IDs
     </label>
@@ -51,9 +51,9 @@
   <!-- SIDE PANEL -->
   <div class="side-panel" id="sidePanel">
     <div class="panel-empty" id="panelEmpty">
-      クリックでノード選択<br>
+      Click to select a node<br>
       <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim)">
-        右クリックでコンテキストメニュー
+        Right-click for context menu
       </span>
     </div>
     <div id="panelContent" style="display:none"></div>
