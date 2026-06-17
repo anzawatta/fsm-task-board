@@ -55,11 +55,11 @@ function renderNodePanel(node) {
         <label class="field-label">Status</label>
         <div class="status-toggle">
           <div class="status-option ${node.status === 'idle' ? 'active-idle' : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'idle')">未実施</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'idle')">Idle</div>
           <div class="status-option ${node.status === 'wip'  ? 'active-wip'  : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'wip')">作業中</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'wip')">In progress</div>
           <div class="status-option ${node.status === 'done' ? 'active-done' : ''}"
-            onclick="window.__fsm.setStatus('${node.id}', 'done')">完了</div>
+            onclick="window.__fsm.setStatus('${node.id}', 'done')">Done</div>
         </div>
       </div>
     </div>
@@ -420,7 +420,7 @@ function renderEdgePanel(edge) {
       ${edge.guard ? `
       <div class="verification-gate" style="margin-top:8px">
         <span class="verification-gate-icon">🔒</span>
-        Guard: ${escHtml(edge.guard)} — source が done でないと遷移不可
+        Guard: ${escHtml(edge.guard)} — transition requires source to be done
       </div>` : ''}
     </div>
     <div style="padding-top:4px">

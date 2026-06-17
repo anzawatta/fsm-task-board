@@ -30,9 +30,9 @@ _last_mtime: dict[str, float] = {}
 # Why: mapping exposes UIラベル↔内部enum to MCP callers (LLMs) in machine-readable form.
 # @see EARS-008#REQ-U004
 _STATUS_LABELS: dict[str | None, str] = {
-    None: "未着手",
-    "wip": "実装中",
-    "done": "完了",
+    None:   "Idle",
+    "wip":  "In progress",
+    "done": "Done",
 }
 _VALID_STATUSES = frozenset(_STATUS_LABELS.keys())
 
@@ -423,7 +423,7 @@ def update_node(
     ``dod`` および座標フィールドは変更しない (REQ-E006)。
     ``status`` を明示的に ``None`` (null) にしたい場合は ``status=null`` を渡す。
     省略した場合（デフォルト ``"__unset__"``）は既存値を保持する。
-    有効値: null (未着手), "wip" (実装中), "done" (完了)。省略時は既存値を保持する。
+    Valid values: null (Idle), "wip" (In progress), "done" (Done). Omit to keep current value.
     """
     # @see EARS-008#REQ-U011
     try:
