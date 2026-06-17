@@ -56,26 +56,10 @@ function init() {
   // 未保存警告
   initBeforeUnload();
 
-  // サンプルデータ (PDCA)
-  const s1 = FSM.addNode('Plan',  300,  50);
-  const s2 = FSM.addNode('Do',    300, 300);
-  const s3 = FSM.addNode('Check', 600, 300);
-  const s4 = FSM.addNode('Act',   600,  50);
-
-  FSM.addEdge(s1, s2, 'plan');
-  FSM.addEdge(s2, s3, 'do');
-  FSM.addEdge(s2, s2, 'do');
-  FSM.addEdge(s3, s4, 'check');
-  FSM.addEdge(s4, s1, 'act');
+  // 初期データ
+  const s1 = FSM.addNode('Node',  300,  50);
 
   FSM.addDoDItem(s1, 'verification1',   'verification');
-  FSM.addDoDItem(s1, 'validation1',     'validation');
-  FSM.addDoDItem(s2, 'verification2',   'verification');
-  FSM.addDoDItem(s2, 'validation2',     'validation');
-  FSM.addDoDItem(s3, 'verification3-1', 'verification');
-  FSM.addDoDItem(s3, 'verification3-2', 'verification');
-  FSM.addDoDItem(s4, 'validation4-1',   'verification');
-  FSM.addDoDItem(s4, 'validation4-2',   'validation');
 
   render();
   setTimeout(fitView, 100);
