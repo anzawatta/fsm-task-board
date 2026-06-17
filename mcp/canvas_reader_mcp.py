@@ -44,7 +44,7 @@ _NODE_HEIGHT = 60
 def _safe_path(filename: str) -> Path:
     path = CANVAS_DIR / filename
     if not path.resolve().is_relative_to(CANVAS_DIR.resolve()):
-        raise ValueError(f"監視ディレクトリ外へのアクセスは禁止: {filename}")
+        raise ValueError(f"Access outside watch directory is forbidden: {filename}")
     return path
 
 
@@ -202,7 +202,7 @@ def read_canvas(filename: str) -> str:
     # @see EARS-009#REQ-W001
     if not path.exists():
         available = [p.name for p in CANVAS_DIR.glob("*.json")]
-        raise FileNotFoundError(f"{filename} が見つかりません。利用可能: {available}")
+        raise FileNotFoundError(f"{filename} not found. Available: {available}")
 
     curr = json.loads(path.read_text(encoding="utf-8"))
     # @see EARS-009#REQ-U005
@@ -222,13 +222,13 @@ def read_canvas(filename: str) -> str:
             diff = diff_canvas(prev, curr)
             formatted = format_diff(diff)
             if formatted:
-                diff_section = f"## 前回読込からの変更\n\n{formatted}\n\n---\n\n"
+                diff_section = f"## Changes since last read\n\n{formatted}\n\n---\n\n"
             else:
-                diff_section = "## 前回読込からの変更\n\n_変更なし_\n\n---\n\n"
+                diff_section = "## Changes since last read\n\n_No changes_\n\n---\n\n"
         except Exception as ex:
-            diff_section = f"_(差分計算失敗: {ex})_\n\n---\n\n"
+            diff_section = f"_(diff failed: {ex})_\n\n---\n\n"
     else:
-        diff_section = "## 前回読込からの変更\n\n_初回読込_\n\n---\n\n"
+        diff_section = "## Changes since last read\n\n_First read_\n\n---\n\n"
 
     # @see EARS-009#REQ-U006
     snap.write_text(json.dumps(curr, ensure_ascii=False), encoding="utf-8")
@@ -240,8 +240,8 @@ def read_canvas(filename: str) -> str:
         _key_repr = "null" if _sk is None else f'"{_sk}"'
         _legend_rows += f"| {_key_repr} | {_sv} |\n"
     status_legend = (
-        "## ステータス凡例\n\n"
-        "| enum値 | UIラベル |\n"
+        "## Status legend\n\n"
+        "| enum value | UI label |\n"
         "|---|---|\n"
         + _legend_rows
         + "\n---\n\n"
@@ -271,8 +271,8 @@ def reset_snapshot(filename: str) -> str:
     if snap.exists():
         # @see EARS-009#REQ-U010
         snap.unlink()
-        return f"{filename} のスナップショットを削除しました"
-    return f"{filename} のスナップショットは存在しません"
+        return f"Snapshot for {filename} deleted"
+    return f"No snapshot for {filename}"
 
 
 # ---------------------------------------------------------------------------

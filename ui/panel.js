@@ -78,7 +78,7 @@ function renderNodePanel(node) {
               <span class="dod-text" data-dod-id="${d.id}">${escHtml(d.text)}</span>
               <div class="dod-actions">
                 <button class="dod-action-btn"
-                  onclick="window.__fsm.toggleDoDType('${node.id}', '${d.id}')" title="タイプ切り替え">↕️</button>
+                  onclick="window.__fsm.toggleDoDType('${node.id}', '${d.id}')" title="Toggle type">↕️</button>
                 <button class="dod-action-btn"
                   onclick="window.__fsm.removeDoDItem('${node.id}', '${d.id}')" title="Delete">✕</button>
               </div>
@@ -413,7 +413,7 @@ function renderEdgePanel(edge) {
         ${from ? escHtml(from.name) : '?'} → ${to ? escHtml(to.name) : '?'}
       </div>
       <div class="field-group">
-        <label class="field-label">Label (遷移条件)</label>
+        <label class="field-label">Label (transition condition)</label>
         <input class="field-input" value="${escHtml(edge.label)}"
           onchange="window.__fsm.updateEdgeLabel('${edge.id}', this.value)" />
       </div>
