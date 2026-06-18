@@ -180,4 +180,5 @@ export async function saveFileAs(renderFn, fitViewFn) {
   uiState.fileName = handle.name;
   clearDirty();
   updateFileNameBadge();
+  updateReloadBtn();
 }
