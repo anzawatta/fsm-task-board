@@ -204,7 +204,7 @@ const FSM = {
     for (const n of rawNodes) {
       const t = n.type;
       if (t !== undefined && t !== null && t !== 'text' && t !== 'group') {
-        alert(`fromJSON: ノード "${n.id}" に無効な type 値 "${t}" が含まれています。読み込みを中止します。`);
+        alert(`fromJSON: node "${n.id}" has an invalid type value "${t}". Aborting load.`);
         return null;
       }
     }
@@ -222,11 +222,11 @@ const FSM = {
       if (n.parentId != null) {
         const parentType = idTypeMap[n.parentId];
         if (parentType === undefined) {
-          alert(`fromJSON: ノード "${n.id}" の parentId "${n.parentId}" が存在しません。読み込みを中止します。`);
+          alert(`fromJSON: node "${n.id}" has unknown parentId "${n.parentId}". Aborting load.`);
           return null;
         }
         if (parentType !== 'group') {
-          alert(`fromJSON: ノード "${n.id}" の parentId "${n.parentId}" は group ノードではありません。読み込みを中止します。`);
+          alert(`fromJSON: node "${n.id}" parentId "${n.parentId}" is not a group node. Aborting load.`);
           return null;
         }
       }
@@ -248,11 +248,11 @@ const FSM = {
         current = parentIdMap[current];
         depth++;
         if (visited.has(current)) {
-          alert(`fromJSON: ノード "${n.id}" の parentId チェーンに循環参照が検出されました。読み込みを中止します。`);
+          alert(`fromJSON: node "${n.id}" has a circular parentId reference. Aborting load.`);
           return null;
         }
         if (depth > 3) {
-          alert(`fromJSON: ノード "${n.id}" の親子チェーンが深さ 3 を超えています。読み込みを中止します。`);
+          alert(`fromJSON: node "${n.id}" exceeds nesting depth 3. Aborting load.`);
           return null;
         }
         visited.add(current);

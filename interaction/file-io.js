@@ -127,7 +127,7 @@ export async function reloadFromHandle(renderFn, fitViewFn) {
     renderFn();
     fitViewFn();
   } catch (e) {
-    alert(`リロードに失敗しました: ${e.message}`);
+    alert(`Reload failed: ${e.message}`);
   }
 }
 
