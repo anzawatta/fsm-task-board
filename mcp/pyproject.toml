@@ -10,3 +10,5 @@ dependencies = [
 dev = [
     "pytest>=7.0.0",
 ]
+[tool.uv]
+exclude-newer = "3 days"
