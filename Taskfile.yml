@@ -1,0 +1,23 @@
+# @see docs/rules/architect/directive-surface-edit.md  — charter distribution convention
+#
+# Requires: go-task (https://taskfile.dev)
+version: '3'
+
+tasks:
+  howto:
+    desc: '操作インデックス（手順・タスクの入口）'
+    cmds:
+      - task --list
+    silent: true
+
+  serve:
+    desc: 'ローカル HTTP サーバーを起動（http://localhost:8080）'
+    cmds:
+      - python3 -m http.server 8080 --bind 127.0.0.1
+    silent: true
+
+  query:
+    desc: 'タスク状況を表示（task query -- [idle|wip|done]）'
+    cmds:
+      - bash scripts/query-tasks.sh fsm-tasks.json {{.CLI_ARGS}}
+    silent: true
