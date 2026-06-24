@@ -174,7 +174,7 @@ def _check_mtime(filename: str, path: Path, force: bool) -> dict | None:
 
 @mcp.tool()
 def list_canvases() -> list[dict]:
-    """Canvas JSON一覧"""
+    """List available canvas JSON files."""
     # @see EARS-009#REQ-W002
     if not CANVAS_DIR.exists():
         return []
@@ -192,10 +192,10 @@ def list_canvases() -> list[dict]:
 
 @mcp.tool()
 def read_canvas(filename: str) -> str:
-    """Canvas JSONをMermaid+DoDのMarkdownに変換して返す。
+    """Convert a canvas JSON to Markdown (Mermaid diagram + DoD checklists) and return it.
 
-    前回読込時のスナップショットと比較し、差分があれば
-    Markdown冒頭に変更サマリを付与する。
+    Compares against the snapshot from the previous read and prepends a change summary
+    to the Markdown output if any differences are found.
     """
     # @see EARS-009#REQ-U001
     path = _safe_path(filename)
@@ -251,7 +251,7 @@ def read_canvas(filename: str) -> str:
 
 @mcp.tool()
 def read_canvas_raw(filename: str) -> str:
-    """Canvas JSONの生内容(スナップショット更新せず)"""
+    """Return the raw JSON content of a canvas file without updating the snapshot. Use for debugging or inspection."""
     # @see EARS-009#REQ-U001
     path = _safe_path(filename)
     # @see EARS-009#REQ-U008
@@ -264,7 +264,7 @@ def read_canvas_raw(filename: str) -> str:
 
 @mcp.tool()
 def reset_snapshot(filename: str) -> str:
-    """スナップショットを削除(次回読込で初回扱い)"""
+    """Delete the snapshot for a canvas file so the next read is treated as the first read."""
     snap = _snapshot_path(filename)
     # @see EARS-009#REQ-E002
     # @see EARS-009#REQ-E003
@@ -292,12 +292,12 @@ def add_node(
     type: str = "text",
     parentId: str | None = None,
 ) -> dict:
-    """ノードを追加し採番・自動配置を行う。
+    """Add a node with auto-assigned ID and auto-placement.
 
-    ``type`` は ``"text"`` (デフォルト) または ``"group"``。
-    ``parentId`` は省略可能 (デフォルト ``null``)。
+    ``type`` is ``"text"`` (default) or ``"group"``.
+    ``parentId`` is optional (default ``null``).
 
-    Returns full created node object with ``"status": "created"``, or an
+    Returns the full created node object with ``"status": "created"``, or an
     error dict when a precondition is violated.
     """
     # @see EARS-008#REQ-U011
@@ -418,12 +418,12 @@ def update_node(
     status: Literal["wip", "done"] | None = "__unset__",  # type: ignore[assignment]
     force: bool = False,
 ) -> dict:
-    """既存ノードの name または status を更新する。
+    """Update the name or status of an existing node.
 
-    ``dod`` および座標フィールドは変更しない (REQ-E006)。
-    ``status`` を明示的に ``None`` (null) にしたい場合は ``status=null`` を渡す。
-    省略した場合（デフォルト ``"__unset__"``）は既存値を保持する。
-    Valid values: null (Idle), "wip" (In progress), "done" (Done). Omit to keep current value.
+    ``dod`` and position fields are not modified.
+    To explicitly set ``status`` to null (Idle), pass ``status=null``.
+    Omitting ``status`` keeps the current value.
+    Valid values: null (Idle), "wip" (In progress), "done" (Done).
     """
     # @see EARS-008#REQ-U011
     try:
@@ -478,7 +478,7 @@ def update_dod(
     dod: list | None = None,
     force: bool = False,
 ) -> dict:
-    """ノードの DoD（受け入れ条件）リストを差し替える。"""
+    """Replace the DoD (acceptance criteria) list of a node."""
     # @see EARS-008#REQ-U011
     try:
         path = _safe_path(filename)
@@ -525,7 +525,7 @@ def update_nodes(
     nodes: list[dict],
     force: bool = False,
 ) -> dict:
-    """複数ノードの name / status を一括更新する。dod・座標は変更しない。"""
+    """Batch-update name and/or status of multiple nodes. dod and position fields are not modified."""
     # @see EARS-008#REQ-U011
     try:
         path = _safe_path(filename)
@@ -593,9 +593,9 @@ def add_edge(
     label: str = "",
     force: bool = False,
 ) -> dict:
-    """エッジを追加する。
+    """Add an edge between two nodes.
 
-    Returns full created edge object with ``"status": "created"``.
+    Returns the full created edge object with ``"status": "created"``.
     """
     # @see EARS-008#REQ-U011
     try:
@@ -661,9 +661,9 @@ def change_edge(
     label: str | None = None,
     force: bool = False,
 ) -> dict:
-    """エッジを in-place で書き換える（ID は保持）。
+    """Update an existing edge in place, preserving its ID.
 
-    Supplied fields are updated; omitted fields are left unchanged (REQ-E003).
+    Supplied fields are updated; omitted fields are left unchanged.
     """
     # @see EARS-008#REQ-U011
     try:
@@ -725,10 +725,10 @@ def remove_node(
     id: str,
     force: bool = False,
 ) -> dict:
-    """ノードとその接続エッジをカスケード削除する (REQ-E004)。
+    """Remove a node and cascade-delete all edges connected to it.
 
-    対象ノードが ``type: "group"`` の場合は子ノードの ``parentId`` を ``null`` に
-    リセットしてから削除する（孤立化）。子ノード自体は削除しない (EARS-003 REQ-W006)。
+    If the target node is of ``type: "group"``, children have their ``parentId`` reset
+    to ``null`` (orphaned) before the group is removed. Child nodes themselves are not deleted.
     """
     # @see EARS-008#REQ-U011
     try:
@@ -784,7 +784,7 @@ def remove_edge(
     id: str,
     force: bool = False,
 ) -> dict:
-    """エッジのみを削除する（接続ノードは変更しない）(REQ-E005)。"""
+    """Remove an edge without modifying its connected nodes."""
     # @see EARS-008#REQ-U011
     try:
         path = _safe_path(filename)
