@@ -1,4 +1,4 @@
-# EARS-003: MCP グループサポート
+# EARS-012: MCP グループサポート
 
 **Status:** Draft
 **Date:** 2026-06-09
@@ -6,7 +6,7 @@
 
 `canvas_reader_mcp.py` および `canvas_to_md.py` に対するグループ化機能の拡張要件。
 アクターは MCP ツールを呼び出すエージェント（Claude Code 等）。
-ブラウザ UI 側の要件は EARS-002 が担当する。
+ブラウザ UI 側の要件は EARS-011 が担当する。
 
 ---
 
@@ -101,6 +101,6 @@
 
 ## 関連EARS
 
-- EARS-001: ノードスキーマ拡張（`type` 値域・`g{N}` カウンタ・バリデーション不変条件）
-- EARS-002: グループ UX / レンダリング（UI 側の削除時孤立化と対称）
+- EARS-010: ノードスキーマ拡張（`type` 値域・`g{N}` カウンタ・バリデーション不変条件）
+- EARS-011: グループ UX / レンダリング（UI 側の削除時孤立化と対称）
 - EARS-008（既存）: MCP write tools（`add_node` / `remove_node` / `update_node` の基底要件）

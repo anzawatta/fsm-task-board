@@ -40,7 +40,7 @@ window.addNode             = addNode;
 window.toggleEdgeMode      = toggleEdgeMode;
 window.toggleShowIds       = toggleShowIds;
 window.fitView             = fitView;
-// @see EARS-002#REQ-E001
+// @see EARS-011#REQ-E001
 window.groupSelectedNodes  = groupSelectedNodes;
 window.openFile          = () => openFile(render, fitView);
 window.saveFile          = () => saveFile(render, fitView);

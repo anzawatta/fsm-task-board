@@ -54,7 +54,7 @@ export function initEvents(renderFn, applyViewFn) {
     const g = e.target.closest('.fsm-node');
     if (!g) return;
     e.stopPropagation();
-    // @see EARS-002#REQ-U005
+    // @see EARS-011#REQ-U005
     // Why: Shift+click adds to selectedNodeIds for multi-select (group creation);
     // regular click delegates to onNodeClick for single-select / edge mode.
     if (e.shiftKey) {
@@ -76,13 +76,13 @@ export function initEvents(renderFn, applyViewFn) {
     }
   });
 
-  // @see EARS-002#REQ-U003
+  // @see EARS-011#REQ-U003
   // グループフレームへの委譲リスナー（グループノードも通常ノードと同じ操作をサポート）
   const gg = document.getElementById('groupsGroup');
 
-  // @see EARS-002#REQ-E004
+  // @see EARS-011#REQ-E004
   // Why: drag must move all descendants, not only direct children — nested groups
-  // would otherwise leave their own children behind (EARS-002 REQ-E004).
+  // would otherwise leave their own children behind (EARS-011 REQ-E004).
   function _allDescendants(groupId) {
     const result = [];
     const queue = [groupId];
@@ -114,9 +114,9 @@ export function initEvents(renderFn, applyViewFn) {
         origX: node.x, origY: node.y,
         moved: false,
         isGroup: true,
-        // @see EARS-002#REQ-E004
+        // @see EARS-011#REQ-E004
         // Why: capture original positions of all children so drag applies the same
-        // delta to each child (EARS-002 REQ-E004), avoiding accumulated rounding error.
+        // delta to each child (EARS-011 REQ-E004), avoiding accumulated rounding error.
         childOrigPositions: _allDescendants(id)
           .map(n => ({ id: n.id, origX: n.x, origY: n.y })),
       };
@@ -255,16 +255,16 @@ export function initEvents(renderFn, applyViewFn) {
       return;
     }
     // @see EARS-001#REQ-E007
-    // @see EARS-002#REQ-E004
+    // @see EARS-011#REQ-E004
     if (uiState.dragging) {
       const dx = (e.clientX - uiState.dragging.startX) / uiState.viewScale;
       const dy = (e.clientY - uiState.dragging.startY) / uiState.viewScale;
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) uiState.dragging.moved = true;
       FSM.nodes[uiState.dragging.id].x = uiState.dragging.origX + dx;
       FSM.nodes[uiState.dragging.id].y = uiState.dragging.origY + dy;
-      // @see EARS-002#REQ-E004
+      // @see EARS-011#REQ-E004
       // Why: when dragging a group, apply the same delta to every child node so
-      // member positions track the group frame (EARS-002 REQ-E004).
+      // member positions track the group frame (EARS-011 REQ-E004).
       if (uiState.dragging.isGroup && uiState.dragging.childOrigPositions) {
         uiState.dragging.childOrigPositions.forEach(cp => {
           const child = FSM.nodes[cp.id];
@@ -423,12 +423,12 @@ export function addNode() {
   }, 50);
 }
 
-// @see EARS-002#REQ-E001
-// @see EARS-002#REQ-W001
-// @see EARS-002#REQ-W003
+// @see EARS-011#REQ-E001
+// @see EARS-011#REQ-W001
+// @see EARS-011#REQ-W003
 export function groupSelectedNodes() {
   const ids = Array.from(uiState.selectedNodeIds);
-  // @see EARS-002#REQ-W001
+  // @see EARS-011#REQ-W001
   if (ids.length < 2) {
     alert('Select 2 or more nodes to group (Shift+click for multiple selection).');
     return;
@@ -438,7 +438,7 @@ export function groupSelectedNodes() {
   if (selectedNodes.length < 2) return;
 
   // Bounding box of selected nodes + 20px padding on all sides
-  // @see EARS-002#REQ-E001
+  // @see EARS-011#REQ-E001
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   selectedNodes.forEach(n => {
     minX = Math.min(minX, n.x - n.width  / 2);
@@ -452,11 +452,11 @@ export function groupSelectedNodes() {
   const gw   = (maxX - minX) + PAD * 2;
   const gh   = (maxY - minY) + PAD * 2;
 
-  // @see EARS-002#REQ-E001
+  // @see EARS-011#REQ-E001
   const groupId = FSM.addNode('Group', cx, cy, gw, gh, { type: 'group' });
 
-  // @see EARS-002#REQ-W003
-  // @see EARS-001#REQ-U005
+  // @see EARS-011#REQ-W003
+  // @see EARS-010#REQ-U005
   // Why: the new group is placed at depth 0 (no parent). Selected nodes become
   // depth 1. Any descendants of selected nodes inherit depth+1. The total depth
   // of the deepest descendant must not exceed 3.

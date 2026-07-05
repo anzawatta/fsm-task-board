@@ -1,4 +1,4 @@
-# EARS-001: ノードスキーマ拡張（type + parentId）
+# EARS-010: ノードスキーマ拡張（type + parentId）
 
 **Status:** Draft
 **Date:** 2026-06-09
@@ -79,7 +79,7 @@
 
 ## 関連EARS
 
-- EARS-002: グループ UX / レンダリング（グループ枠 SVG・グループ化ボタン）
-- EARS-003: MCP グループサポート（`add_node` type/parentId 引数・`to_mermaid` subgraph 出力）
+- EARS-011: グループ UX / レンダリング（グループ枠 SVG・グループ化ボタン）
+- EARS-012: MCP グループサポート（`add_node` type/parentId 引数・`to_mermaid` subgraph 出力）
 - EARS-006（既存）: ノード・エッジのデータスキーマ定義（本 EARS はその拡張）
 - EARS-008（既存）: MCP write tools（`update_node` REQ-E006 の維持確認）

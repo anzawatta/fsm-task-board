@@ -160,7 +160,7 @@ body {
 }
 
 /* === GROUP FRAMES === */
-/* @see EARS-002#REQ-U001 */
+/* @see EARS-011#REQ-U001 */
 .fsm-group { cursor: pointer; user-select: none; }
 .fsm-group:hover rect { filter: brightness(0.96); }
 
@@ -168,7 +168,7 @@ body {
 .fsm-node { cursor: pointer; user-select: none; }
 .fsm-node:hover .node-body { filter: brightness(0.96); }
 
-/* @see EARS-002#REQ-U005 — multi-select highlight */
+/* @see EARS-011#REQ-U005 — multi-select highlight */
 .node-multi-selected .node-body {
   stroke-dasharray: 5 3;
   stroke-width: 2;

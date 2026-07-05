@@ -20,12 +20,12 @@ export function statusColor(status) {
 }
 
 // @see EARS-002#REQ-U001
-// @see EARS-002#REQ-W004
+// @see EARS-011#REQ-W004
 // @see EARS-007#REQ-U005
 export function render() {
-  // @see EARS-002#REQ-E005
+  // @see EARS-011#REQ-E005
   // Why: renderGroups must execute before renderNodes so group frames are drawn
-  // beneath node bodies in the SVG paint order (EARS-002 REQ-E005, REQ-W004).
+  // beneath node bodies in the SVG paint order (EARS-011 REQ-E005, REQ-W004).
   renderGroups();
   renderEdges();
   renderNodes();
@@ -87,16 +87,16 @@ export function fitView() {
 // Groups
 // -------------------------------------------------------
 
-// @see EARS-002#REQ-U001
-// @see EARS-002#REQ-U002
-// @see EARS-002#REQ-E003
-// @see EARS-002#REQ-W004
+// @see EARS-011#REQ-U001
+// @see EARS-011#REQ-U002
+// @see EARS-011#REQ-E003
+// @see EARS-011#REQ-W004
 export function renderGroups() {
   const g = document.getElementById('groupsGroup');
   if (!g) return;
   g.innerHTML = '';
 
-  // @see EARS-002#REQ-E003
+  // @see EARS-011#REQ-E003
   // Why: iterate only nodes with type === "group"; legacy nodes without type field
   // are treated as regular text nodes and never rendered as group frames (ADV-001).
   Object.values(FSM.nodes).forEach(node => {
@@ -111,7 +111,7 @@ export function renderGroups() {
     wrapper.setAttribute('transform', `translate(${node.x}, ${node.y})`);
     wrapper.setAttribute('pointer-events', 'bounding-box');
 
-    // @see EARS-002#REQ-U001
+    // @see EARS-011#REQ-U001
     // Why: dashed semi-transparent rect distinguishes the group frame visually
     // from regular node boxes while staying behind member nodes in paint order.
     const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -127,7 +127,7 @@ export function renderGroups() {
     rect.setAttribute('pointer-events', 'bounding-box');
     wrapper.appendChild(rect);
 
-    // @see EARS-002#REQ-U002
+    // @see EARS-011#REQ-U002
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', -nw / 2 + 8);
     label.setAttribute('y', -nh / 2 + 14);
@@ -165,7 +165,7 @@ export function renderNodes() {
   g.innerHTML = '';
 
   Object.values(FSM.nodes).forEach(node => {
-    // @see EARS-002#REQ-U001
+    // @see EARS-011#REQ-U001
     // Why: group nodes are rendered exclusively by renderGroups() in the groupsGroup
     // layer (below nodesGroup). Rendering them again here would overlay a second
     // box on top of the group frame, breaking the visual layering.
@@ -177,7 +177,7 @@ export function renderNodes() {
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.classList.add('fsm-node');
     if (node.id === uiState.selectedNodeId) group.classList.add('node-selected');
-    // @see EARS-002#REQ-U005
+    // @see EARS-011#REQ-U005
     // Why: nodes in the multi-select set get a subtle visual indicator (dashed outline)
     // so the user knows which nodes will be grouped.
     if (uiState.selectedNodeIds.has(node.id)) group.classList.add('node-multi-selected');

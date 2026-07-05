@@ -1,11 +1,11 @@
-# EARS-002: グループ UX / レンダリング
+# EARS-011: グループ UX / レンダリング
 
 **Status:** Draft
 **Date:** 2026-06-09
 **Ward:** fsm-task-board
 
 ブラウザ UI 上でのグループ化操作（作成・選択・移動・削除）と、SVG キャンバスへのグループ枠描画に関する要件。
-アクターはブラウザユーザー。MCP 側の要件は EARS-003 が担当する。
+アクターはブラウザユーザー。MCP 側の要件は EARS-012 が担当する。
 
 ---
 
@@ -27,9 +27,9 @@
 
 1. REQ-W001: THE SYSTEM SHALL NOT create a group node when fewer than two nodes are selected. Clicking the "グループ化" button with zero or one selected node SHALL produce an `alert()` notification and take no further action.
 
-2. REQ-W002: THE SYSTEM SHALL NOT cascade-delete child nodes when a group node is deleted. Deleting a group node SHALL only reset the `parentId` of its children to `null` (orphan behavior per EARS-001 REQ-E005).
+2. REQ-W002: THE SYSTEM SHALL NOT cascade-delete child nodes when a group node is deleted. Deleting a group node SHALL only reset the `parentId` of its children to `null` (orphan behavior per EARS-010 REQ-E005).
 
-3. REQ-W003: THE SYSTEM SHALL NOT allow a group node to be created with a `parentId` pointing to another group if that assignment would cause the nesting depth to exceed 3 (EARS-001 REQ-U005). The system SHALL display an `alert()` and abort group creation.
+3. REQ-W003: THE SYSTEM SHALL NOT allow a group node to be created with a `parentId` pointing to another group if that assignment would cause the nesting depth to exceed 3 (EARS-010 REQ-U005). The system SHALL display an `alert()` and abort group creation.
 
 4. REQ-W004: THE SYSTEM SHALL NOT change the SVG full-redraw strategy. Group frames SHALL be rendered within the existing `render()` → `renderGroups()` → `renderNodes()` → `renderEdges()` pipeline, with `innerHTML = ''` clearing the groups layer on each redraw.
 
@@ -55,7 +55,7 @@
    c. Call `render()` to redraw the canvas.
    d. Mark `isDirty = true`.
 
-2. REQ-E002: WHEN the user deletes a group node (via keyboard or toolbar delete action), the system SHALL call `FSM.removeNode(groupId)`, which resets children's `parentId` to `null` per EARS-001 REQ-E005, then call `render()`.
+2. REQ-E002: WHEN the user deletes a group node (via keyboard or toolbar delete action), the system SHALL call `FSM.removeNode(groupId)`, which resets children's `parentId` to `null` per EARS-010 REQ-E005, then call `render()`.
 
 3. REQ-E003: WHEN `renderGroups()` is called during a full redraw, the system SHALL iterate all nodes whose `type === "group"`, and for each, append an SVG `<g>` element containing a `<rect>` and a `<text>` label to a dedicated SVG group layer that is ordered below the nodes layer (`nodesGroup`).
 
@@ -77,6 +77,6 @@
 
 ## 関連EARS
 
-- EARS-001: ノードスキーマ拡張（`type` / `parentId` / `_groupIdCounter` / バリデーション）
-- EARS-003: MCP グループサポート（UI 側と対称な削除時孤立化ルール）
+- EARS-010: ノードスキーマ拡張（`type` / `parentId` / `_groupIdCounter` / バリデーション）
+- EARS-012: MCP グループサポート（UI 側と対称な削除時孤立化ルール）
 - EARS-002（既存）: ブラウザ UI インタラクション全般（本 EARS はその拡張）

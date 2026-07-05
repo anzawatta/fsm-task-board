@@ -49,7 +49,7 @@ function renderNodePanel(node) {
   const dodDone  = node.dod.filter(d => d.checked).length;
   const dodTotal = node.dod.length;
 
-  // Why: group nodes are containers — status/DoD are task-node concepts (EARS-002)
+  // Why: group nodes are containers — status/DoD are task-node concepts (EARS-011)
   const statusAndDodSections = node.type !== 'group' ? `
       <div class="field-group">
         <label class="field-label">Status</label>
