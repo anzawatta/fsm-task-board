@@ -18,9 +18,9 @@ const FSM = {
   edges: {},
   _idCounter: 0,
   _edgeIdCounter: 0,
-  // @see EARS-001#REQ-U002
+  // @see EARS-010#REQ-U002
   // Why: Independent counter for g{N} IDs — must never share state with _idCounter
-  // so that resetting one counter cannot affect the other (EARS-001 REQ-W007).
+  // so that resetting one counter cannot affect the other (EARS-010 REQ-W007).
   _groupIdCounter: 0,
 
   // @see EARS-001#REQ-U001
@@ -29,17 +29,17 @@ const FSM = {
   // @see EARS-001#REQ-U001
   // @see EARS-006#REQ-W002
   genEdgeId() { return 'e' + (++this._edgeIdCounter); },
-  // @see EARS-001#REQ-E001
-  // @see EARS-001#REQ-U002
+  // @see EARS-010#REQ-E001
+  // @see EARS-010#REQ-U002
   genGroupId() { return 'g' + (++this._groupIdCounter); },
 
-  // @see EARS-001#REQ-E002
-  // @see EARS-001#REQ-E003
+  // @see EARS-010#REQ-E002
+  // @see EARS-010#REQ-E003
   // @see EARS-006#REQ-U002
   addNode(name, x, y, width, height, opts) {
     const type     = (opts && opts.type)     || 'text';
     const parentId = (opts && opts.parentId != null) ? opts.parentId : null;
-    // @see EARS-001#REQ-E002
+    // @see EARS-010#REQ-E002
     // Why: group nodes get g{N} IDs; text nodes get s{N} IDs — never share ID space.
     const id = type === 'group' ? this.genGroupId() : this.genId();
     this.nodes[id] = {
@@ -65,14 +65,14 @@ const FSM = {
     return id;
   },
 
-  // @see EARS-001#REQ-E005
-  // @see EARS-001#REQ-S002
+  // @see EARS-010#REQ-E005
+  // @see EARS-010#REQ-S002
   // @see EARS-001#REQ-W001
   removeNode(id) {
-    // @see EARS-001#REQ-S002
-    // @see EARS-001#REQ-E005
+    // @see EARS-010#REQ-S002
+    // @see EARS-010#REQ-E005
     // Why: group deletion must orphan children (reset parentId → null) rather than
-    // cascade-deleting them (EARS-001 REQ-S002, EARS-002 REQ-W002).
+    // cascade-deleting them (EARS-010 REQ-S002, EARS-011 REQ-W002).
     const node = this.nodes[id];
     if (node && node.type === 'group') {
       Object.values(this.nodes).forEach(n => {
@@ -145,7 +145,7 @@ const FSM = {
   // -------------------------------------------------------
   // Canvas JSON Schema Export
   // -------------------------------------------------------
-  // @see EARS-001#REQ-U006
+  // @see EARS-010#REQ-U006
   // @see EARS-006#REQ-U001
   // @see EARS-006#REQ-U002
   // @see EARS-006#REQ-U003
@@ -159,10 +159,10 @@ const FSM = {
         width:    n.width,
         height:   n.height,
         status:   n.status,
-        // @see EARS-001#REQ-U006
+        // @see EARS-010#REQ-U006
         // Why: explicit allowlist (no spread/Object.assign) ensures only known fields
         // are serialized; type and parentId must appear for every node including
-        // text nodes with null parentId (EARS-001 REQ-U006).
+        // text nodes with null parentId (EARS-010 REQ-U006).
         type:     n.type     || 'text',
         parentId: n.parentId != null ? n.parentId : null,
         dod: n.dod.map(d => ({
@@ -183,12 +183,12 @@ const FSM = {
   // Canvas JSON Schema Import
   // (後方互換: states[] / from / to も受容)
   // -------------------------------------------------------
-  // @see EARS-001#REQ-E004
-  // @see EARS-001#REQ-U007
-  // @see EARS-001#REQ-W001
-  // @see EARS-001#REQ-W003
-  // @see EARS-001#REQ-W004
-  // @see EARS-001#REQ-W005
+  // @see EARS-010#REQ-E004
+  // @see EARS-010#REQ-U007
+  // @see EARS-010#REQ-W001
+  // @see EARS-010#REQ-W003
+  // @see EARS-010#REQ-W004
+  // @see EARS-010#REQ-W005
   // @see EARS-006#REQ-E001
   // @see EARS-006#REQ-U004
   // @see EARS-006#REQ-U005
@@ -197,9 +197,9 @@ const FSM = {
 
     const rawNodes = data.nodes || data.states || [];
 
-    // --- Validate type domain (EARS-001 REQ-W001) ---
-    // @see EARS-001#REQ-W001
-    // Why: undefined/null type is accepted for backward compat (EARS-001 REQ-W005);
+    // --- Validate type domain (EARS-010 REQ-W001) ---
+    // @see EARS-010#REQ-W001
+    // Why: undefined/null type is accepted for backward compat (EARS-010 REQ-W005);
     // any other non-standard string must halt loading with an error.
     for (const n of rawNodes) {
       const t = n.type;
@@ -216,8 +216,8 @@ const FSM = {
       if (id) idTypeMap[id] = n.type || 'text';
     }
 
-    // --- Validate parentId references (EARS-001 REQ-W002) ---
-    // @see EARS-001#REQ-W002
+    // --- Validate parentId references (EARS-010 REQ-W002) ---
+    // @see EARS-010#REQ-W002
     for (const n of rawNodes) {
       if (n.parentId != null) {
         const parentType = idTypeMap[n.parentId];
@@ -232,10 +232,10 @@ const FSM = {
       }
     }
 
-    // --- Validate circular references and max depth (EARS-001 REQ-W003, REQ-W004) ---
-    // @see EARS-001#REQ-W003
-    // @see EARS-001#REQ-W004
-    // @see EARS-001#REQ-U005
+    // --- Validate circular references and max depth (EARS-010 REQ-W003, REQ-W004) ---
+    // @see EARS-010#REQ-W003
+    // @see EARS-010#REQ-W004
+    // @see EARS-010#REQ-U005
     const parentIdMap = {};
     for (const n of rawNodes) {
       if (n.id) parentIdMap[n.id] = n.parentId != null ? n.parentId : null;
@@ -264,7 +264,7 @@ const FSM = {
     this.edges = {};
     this._idCounter = 0;
     this._edgeIdCounter = 0;
-    // @see EARS-001#REQ-U007
+    // @see EARS-010#REQ-U007
     this._groupIdCounter = 0;
 
     rawNodes.forEach(n => {
@@ -274,12 +274,12 @@ const FSM = {
         const numId = parseInt(id.slice(1));
         if (!isNaN(numId) && numId > this._idCounter) this._idCounter = numId;
       }
-      // @see EARS-001#REQ-U007 — recalculate g{N} counter
+      // @see EARS-010#REQ-U007 — recalculate g{N} counter
       if (id.startsWith('g')) {
         const numId = parseInt(id.slice(1));
         if (!isNaN(numId) && numId > this._groupIdCounter) this._groupIdCounter = numId;
       }
-      // @see EARS-001#REQ-W005 — undefined type is backward-compatible; do NOT set it
+      // @see EARS-010#REQ-W005 — undefined type is backward-compatible; do NOT set it
       const storedType     = n.type;       // may be undefined for old s{N} nodes
       const storedParentId = n.parentId != null ? n.parentId : null;
       this.nodes[id] = {

@@ -94,13 +94,13 @@ def _next_node_id(nodes: list[dict]) -> str:
     return f"s{max_n + 1}"
 
 
-# @see EARS-003#REQ-U001
-# @see EARS-003#REQ-W001
+# @see EARS-012#REQ-U001
+# @see EARS-012#REQ-W001
 def _next_group_id(nodes: list[dict]) -> str:
     """Compute next group node ID as g{max_numeric_suffix + 1}.
 
     Mirrors _next_node_id() but scans g{N} IDs, keeping the two namespaces
-    independent (EARS-003 REQ-U001, EARS-001 REQ-W007).
+    independent (EARS-012 REQ-U001, EARS-010 REQ-W007).
     """
     max_n = 0
     for n in nodes:
@@ -315,7 +315,7 @@ def add_node(
     if status not in _VALID_STATUSES:
         return {"status": "error", "reason": "invalid status", "allowed": [None, "wip", "done"]}
 
-    # @see EARS-003#REQ-U002
+    # @see EARS-012#REQ-U002
     if type not in _VALID_NODE_TYPES:
         return {"status": "error", "reason": "invalid type"}
 
@@ -329,7 +329,7 @@ def add_node(
     nodes: list[dict] = canvas.setdefault("nodes", [])
     edges: list[dict] = canvas.setdefault("edges", [])
 
-    # @see EARS-003#REQ-U003 — validate parentId
+    # @see EARS-012#REQ-U003 — validate parentId
     if parentId is not None:
         parent_node = next((n for n in nodes if n.get("id") == parentId), None)
         if parent_node is None:
@@ -337,14 +337,14 @@ def add_node(
         if parent_node.get("type") != "group":
             return {"status": "error", "reason": "invalid parentId"}
 
-    # @see EARS-003#REQ-U004 — validate nesting depth
+    # @see EARS-012#REQ-U004 — validate nesting depth
     if parentId is not None:
         parent_depth = _resolve_depth(parentId, nodes)
         # new node depth = parent_depth + 1; must not exceed 3
         if parent_depth + 1 > 3:
             return {"status": "error", "reason": "nesting depth exceeds 3"}
 
-    # @see EARS-003#REQ-W003 — circular reference check (guard for group nodes)
+    # @see EARS-012#REQ-W003 — circular reference check (guard for group nodes)
     # A new node cannot be its own ancestor (trivially safe here since new_id
     # doesn't exist yet, but validate that parentId chain contains no cycles).
     if parentId is not None:
@@ -357,12 +357,12 @@ def add_node(
             visited_ids.add(cur)
             cur = id_map.get(cur, {}).get("parentId")
 
-    # @see EARS-003#REQ-W001 / REQ-W002 — use correct ID namespace per type
+    # @see EARS-012#REQ-W001 / REQ-W002 — use correct ID namespace per type
     if type == "group":
-        # @see EARS-003#REQ-W001
+        # @see EARS-012#REQ-W001
         new_id = _next_group_id(nodes)
     else:
-        # @see EARS-003#REQ-W002
+        # @see EARS-012#REQ-W002
         # @see EARS-008#REQ-U002
         new_id = _next_node_id(nodes)
 
@@ -382,7 +382,7 @@ def add_node(
             normalized_dod.append(item)
         # skip non-string, non-dict items silently
 
-    # @see EARS-003#REQ-E001 / REQ-E002
+    # @see EARS-012#REQ-E001 / REQ-E002
     new_node: dict = {
         "id": new_id,
         "x": x,
@@ -750,10 +750,10 @@ def remove_node(
     if target_node is None:
         return {"status": "error", "reason": "node not found", "conflicting_id": id}
 
-    # @see EARS-003#REQ-E003 — orphan children before deleting the group
-    # @see EARS-003#REQ-W006
+    # @see EARS-012#REQ-E003 — orphan children before deleting the group
+    # @see EARS-012#REQ-W006
     # Why: group deletion must NOT cascade-delete children; instead reset their
-    # parentId to null (EARS-003 REQ-W006, EARS-001 REQ-S002).
+    # parentId to null (EARS-012 REQ-W006, EARS-010 REQ-S002).
     if target_node.get("type") == "group":
         for n in nodes:
             if n.get("parentId") == id:

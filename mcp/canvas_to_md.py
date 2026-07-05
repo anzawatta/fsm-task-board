@@ -30,15 +30,15 @@ def _compute_depth(node_id: str, id_map: dict) -> int:
     return depth
 
 
-# @see EARS-003#REQ-U005
-# @see EARS-003#REQ-U006
-# @see EARS-003#REQ-W005
+# @see EARS-012#REQ-U005
+# @see EARS-012#REQ-U006
+# @see EARS-012#REQ-W005
 def to_mermaid(nodes: list, edges: list) -> str:
     """Generate a Mermaid flowchart, emitting group nodes as subgraph blocks.
 
-    EARS-003 REQ-U005: group nodes with children → subgraph … end.
-    EARS-003 REQ-U006: subgraph nesting capped at depth 2; deeper groups rendered flat.
-    EARS-003 REQ-W005: empty group nodes rendered as plain flowchart nodes.
+    EARS-012 REQ-U005: group nodes with children → subgraph … end.
+    EARS-012 REQ-U006: subgraph nesting capped at depth 2; deeper groups rendered flat.
+    EARS-012 REQ-W005: empty group nodes rendered as plain flowchart nodes.
     """
     lines = ["```mermaid", "flowchart LR"]
 
@@ -71,7 +71,7 @@ def to_mermaid(nodes: list, edges: list) -> str:
             if child is None:
                 continue
             child_depth = _compute_depth(cid, id_map)
-            # @see EARS-003#REQ-U006
+            # @see EARS-012#REQ-U006
             # Why: Mermaid subgraph nesting is capped at 2 levels (depth 0 outer,
             # depth 1 inner). Child groups at depth >= 2 are rendered as plain nodes
             # to avoid Mermaid parser limitations (ADV-001). REQ-U006 says
@@ -95,12 +95,12 @@ def to_mermaid(nodes: list, edges: list) -> str:
     for grp in sorted(top_level_groups, key=lambda n: n["id"]):
         children = group_children.get(grp["id"], [])
         grp_depth = _compute_depth(grp["id"], id_map)
-        # @see EARS-003#REQ-W005 — empty group rendered as plain node
+        # @see EARS-012#REQ-W005 — empty group rendered as plain node
         if not children:
             lines.append(emit_node_line(grp))
             emitted.add(grp["id"])
         elif grp_depth <= 1:
-            # @see EARS-003#REQ-U005
+            # @see EARS-012#REQ-U005
             lines.extend(emit_subgraph(grp))
         else:
             # depth > 1 top-level group shouldn't exist, but handle defensively
