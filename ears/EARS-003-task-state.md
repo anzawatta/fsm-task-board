@@ -3,8 +3,11 @@ provides:
   - REQ-U001
   - REQ-U002
   - REQ-U003
+  - REQ-U004
+  - REQ-U005
   - REQ-W001
   - REQ-W002
+  - REQ-W003
   - REQ-S001
   - REQ-S002
   - REQ-E001
@@ -13,6 +16,8 @@ provides:
   - REQ-E004
   - REQ-E005
   - REQ-E006
+  - REQ-E007
+  - REQ-E008
 ---
 # EARS-003: Task State
 
@@ -28,11 +33,16 @@ provides:
 1. REQ-U001: Node `status` SHALL be one of: `null` (未着手), `"wip"` (実装中), `"done"` (完了)
 2. REQ-U002: Each DoD item SHALL have `text` (string), `type` (string), and `done` (boolean) fields
 3. REQ-U003: DoD `type` SHALL be one of: `"existence"` or `"behavioral"`
+4. REQ-U004: DoD item `text` SHALL be permitted to contain line-break characters.
+5. REQ-U005: When displaying a DoD item's text outside of edit mode, the system SHALL preserve
+   and visually render any line breaks contained in the text.
 
 ## 敵対条件
 
 1. REQ-W001: System SHALL NOT accept `status` values other than `null`, `"wip"`, or `"done"`
 2. REQ-W002: System SHALL NOT accept DoD `type` values other than `"existence"` or `"behavioral"`
+3. REQ-W003: System SHALL NOT commit a DoD item's text when it is empty or contains only
+   whitespace after trimming leading and trailing whitespace.
 
 ## State-driven requirements
 
@@ -47,3 +57,8 @@ provides:
 4. REQ-E004: When the user changes the DoD type selector, the system SHALL update the item's `type`
 5. REQ-E005: When the user toggles a DoD item's checkbox, the system SHALL flip its `done` boolean
 6. REQ-E006: When the user clicks the delete button of a DoD item, the system SHALL remove that item from the node's DoD list
+7. REQ-E007: When the user commits an edit to a DoD item's text (via a dedicated commit key
+   combination or by moving focus away), the system SHALL save the entered text — including any
+   line breaks the user entered — to the item's `text`.
+8. REQ-E008: When the user cancels an edit to a DoD item's text, the system SHALL discard the
+   edit and restore the item's previous text.

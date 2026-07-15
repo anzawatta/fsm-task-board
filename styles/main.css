@@ -355,12 +355,14 @@ body {
 
 .dod-check { margin-top: 2px; cursor: pointer; accent-color: var(--accent-done); flex-shrink: 0; }
 
+/* @see EARS-003#REQ-U005 */
 .dod-text {
   flex: 1;
   font-family: var(--font-sans);
   color: var(--text-secondary);
   line-height: 1.4;
   word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .dod-item.checked .dod-text { text-decoration: line-through; color: var(--text-dim); }
@@ -405,19 +407,39 @@ body {
 
 .dod-add-row { display: flex; gap: 4px; margin-top: 4px; }
 
+/* @see EARS-003#REQ-E007 */
 .dod-add-input {
   flex: 1;
   font-family: var(--font-sans);
   font-size: 11px;
+  line-height: 1.4;
   padding: 5px 8px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-dim);
   border-radius: 3px;
   color: var(--text-primary);
   outline: none;
+  /* Why: height is driven by JS (scrollHeight-based auto-grow, see _autoGrow in
+     ui/panel.js) — resize:none and overflow-y:hidden keep the browser's own
+     resize handle/scrollbar from fighting that. */
+  resize: none;
+  overflow-y: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .dod-add-input:focus { border-color: var(--border-mid); }
+
+/* @see EARS-003#REQ-E007 */
+.dod-inline-input {
+  /* Why: same auto-grow-without-scrollbar treatment as .dod-add-input — this
+     class is applied to the inline-edit <textarea> created in ui/panel.js. */
+  resize: none;
+  overflow-y: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;
+}
 
 .dod-type-select {
   font-family: var(--font-mono);
