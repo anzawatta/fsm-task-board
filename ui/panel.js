@@ -200,10 +200,15 @@ function _handleDodAddKeydown(event, nodeId) {
     return;
   }
   if (event.key !== 'Enter') return;
-  if (event.ctrlKey) {
-    // Why: Ctrl+Enter は IME 変換中かどうかに関わらず確定する。既存の add-path
-    // idiom を踏襲 — Ctrl+Enter は変換確定とは別の、明示的な「確定」操作である。
+  if (event.ctrlKey || event.metaKey) {
+    // Why: Ctrl+Enter（Win/Linux）/ Cmd+Enter（Mac）は IME 変換中かどうかに
+    // 関わらず確定する。既存の add-path idiom を踏襲 — どちらの修飾キーも
+    // 変換確定とは別の、明示的な「確定」操作である。ユーザーの実機は macOS
+    // (docs/user-environment.md) であり、plain textarea 上での Cmd+Enter の
+    // ネイティブ既定動作は no-op のため、metaKey を見落とすと Mac 上で
+    // 「何も起きない」バグになる。
     // @see EARS-003#REQ-E007
+    event.preventDefault();
     window.__fsm.addDoDFromInput(nodeId);
     return;
   }
@@ -298,10 +303,14 @@ function _activateInlineEdit(span, node, dodId) {
       return;
     }
     if (e.key !== 'Enter') return;
-    if (e.ctrlKey) {
-      // Why: Ctrl+Enter は IME 変換中かどうかに関わらず確定する — DoD 追加
-      // textarea の既存 idiom（_handleDodAddKeydown）と挙動を揃える。明示的な
-      // Ctrl+Enter は IME 確定とは別の「確定」操作なので isComposing は無視してよい。
+    if (e.ctrlKey || e.metaKey) {
+      // Why: Ctrl+Enter（Win/Linux）/ Cmd+Enter（Mac）は IME 変換中かどうかに
+      // 関わらず確定する — DoD 追加 textarea の既存 idiom
+      // （_handleDodAddKeydown）と挙動を揃える。明示的な Ctrl/Cmd+Enter は
+      // IME 確定とは別の「確定」操作なので isComposing は無視してよい。
+      // ユーザーの実機は macOS (docs/user-environment.md) であり、plain
+      // textarea 上での Cmd+Enter のネイティブ既定動作は no-op のため、
+      // metaKey を見落とすと Mac 上で「何も起きない」バグになる。
       e.preventDefault();
       textarea.removeEventListener('blur', commit);
       commit();
