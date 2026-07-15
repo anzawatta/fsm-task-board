@@ -6,8 +6,15 @@ from pathlib import Path
 
 
 def sanitize_label(text: str) -> str:
-    """Mermaidラベル内のダブルクォートをエスケープ"""
-    return text.replace('"', '\\"')
+    """Mermaidラベル内のダブルクォートをエスケープし、改行を<br/>に変換"""
+    # Why: embedded-newline handling for Mermaid labels
+    # Mermaid's flowchart grammar is line-oriented — a raw \n inside a quoted
+    # node/edge label string would break the statement across physical lines
+    # and corrupt parsing. Mermaid's renderer supports <br/> inside quoted
+    # labels as an intentional line break, so substituting it here preserves
+    # the multi-line content (which the browser-side UI already treats as
+    # meaningful) instead of silently collapsing/destroying it.
+    return text.replace('"', '\\"').replace("\n", "<br/>")
 
 
 def _compute_depth(node_id: str, id_map: dict) -> int:
