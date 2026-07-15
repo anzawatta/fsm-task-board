@@ -19,6 +19,18 @@ def _edge_signature(edge: dict) -> dict:
     }
 
 
+def _flatten(s) -> str:
+    """Collapse embedded newlines to a space for one-bullet-per-line Markdown output.
+
+    Accepts non-str input (e.g. a missing `name` surfaces as None from
+    _node_signature) and stringifies it first, matching the old f-string
+    interpolation's tolerance of non-str values.
+    """
+    if not isinstance(s, str):
+        s = str(s)
+    return s.replace("\n", " ")
+
+
 def diff_canvas(prev: dict, curr: dict) -> dict:
     """前回と現在のCanvasを比較し、変更内容を返す"""
     prev_nodes = {n["id"]: n for n in prev.get("nodes", [])}
@@ -62,20 +74,28 @@ def format_diff(diff: dict) -> str:
     if n["added"]:
         lines.append("**Nodes added:**")
         for x in n["added"]:
-            lines.append(f"- `{x['id']}` {x.get('name', '')}")
+            # Why: flatten embedded newlines in name/label
+            # format_diff() emits one bullet per changed item (a terse,
+            # one-bullet-per-change Markdown report). A raw \n interpolated
+            # into an f-string would either split a bullet across physical
+            # lines (corrupting the Markdown list) or, if escaped, show up as
+            # an ugly literal "\n" artifact. A plain space keeps the report
+            # scannable and applies uniformly at every interpolation site
+            # below (nodes/edges added/removed/changed, DoD added/removed).
+            lines.append(f"- `{x['id']}` {_flatten(x.get('name', ''))}")
 
     if n["removed"]:
         lines.append("**Nodes removed:**")
         for x in n["removed"]:
-            lines.append(f"- `{x['id']}` {x.get('name', '')}")
+            lines.append(f"- `{x['id']}` {_flatten(x.get('name', ''))}")
 
     if n["changed"]:
         lines.append("**Nodes changed:**")
         for x in n["changed"]:
-            lines.append(f"- `{x['id']}` {x['name']}")
+            lines.append(f"- `{x['id']}` {_flatten(x['name'])}")
             b, a = x["before"], x["after"]
             if b["name"] != a["name"]:
-                lines.append(f"  - name: `{b['name']}` → `{a['name']}`")
+                lines.append(f"  - name: `{_flatten(b['name'])}` → `{_flatten(a['name'])}`")
             if b["status"] != a["status"]:
                 lines.append(f"  - status: `{b['status']}` → `{a['status']}`")
             if b["dod"] != a["dod"]:
@@ -85,20 +105,20 @@ def format_diff(diff: dict) -> str:
                 bt = {_dod_text(d) for d in b["dod"]}
                 at = {_dod_text(d) for d in a["dod"]}
                 for t in at - bt:
-                    lines.append(f"  - DoD added: {t}")
+                    lines.append(f"  - DoD added: {_flatten(t)}")
                 for t in bt - at:
-                    lines.append(f"  - DoD removed: {t}")
+                    lines.append(f"  - DoD removed: {_flatten(t)}")
 
     if e["added"]:
         lines.append("**Edges added:**")
         for x in e["added"]:
-            label = f" (label: {x['label']})" if x.get("label") else ""
+            label = f" (label: {_flatten(x['label'])})" if x.get("label") else ""
             lines.append(f"- `{x['fromNode']}` → `{x['toNode']}`{label}")
 
     if e["removed"]:
         lines.append("**Edges removed:**")
         for x in e["removed"]:
-            label = f" (label: {x['label']})" if x.get("label") else ""
+            label = f" (label: {_flatten(x['label'])})" if x.get("label") else ""
             lines.append(f"- `{x['fromNode']}` → `{x['toNode']}`{label}")
 
     if e["changed"]:

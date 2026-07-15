@@ -143,7 +143,13 @@ function renderNodePanel(node) {
                 ${other ? escHtml(other.name) : '?'}
                 ${e.guard ? `<span style="color:var(--text-dim);margin-left:auto">🔒</span>` : ''}
                 ${e.label
-                  ? `<span style="color:var(--text-dim);margin-left:auto">${escHtml(e.label)}</span>`
+                  // Why: preserve embedded newlines in edge.label — every other multi-line
+                  // text spot in this UI (.field-textarea, .dod-text, .dod-add-input,
+                  // .dod-inline-input) already uses white-space:pre-wrap; without it here,
+                  // default white-space:normal collapses a \n to a space. Kept as an inline
+                  // style addition (not a new CSS class) to match how every other one-off
+                  // styled element in this file's Edges-list markup is handled.
+                  ? `<span style="color:var(--text-dim);margin-left:auto;white-space:pre-wrap">${escHtml(e.label)}</span>`
                   : ''}
               </div>`;
             }).join('')
