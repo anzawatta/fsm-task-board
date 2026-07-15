@@ -563,7 +563,8 @@ export function addDoDFromInput(nodeId) {
   // @see EARS-003#REQ-W003
   if (!input || !input.value.trim()) return;      // empty/whitespace-only guard
   // @see EARS-003#REQ-E007
-  FSM.addDoDItem(nodeId, input.value.trim(), select.value);
+  // Why: 保存値は生値のまま渡す（上の guard が空白のみ入力を既に弾いている）
+  FSM.addDoDItem(nodeId, input.value, select.value);
   markDirty();
   _render();
   setTimeout(() => {

@@ -345,9 +345,12 @@ function _activateInlineEdit(span, node, dodId) {
 
   const commit = () => {
     // @see EARS-003#REQ-W003
-    const newText = textarea.value.trim();
+    // Why: trim は空／空白のみ判定にのみ使う
+    // 保存値は生値のまま（前後の改行を含め入力どおり保持する / REQ-E007）
+    const rawText = textarea.value;
+    const isEmpty = rawText.trim() === '';
     // 空テキストは直前値に戻す（削除しない）
-    const finalText = newText === '' ? prevText : newText;
+    const finalText = isEmpty ? prevText : rawText;
     const restored = document.createElement('span');
     restored.className = 'dod-text';
     restored.dataset.dodId = dodId;
@@ -355,7 +358,7 @@ function _activateInlineEdit(span, node, dodId) {
     // 再クリックで再編集できるよう再付与
     textarea.replaceWith(restored);
 
-    if (newText !== '' && finalText !== prevText) {
+    if (!isEmpty && finalText !== prevText) {
       // @see EARS-003#REQ-E007
       // FSM データを更新して dirty マーク（改行を含め入力値をそのまま保存）
       const dItem = node.dod.find(d => d.id === dodId);
