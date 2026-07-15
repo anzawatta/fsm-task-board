@@ -129,6 +129,7 @@ export function renderGroups() {
     wrapper.appendChild(rect);
 
     // @see EARS-011#REQ-U002
+    // @see EARS-011#REQ-U006
     // @see EARS-001#REQ-U004
     // Why: group names break ONLY on user-entered \n (no 13-char chunk wrap,
     // unlike renderNodes' wrapText()). Group frames are typically wide
@@ -137,15 +138,24 @@ export function renderGroups() {
     // This must NOT be unified with renderNodes'/addEdgeLabel's wrap logic:
     // doing so previously caused short group names without \n to get
     // force-wrapped, a regression.
+    // Why: label drawn above the frame top edge, stacked upward
+    // The frame size is frozen at creation time and is not recomputed on
+    // rename, so a multi-line title drawn inside the top-left corner would
+    // overflow the frame's bottom edge into member-node space. Instead the
+    // label is anchored just above the top edge (-nh/2): the last line sits
+    // groupTitleGap above the edge and each earlier line stacks progressively
+    // higher, so no line ever falls inside the frame interior regardless of
+    // line count.
+    const groupNameLines = splitLines(node.name);
+    const groupLineHeight = 12;
+    const groupTitleGap = 4;
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', -nw / 2 + 8);
-    label.setAttribute('y', -nh / 2 + 14);
+    label.setAttribute('y', -nh / 2 - groupTitleGap - (groupNameLines.length - 1) * groupLineHeight);
     label.setAttribute('font-size', '11');
     label.setAttribute('fill', 'cornflowerblue');
     label.setAttribute('font-weight', 'bold');
     label.setAttribute('pointer-events', 'none');
-    const groupNameLines = splitLines(node.name);
-    const groupLineHeight = 12;
     groupNameLines.forEach((line, i) => {
       const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
       tspan.setAttribute('x', -nw / 2 + 8);
