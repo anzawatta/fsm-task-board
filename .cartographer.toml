@@ -1,0 +1,14 @@
+# .cartographer.toml — git-cartographer 設定ファイル
+# 設定ファイルがない場合は組込デフォルト（src/lib/lambda/packages/apps/services/functions）が
+# 使われるが、この ward はそのいずれも持たないため AST digest / callgraph 軸が空振りしていた。
+# Why: フラットな vanilla-JS 構成に合わせ scan_dirs を実ソースディレクトリへ差し替える
+# この ward のコードは ui/ core/ interaction/（JS）と mcp/（Python）に直置きされている。
+# scan_dirs をこれらに向けることで ast-digest / callgraph 軸が実ファイルを対象にできる。
+
+[components]
+scan_dirs = [
+    "ui",
+    "core",
+    "interaction",
+    "mcp",
+]
