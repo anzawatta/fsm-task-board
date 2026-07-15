@@ -165,6 +165,10 @@ export function renderGroups() {
 // -------------------------------------------------------
 
 function wrapText(name) {
+  // Why: preserve empty segments (blank lines) from split('\n')
+  // An empty input must map to a single empty line [''], not [] — otherwise
+  // flatMap in renderNodes() drops user-entered leading/trailing/consecutive blank lines.
+  if (name.length === 0) return [''];
   const lines = [];
   let pos = 0;
   while (pos < name.length) {
