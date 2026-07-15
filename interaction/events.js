@@ -102,6 +102,27 @@ export function initEvents(renderFn, applyViewFn) {
     gg.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
       if (uiState.edgeMode) return;
+
+      // リサイズハンドルの判定（先に処理）
+      // @see EARS-001#REQ-E008
+      // Why: mirrors nodesGroup's resize-handle branch exactly — same
+      // uiState.resizing shape, keyed into the same FSM.nodes map (group
+      // nodes have no separate store). Must run before the drag-move branch
+      // below, same ordering rationale as nodesGroup: the handle sits inside
+      // the group's own bounding box, so a general drag-start would win the
+      // hit-test first if this check came after.
+      if (e.target.classList.contains('resize-handle')) {
+        e.stopPropagation();
+        const nodeId = e.target._resizeNodeId || e.target.closest('.fsm-group')._nodeId;
+        const node = FSM.nodes[nodeId];
+        uiState.resizing = {
+          id: nodeId,
+          startX: e.clientX, startY: e.clientY,
+          origW: node.width, origH: node.height
+        };
+        return;
+      }
+
       const g = e.target.closest('.fsm-group');
       if (!g) return;
       e.stopPropagation();

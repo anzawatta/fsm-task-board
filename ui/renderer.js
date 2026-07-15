@@ -165,6 +165,29 @@ export function renderGroups() {
     });
     wrapper.appendChild(label);
 
+    // リサイズハンドル（選択時のみ）
+    // @see EARS-001#REQ-E008
+    // Why: mirrors renderNodes()'s resize-handle block exactly (same class,
+    // rect geometry formula, cursor, and _resizeNodeId tag) instead of a new
+    // handle design. Group frames are a separate <g class="fsm-group">
+    // element in the #groupsGroup layer — renderNodes() early-returns for
+    // group nodes (see the Why comment there), so this handle must be drawn
+    // here, not there, for the group frame to gain the same drag-resize
+    // affordance regular nodes already have.
+    if (node.id === uiState.selectedNodeId) {
+      const handle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      handle.classList.add('resize-handle');
+      handle.setAttribute('x', nw / 2 - 8);
+      handle.setAttribute('y', nh / 2 - 8);
+      handle.setAttribute('width', 8);
+      handle.setAttribute('height', 8);
+      handle.setAttribute('fill', 'var(--accent-wip)');
+      handle.setAttribute('cursor', 'se-resize');
+      handle.setAttribute('rx', '2');
+      handle._resizeNodeId = node.id;
+      wrapper.appendChild(handle);
+    }
+
     wrapper._nodeId = node.id;
     g.appendChild(wrapper);
   });
