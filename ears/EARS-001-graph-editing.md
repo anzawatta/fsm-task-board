@@ -16,6 +16,11 @@ provides:
   - REQ-E006
   - REQ-E007
   - REQ-E008
+  - REQ-U003
+  - REQ-U004
+  - REQ-U005
+  - REQ-E009
+  - REQ-E010
 ---
 # EARS-001: Graph Editing
 
@@ -30,6 +35,13 @@ provides:
 
 1. REQ-U001: Each node SHALL have a unique ID within the FSM (`s0`, `s1`, ...)
 2. REQ-U002: Each edge SHALL reference a `fromNode` and `toNode` that both exist in the FSM
+3. REQ-U003: When rendering a regular node's name, the system SHALL first break the text at
+   any line breaks the user entered, then wrap each resulting line to the node's fixed display
+   width.
+4. REQ-U004: When rendering a group node's name or an edge's label, the system SHALL break the
+   text at any line breaks the user entered, without further width-based wrapping.
+5. REQ-U005: An edge label's background SHALL be sized to fit the widest rendered line and the
+   total number of rendered lines.
 
 ## 敵対条件
 
@@ -53,3 +65,8 @@ provides:
 6. REQ-E006: When the user presses Delete while an edge is selected, the system SHALL delete that edge
 7. REQ-E007: When the user drags a node, the system SHALL update its `(x, y)` in real-time and re-render connected edges
 8. REQ-E008: When the user drags the resize handle of a node, the system SHALL update the node's `width` and `height`
+9. REQ-E009: When the user commits an edit to a node name or edge label (via a dedicated
+   commit key combination or by moving focus away), the system SHALL save the entered text —
+   including any line breaks the user entered — to the node's name or edge's label.
+10. REQ-E010: When the user cancels an edit to a node name or edge label, the system SHALL
+    discard the edit and restore the field's previous value.
