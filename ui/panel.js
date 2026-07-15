@@ -96,8 +96,10 @@ function renderNodePanel(node) {
         })()}
       </div>
       <div class="dod-add-row">
-        <input class="dod-add-input" id="dodAddInput" placeholder="Add DoD item..."
-          onkeydown="window.__panel.handleDodAddKeydown(event,'${node.id}')" />
+        <textarea class="dod-add-input" id="dodAddInput" placeholder="Add DoD item..." rows="1"
+          onkeydown="window.__panel.handleDodAddKeydown(event,'${node.id}')"
+          onblur="window.__fsm.addDoDFromInput('${node.id}')"
+          oninput="window.__panel.autoGrow(this)"></textarea>
         <select class="dod-type-select" id="dodTypeSelect">
           <option value="verification">📐</option>
           <option value="validation">👍</option>
@@ -166,25 +168,46 @@ function renderNodePanel(node) {
 }
 
 // -------------------------------------------------------
-// Phase 1: IME対応 Enter抑制
+// Phase 1: DoD 追加 textarea（IME対応 Enter抑制・auto-grow・Ctrl+Enter確定）
 // @see EARS-003#REQ-E003
 // -------------------------------------------------------
 
 /**
- * DoD 追加入力欄の keydown ハンドラ。
- * - IME変換中（isComposing=true）の Enter を無視する
- * - Ctrl+Enter は composing 状態に関わらず確定する
+ * DoD 追加 textarea の scrollHeight ベース auto-grow。
+ * height を一旦 auto に戻してから scrollHeight を測るのは、
+ * 縮小方向のリサイズ（長文 → 短文）でも正しい高さに追従させるため。
+ */
+function _autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+/**
+ * DoD 追加 textarea の keydown ハンドラ。
+ * - 通常の Enter は textarea 標準動作（改行挿入）に任せる — IME 変換中かどうかは問わない
+ * - Ctrl+Enter で確定する
+ * - Escape で入力内容を破棄する（この textarea は毎回空から始まるため、
+ *   「編集前のテキストに戻す」= 空文字に戻す、で仕様上等価）
  */
 function _handleDodAddKeydown(event, nodeId) {
+  if (event.key === 'Escape') {
+    // @see EARS-003#REQ-E008
+    // Why: 追加用 textarea には「直前値」という概念がなく、編集セッションは常に
+    // 空文字から始まる。よって Escape の「編集前テキストへ復元」は空文字へのクリアと等価。
+    event.preventDefault();
+    event.target.value = '';
+    _autoGrow(event.target);
+    return;
+  }
   if (event.key !== 'Enter') return;
-  // Ctrl+Enter は composing を無視して確定
   if (event.ctrlKey) {
+    // Why: Ctrl+Enter は IME 変換中かどうかに関わらず確定する。既存の add-path
+    // idiom を踏襲 — Ctrl+Enter は変換確定とは別の、明示的な「確定」操作である。
+    // @see EARS-003#REQ-E007
     window.__fsm.addDoDFromInput(nodeId);
     return;
   }
-  // IME 変換中は無視
-  if (event.isComposing) return;
-  window.__fsm.addDoDFromInput(nodeId);
+  // plain Enter（IME 変換中を含む）は textarea 標準動作で改行を挿入する。何もしない。
 }
 
 // -------------------------------------------------------
@@ -197,132 +220,93 @@ function _attachDodInlineEdit(node) {
   if (!dodList) return;
 
   dodList.querySelectorAll('.dod-text[data-dod-id]').forEach(span => {
+    const dodId = span.dataset.dodId;
+    // Why: delegate to _activateInlineEdit instead of duplicating
+    // The click-to-edit body used to be byte-for-byte identical to
+    // _activateInlineEdit's logic (both take span/node/dodId and perform the
+    // same replace-with-editable-field → commit/cancel flow). Delegating means
+    // the textarea conversion (auto-grow, Ctrl+Enter, Escape) lives in one place.
     span.addEventListener('click', () => {
-      const dodId = span.dataset.dodId;
-      const prevText = span.textContent;
-
-      // <span> → <input> に切り替え
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'dod-inline-input field-input';
-      input.value = prevText;
-      input.style.flex = '1';
-      input.style.minWidth = '0';
-      span.replaceWith(input);
-      input.focus();
-      input.select();
-
-      const commit = () => {
-        const newText = input.value.trim();
-        // 空テキストは直前値に戻す（削除しない）
-        const finalText = newText === '' ? prevText : newText;
-        const restored = document.createElement('span');
-        restored.className = 'dod-text';
-        restored.dataset.dodId = dodId;
-        restored.textContent = finalText;
-        // 再クリックで再編集できるよう再付与
-        input.replaceWith(restored);
-
-        if (newText !== '' && finalText !== prevText) {
-          // FSM データを更新して dirty マーク
-          const dItem = node.dod.find(d => d.id === dodId);
-          if (dItem) {
-            dItem.text = finalText;
-            markDirty();
-          }
-        }
-        // 新しい span に再帰的にイベントを付与
-        restored.addEventListener('click', () => {
-          // 再付与のために親関数を再呼び出しするのではなく
-          // 同じロジックをクロージャ内で適用する
-          _activateInlineEdit(restored, node, dodId);
-        });
-      };
-
-      const cancel = () => {
-        const restored = document.createElement('span');
-        restored.className = 'dod-text';
-        restored.dataset.dodId = dodId;
-        restored.textContent = prevText;
-        input.replaceWith(restored);
-        restored.addEventListener('click', () => {
-          _activateInlineEdit(restored, node, dodId);
-        });
-      };
-
-      input.addEventListener('blur', commit);
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.isComposing) {
-          e.preventDefault();
-          input.removeEventListener('blur', commit);
-          commit();
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          input.removeEventListener('blur', commit);
-          cancel();
-        }
-      });
+      _activateInlineEdit(span, node, dodId);
     });
   });
 }
 
-/** インライン編集を span 要素に対して直接起動する（再付与用） */
+/** インライン編集を span 要素に対して直接起動する（初回クリック・再付与の両方から呼ばれる） */
 function _activateInlineEdit(span, node, dodId) {
   const prevText = span.textContent;
 
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'dod-inline-input field-input';
-  input.value = prevText;
-  input.style.flex = '1';
-  input.style.minWidth = '0';
-  span.replaceWith(input);
-  input.focus();
-  input.select();
+  // <span> → <textarea> に切り替え
+  const textarea = document.createElement('textarea');
+  textarea.className = 'dod-inline-input field-input';
+  textarea.value = prevText;
+  textarea.rows = 1;
+  textarea.style.flex = '1';
+  textarea.style.minWidth = '0';
+  span.replaceWith(textarea);
+  textarea.focus();
+  textarea.select();
+  // 複数行の既存テキストを編集開始した場合でも、開いた瞬間から全文が見える高さにする
+  _autoGrow(textarea);
 
   const commit = () => {
-    const newText = input.value.trim();
+    // @see EARS-003#REQ-W003
+    const newText = textarea.value.trim();
+    // 空テキストは直前値に戻す（削除しない）
     const finalText = newText === '' ? prevText : newText;
     const restored = document.createElement('span');
     restored.className = 'dod-text';
     restored.dataset.dodId = dodId;
     restored.textContent = finalText;
-    input.replaceWith(restored);
+    // 再クリックで再編集できるよう再付与
+    textarea.replaceWith(restored);
 
     if (newText !== '' && finalText !== prevText) {
+      // @see EARS-003#REQ-E007
+      // FSM データを更新して dirty マーク（改行を含め入力値をそのまま保存）
       const dItem = node.dod.find(d => d.id === dodId);
       if (dItem) {
         dItem.text = finalText;
         markDirty();
       }
     }
+    // 新しい span に再帰的にイベントを付与
     restored.addEventListener('click', () => {
       _activateInlineEdit(restored, node, dodId);
     });
   };
 
   const cancel = () => {
+    // @see EARS-003#REQ-E008
     const restored = document.createElement('span');
     restored.className = 'dod-text';
     restored.dataset.dodId = dodId;
     restored.textContent = prevText;
-    input.replaceWith(restored);
+    textarea.replaceWith(restored);
     restored.addEventListener('click', () => {
       _activateInlineEdit(restored, node, dodId);
     });
   };
 
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.isComposing) {
+  textarea.addEventListener('input', () => _autoGrow(textarea));
+  textarea.addEventListener('blur', commit);
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
       e.preventDefault();
-      input.removeEventListener('blur', commit);
-      commit();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      input.removeEventListener('blur', commit);
+      textarea.removeEventListener('blur', commit);
       cancel();
+      return;
     }
+    if (e.key !== 'Enter') return;
+    if (e.ctrlKey) {
+      // Why: Ctrl+Enter は IME 変換中かどうかに関わらず確定する — DoD 追加
+      // textarea の既存 idiom（_handleDodAddKeydown）と挙動を揃える。明示的な
+      // Ctrl+Enter は IME 確定とは別の「確定」操作なので isComposing は無視してよい。
+      e.preventDefault();
+      textarea.removeEventListener('blur', commit);
+      commit();
+    }
+    // plain Enter（IME 変換中を含む）は textarea 標準動作で改行を挿入する。何もしない。
   });
 }
 
@@ -394,6 +378,7 @@ function _attachDodDragAndDrop(node) {
 // -------------------------------------------------------
 window.__panel = {
   handleDodAddKeydown: _handleDodAddKeydown,
+  autoGrow: _autoGrow,
 };
 
 // @see EARS-001#REQ-E004

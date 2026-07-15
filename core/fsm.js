@@ -91,6 +91,10 @@ const FSM = {
   removeEdge(id) { delete this.edges[id]; },
 
   // @see EARS-003#REQ-E002
+  // @see EARS-003#REQ-U004
+  // Why: `text` is stored verbatim (only the caller's .trim() applies) — no
+  // newline stripping/normalization is performed, so multi-line DoD text is
+  // permitted by construction.
   addDoDItem(nodeId, text, type) {
     const node = this.nodes[nodeId];
     if (!node) return;

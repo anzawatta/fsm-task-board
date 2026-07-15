@@ -560,7 +560,9 @@ export function deleteSelectedEdge() {
 export function addDoDFromInput(nodeId) {
   const input  = document.getElementById('dodAddInput');
   const select = document.getElementById('dodTypeSelect');
-  if (!input || !input.value.trim()) return;
+  // @see EARS-003#REQ-W003
+  if (!input || !input.value.trim()) return;      // empty/whitespace-only guard
+  // @see EARS-003#REQ-E007
   FSM.addDoDItem(nodeId, input.value.trim(), select.value);
   markDirty();
   _render();
