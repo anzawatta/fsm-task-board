@@ -312,6 +312,19 @@ body {
 
 .field-input:focus { border-color: var(--border-bright); }
 
+/* @see EARS-001#REQ-E009 */
+/* Why: node-name / edge-label textareas (ui/panel.js) reuse .field-input for
+   color/border/padding, adding only the auto-grow-without-scrollbar
+   treatment here — mirrors .dod-add-input's resize/overflow approach
+   (see there) without touching any .dod-* rule, since those are the
+   sibling task's (feat-dod-textarea-input) already-merged, off-limits scope. */
+.field-textarea {
+  resize: none;
+  overflow-y: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* === STATUS TOGGLE === */
 .status-toggle { display: flex; gap: 4px; }
 

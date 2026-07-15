@@ -12,6 +12,7 @@ const STATUS_ICONS  = window.__FSM_STATUS_ICONS  || { idle: '📝', wip: '▶️
 const STATUS_LABELS = window.__FSM_STATUS_LABELS || { idle: 'Idle', wip: 'In progress', done: 'Done' };
 
 const WRAP_CHARS = 13;
+const EDGE_LABEL_LINE_HEIGHT = 16;
 
 export function statusColor(status) {
   return status === 'wip'  ? 'var(--accent-wip)'  :
@@ -128,6 +129,14 @@ export function renderGroups() {
     wrapper.appendChild(rect);
 
     // @see EARS-011#REQ-U002
+    // @see EARS-001#REQ-U004
+    // Why: group names break ONLY on user-entered \n (no 13-char chunk wrap,
+    // unlike renderNodes' wrapText()). Group frames are typically wide
+    // containers, not fixed-width boxes, so width-based wrapping isn't
+    // appropriate here — the user controls line breaks manually instead.
+    // This must NOT be unified with renderNodes'/addEdgeLabel's wrap logic:
+    // doing so previously caused short group names without \n to get
+    // force-wrapped, a regression.
     const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     label.setAttribute('x', -nw / 2 + 8);
     label.setAttribute('y', -nh / 2 + 14);
@@ -135,7 +144,15 @@ export function renderGroups() {
     label.setAttribute('fill', 'cornflowerblue');
     label.setAttribute('font-weight', 'bold');
     label.setAttribute('pointer-events', 'none');
-    label.textContent = node.name;
+    const groupNameLines = splitLines(node.name);
+    const groupLineHeight = 12;
+    groupNameLines.forEach((line, i) => {
+      const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+      tspan.setAttribute('x', -nw / 2 + 8);
+      tspan.setAttribute('dy', i === 0 ? '0' : `${groupLineHeight}`);
+      tspan.textContent = line;
+      label.appendChild(tspan);
+    });
     wrapper.appendChild(label);
 
     wrapper._nodeId = node.id;
@@ -155,6 +172,18 @@ function wrapText(name) {
     pos += WRAP_CHARS;
   }
   return lines;
+}
+
+// Why: single shared \n-split primitive used by all three multi-line render
+// paths (renderNodes, renderGroups, addEdgeLabel). This function ONLY splits
+// on user-entered line breaks — it never does width-based chunking. Each
+// call site decides on its own whether to layer wrapText()'s 13-char
+// chunking on top (renderNodes does; renderGroups/addEdgeLabel do not).
+// Do not fold this together with wrapText() into one "smart" wrap function —
+// see the @see EARS-001#REQ-U003/U004 comments at each call site for why the
+// three paths must stay separate.
+function splitLines(text) {
+  return String(text == null ? '' : text).split('\n');
 }
 
 // @see EARS-002#REQ-S001
@@ -202,7 +231,18 @@ export function renderNodes() {
     group.appendChild(rect);
 
     // ノード名: tspan 複数行折り返し
-    const lines = wrapText(node.name);
+    // @see EARS-001#REQ-U003
+    // Why: node names break on user-entered \n FIRST, then each resulting
+    // segment is wrapped to the node's fixed 13-char display width via
+    // wrapText(). This two-pass composition (splitLines -> wrapText per
+    // segment) is intentional and must stay a two-pass composition — do NOT
+    // collapse it into wrapText() itself, and do NOT reuse this exact
+    // composition for renderGroups()/addEdgeLabel() (those two paths
+    // deliberately skip the width-based wrapText() chunk pass; see the Why
+    // comments there). A prior attempt to unify all three paths into one
+    // "smart wrap" helper caused short group-names/edge-labels without \n to
+    // get force-wrapped — keep the three paths separate.
+    const lines = splitLines(node.name).flatMap(wrapText);
     const lineHeight = 14;
     const totalTextH = lines.length * lineHeight;
     const textStartY = -(totalTextH / 2) + lineHeight / 2;
@@ -413,19 +453,47 @@ export function addEdgeLabel(group, x, y, text, guard) {
     }
     return;
   }
+  // @see EARS-001#REQ-U004
+  // @see EARS-001#REQ-U005
+  // Why: edge labels break ONLY on user-entered \n (no 13-char chunk wrap),
+  // same rationale as renderGroups() — edge labels are short annotations,
+  // not fixed-width boxes. Must NOT be unified with renderNodes'/
+  // renderGroups' wrap logic (see the Why comments at those two call
+  // sites) — a prior unification attempt force-wrapped short single-line
+  // labels that previously rendered on one line, which is the regression
+  // this separation guards against.
+  const lines = splitLines(displayText);
+  const totalTextH  = lines.length * EDGE_LABEL_LINE_HEIGHT;
+  const textStartY  = -(totalTextH / 2) + EDGE_LABEL_LINE_HEIGHT / 2;
+
+  // @see EARS-001#REQ-U005
+  // Why: pill width/height must fit the widest rendered line and the total
+  // line count — NOT the raw pre-split displayText.length (which would
+  // undersize the pill for multi-line labels). The single-line case
+  // (lines.length === 1) reduces exactly to the pre-existing width/height
+  // formula (textLen = displayText.length*6+12, height = 16), so existing
+  // single-line edge labels render pixel-identical to before.
+  const widestLine = Math.max(...lines.map(l => l.length));
   const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   bg.classList.add('edge-label-bg');
-  const textLen = displayText.length * 6 + 12;
+  const textLen = widestLine * 6 + 12;
+  const bgHeight = lines.length * EDGE_LABEL_LINE_HEIGHT;
   bg.setAttribute('x', x - textLen / 2);
-  bg.setAttribute('y', y - 8);
+  bg.setAttribute('y', y - bgHeight / 2);
   bg.setAttribute('width',  textLen);
-  bg.setAttribute('height', 16);
+  bg.setAttribute('height', bgHeight);
   group.appendChild(bg);
 
   const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   label.classList.add('edge-label');
   label.setAttribute('x', x);
   label.setAttribute('y', y);
-  label.textContent = displayText;
+  lines.forEach((line, i) => {
+    const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+    tspan.setAttribute('x', x);
+    tspan.setAttribute('dy', i === 0 ? `${textStartY}` : `${EDGE_LABEL_LINE_HEIGHT}`);
+    tspan.textContent = line;
+    label.appendChild(tspan);
+  });
   group.appendChild(label);
 }

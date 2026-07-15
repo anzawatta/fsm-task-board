@@ -115,8 +115,7 @@ function renderNodePanel(node) {
       <div class="panel-section-title">Node（id=${escHtml(node.id)}）</div>
       <div class="field-group">
         <label class="field-label">Name</label>
-        <input class="field-input" value="${escHtml(node.name)}"
-          onchange="window.__fsm.updateNodeName('${node.id}', this.value)" />
+        <textarea class="field-input field-textarea" id="nodeNameInput" rows="1"></textarea>
       </div>
       <div class="field-group">
         <label class="field-label">Size (width × height)</label>
@@ -165,6 +164,12 @@ function renderNodePanel(node) {
   // Phase 3: D&D 並び替えイベントを付与
   // @see EARS-003#REQ-E003
   _attachDodDragAndDrop(node);
+
+  // Node name textarea（auto-grow・Ctrl/Cmd+Enter確定・Escape取消・IME変換ガード）
+  // 全ノードタイプ共通（group を含む）— 上の markup 自体が node.type で分岐していないため。
+  // @see EARS-001#REQ-E009
+  // @see EARS-001#REQ-E010
+  _attachNodeNameField(node);
 }
 
 // -------------------------------------------------------
@@ -213,6 +218,90 @@ function _handleDodAddKeydown(event, nodeId) {
     return;
   }
   // plain Enter（IME 変換中を含む）は textarea 標準動作で改行を挿入する。何もしない。
+}
+
+// -------------------------------------------------------
+// Node name / edge label textarea（auto-grow・Ctrl/Cmd+Enter確定・
+// Escape取消・IME変換ガード）
+// @see EARS-001#REQ-E009
+// @see EARS-001#REQ-E010
+// -------------------------------------------------------
+
+/**
+ * node.name / edge.label 用の複数行 textarea に、auto-grow・確定・取消・
+ * IME ガードを一括で付与する共通ヘルパー。単一行 <input> だったこの2箇所を
+ * <textarea> に置き換えるにあたり、DoD 系 textarea の確定/取消 idiom
+ * （_handleDodAddKeydown・_activateInlineEdit）と挙動を揃えつつ、
+ * 「直前値に戻す」セマンティクスを持つ点だけこの関数固有とする
+ * （DoD-add textarea は毎回空から始まるため直前値の概念がない）。
+ *
+ * @param {string} elementId - 対象 textarea の id
+ * @param {string} prevValue - 編集開始時点の値（Escape 取消時に復元する値）
+ * @param {(newValue: string) => void} onCommit - 確定時に呼ばれるコールバック
+ */
+function _attachMultilineFieldEditor(elementId, prevValue, onCommit) {
+  const textarea = document.getElementById(elementId);
+  if (!textarea) return;
+
+  textarea.value = prevValue;
+  _autoGrow(textarea);
+
+  // @see EARS-001#REQ-E009
+  // Why: 確定は「値が変化した場合のみ」呼び出す。Escape 取消後に blur が
+  // 発火しても value は既に prevValue に戻っているため、ここで自然に no-op
+  // になる（DoD inline-edit のように blur リスナーを都度着脱する必要がない）。
+  const commit = () => {
+    const newValue = textarea.value;
+    if (newValue !== prevValue) onCommit(newValue);
+  };
+
+  // @see EARS-001#REQ-E010
+  const cancel = () => {
+    textarea.value = prevValue;
+    _autoGrow(textarea);
+  };
+
+  textarea.addEventListener('input', () => _autoGrow(textarea));
+  textarea.addEventListener('blur', commit);
+  textarea.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      // @see EARS-001#REQ-E010
+      e.preventDefault();
+      cancel();
+      textarea.blur();
+      return;
+    }
+    if (e.key !== 'Enter') return;
+    // Why: IME 変換確定時の Enter はテキスト確定操作ではない。isComposing 中は
+    // 通常の Enter と同様、textarea 標準動作（改行挿入）に任せる。この ward は
+    // Chromium 専用設計のため isComposing の判定のみで十分
+    // （keyCode===229 フォールバックは不要）。
+    if (e.isComposing) return;
+    if (e.ctrlKey || e.metaKey) {
+      // @see EARS-001#REQ-E009
+      // Why: Ctrl+Enter（Win/Linux）/ Cmd+Enter（Mac）を確定操作として扱う。
+      // DoD 系 textarea の既存 idiom（_handleDodAddKeydown 等）と挙動を揃える。
+      // ユーザーの実機は macOS (docs/user-environment.md) であり、plain
+      // textarea 上での Cmd+Enter のネイティブ既定動作は no-op のため、
+      // metaKey を見落とすと Mac 上で「何も起きない」バグになる。
+      e.preventDefault();
+      commit();
+    }
+    // plain Enter（IME 変換中を含む）は textarea 標準動作で改行を挿入する。
+    // 名前/ラベルは複数行を許容するため、これは意図した挙動。
+  });
+}
+
+function _attachNodeNameField(node) {
+  _attachMultilineFieldEditor('nodeNameInput', node.name ?? '', newValue => {
+    window.__fsm.updateNodeName(node.id, newValue);
+  });
+}
+
+function _attachEdgeLabelField(edge) {
+  _attachMultilineFieldEditor('edgeLabelInput', edge.label ?? '', newValue => {
+    window.__fsm.updateEdgeLabel(edge.id, newValue);
+  });
 }
 
 // -------------------------------------------------------
@@ -408,8 +497,7 @@ function renderEdgePanel(edge) {
       </div>
       <div class="field-group">
         <label class="field-label">Label (transition condition)</label>
-        <input class="field-input" value="${escHtml(edge.label)}"
-          onchange="window.__fsm.updateEdgeLabel('${edge.id}', this.value)" />
+        <textarea class="field-input field-textarea" id="edgeLabelInput" rows="1"></textarea>
       </div>
       ${edge.guard ? `
       <div class="verification-gate" style="margin-top:8px">
@@ -422,5 +510,10 @@ function renderEdgePanel(edge) {
         onclick="window.__fsm.deleteSelectedEdge()">Delete Edge</button>
     </div>
   `;
+
+  // Edge label textarea（auto-grow・Ctrl/Cmd+Enter確定・Escape取消・IME変換ガード）
+  // @see EARS-001#REQ-E009
+  // @see EARS-001#REQ-E010
+  _attachEdgeLabelField(edge);
 }
 
