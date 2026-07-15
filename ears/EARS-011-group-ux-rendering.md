@@ -13,13 +13,17 @@
 
 1. REQ-U001: THE SYSTEM SHALL render group nodes as a distinct visual frame (SVG `<rect>`) drawn behind member nodes in the SVG layer order, so that member nodes remain fully visible above the group frame.
 
-2. REQ-U002: THE SYSTEM SHALL display the group name as a text label positioned at the top-left of the group frame.
+2. REQ-U002: THE SYSTEM SHALL display the group name as a text label anchored to the top-left of the group frame and positioned immediately above the frame's top edge, so that the label sits outside the frame interior and does not overlap member nodes drawn inside the frame.
+
+   > Amended 2026-07-15 (backlog-fsm-group-label-overflow): superseded the original "at the top-left of the group frame" (inside) placement. Multi-line group names — now permitted since node/edge/group labels accept user-entered line breaks — overflowed the fixed-size frame downward into member-node space. Placing the label outside the top edge removes the overlap by construction. Trade-off accepted: a multi-line label extends upward and may visually approach nodes positioned above the frame.
 
 3. REQ-U003: THE SYSTEM SHALL support click-selection, drag-move, and delete operations on group nodes using the same interaction paths as text nodes. No separate code path for group-specific pointer events is required.
 
 4. REQ-U004: THE SYSTEM SHALL re-render the group frame (position and size) on every full redraw (`render()` call) based on the current stored `x`, `y`, `width`, and `height` of the group node. The renderer SHALL NOT cache group frame geometry between renders.
 
 5. REQ-U005: THE SYSTEM SHALL provide a "グループ化" (Group) button in the toolbar that is enabled only when two or more nodes are selected.
+
+6. REQ-U006: THE SYSTEM SHALL stack the lines of a multi-line group name upward from the frame's top edge, placing the final line adjacent to the top edge and each earlier line progressively higher, so that no line of the label encroaches on the frame interior regardless of the line count. A member node the user has dragged above the frame's top edge may fall within the label's upward extent; that case is the accepted trade-off recorded in REQ-U002, not a violation of this requirement.
 
 ---
 
