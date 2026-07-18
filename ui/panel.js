@@ -219,7 +219,14 @@ function _handleDodAddKeydown(event, nodeId) {
     // ネイティブ既定動作は no-op のため、metaKey を見落とすと Mac 上で
     // 「何も起きない」バグになる。
     // @see EARS-003#REQ-E007
+    // Why: neutralize this textarea's onblur before committing via keydown, mirroring
+    // _activateInlineEdit's removeEventListener('blur', commit) guard. Without this,
+    // addDoDFromInput()'s full-redraw _render() disconnects this (still-focused)
+    // textarea from the DOM, and the browser's resulting blur event re-invokes the
+    // same onblur-bound addDoDFromInput(nodeId) — a second, independent commit
+    // reachable from the same Cmd+Enter gesture, producing a duplicate DoD entry.
     event.preventDefault();
+    event.target.onblur = null;
     window.__fsm.addDoDFromInput(nodeId);
     return;
   }
