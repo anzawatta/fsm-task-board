@@ -436,7 +436,10 @@ class TestSafePathTraversal:
     def test_traversal_returns_error_dict(self):
         result = add_node("../outside.json", name="X")
         assert result["status"] == "error"
-        assert "error" in result["reason"].lower() or "禁止" in result["reason"]
+        # Why: 52ea2ef (i18n refactor) changed the message from Japanese
+        # ("禁止") to English "...forbidden: {filename}"; the old assertion
+        # no longer matched either wording.
+        assert "forbidden" in result["reason"].lower()
 
 
 # ---------------------------------------------------------------------------
